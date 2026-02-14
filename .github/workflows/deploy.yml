@@ -1,6 +1,8 @@
 name: Docker Build -> Push -> Deploy
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
     inputs:
       environment:
@@ -12,24 +14,17 @@ on:
           - production
           - staging
 
-jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
+env:
+  API_IMAGE: ${{ secrets.DOCKER_USERNAME }}/drishti-kon-api
+  WEB_IMAGE: ${{ secrets.DOCKER_USERNAME }}/drishti-kon-web
 
+jobs:
+  # ─── Build & Push API Image ────────────────────────────
+  build-api:
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-
-      - name: Set up Java 21
-        uses: actions/setup-java@v5
-        with:
-          distribution: temurin
-          java-version: "21"
-
-      - name: Build JAR
-        run: |
-          chmod +x mvnw
-          ./mvnw clean package -DskipTests
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
@@ -37,25 +32,111 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
 
-      - name: Build Docker Image
-        run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO_NAME }}:latest .
+      - name: Build & Push API Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./apps/api
+          file: ./apps/api/Dockerfile
+          push: true
+          tags: |
+            ${{ env.API_IMAGE }}:latest
+            ${{ env.API_IMAGE }}:${{ github.sha }}
 
-      - name: Push Docker Image
-        run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO_NAME }}:latest
+  # ─── Build & Push Web Image ────────────────────────────
+  build-web:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Build & Push Web Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./apps/web
+          file: ./apps/web/Dockerfile
+          target: runner
+          push: true
+          tags: |
+            ${{ env.WEB_IMAGE }}:latest
+            ${{ env.WEB_IMAGE }}:${{ github.sha }}
+
+  # ─── Deploy to EC2 ─────────────────────────────────────
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [build-api, build-web]
+    steps:
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
+          envs: API_IMAGE,WEB_IMAGE
           script: |
-            docker stop ${{ secrets.DOCKER_IMAGE_NAME }} || true
-            docker rm ${{ secrets.DOCKER_IMAGE_NAME }} || true
-            docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO_NAME }}:latest
+            set -e
+
+            # ── Pull latest images ──
+            docker pull ${{ env.API_IMAGE }}:latest
+            docker pull ${{ env.WEB_IMAGE }}:latest
+
+            # ── Create shared network if it doesn't exist ──
+            docker network create drishti-kon-network 2>/dev/null || true
+
+            # ── PostgreSQL ──
+            if ! docker ps --format '{{.Names}}' | grep -q drishti-kon-db; then
+              echo "Starting PostgreSQL..."
+              docker run -d \
+                --name drishti-kon-db \
+                --network drishti-kon-network \
+                --restart unless-stopped \
+                -e POSTGRES_DB=${{ secrets.DB_NAME }} \
+                -e POSTGRES_USER=${{ secrets.DB_USER }} \
+                -e POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }} \
+                -v pgdata:/var/lib/postgresql/data \
+                -p 5432:5432 \
+                postgres:15-alpine
+              echo "Waiting for PostgreSQL to be ready..."
+              sleep 10
+            fi
+
+            # ── API (Spring Boot) ──
+            docker stop drishti-kon-api  || true
+            docker rm   drishti-kon-api  || true
             docker run -d \
-              --name ${{ secrets.DOCKER_IMAGE_NAME }} \
+              --name drishti-kon-api \
+              --network drishti-kon-network \
+              --restart unless-stopped \
+              -e SPRING_PROFILES_ACTIVE=production \
+              -e SPRING_DATASOURCE_URL=jdbc:postgresql://drishti-kon-db:5432/${{ secrets.DB_NAME }} \
+              -e SPRING_DATASOURCE_USERNAME=${{ secrets.DB_USER }} \
+              -e SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASSWORD }} \
+              -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
+              -e MAIL_USERNAME=${{ secrets.MAIL_USERNAME }} \
+              -e MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }} \
               -p 8080:8080 \
-              ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO_NAME }}:latest
+              ${{ env.API_IMAGE }}:latest
+
+            # ── Web (Next.js) ──
+            docker stop drishti-kon-web  || true
+            docker rm   drishti-kon-web  || true
+            docker run -d \
+              --name drishti-kon-web \
+              --network drishti-kon-network \
+              --restart unless-stopped \
+              -e NODE_ENV=production \
+              -e NEXT_PUBLIC_API_URL=http://${{ secrets.EC2_HOST }}:8080/api \
+              -p 3000:3000 \
+              ${{ env.WEB_IMAGE }}:latest
+
+            # ── Cleanup old images ──
+            docker image prune -f
+
+            echo "Deployment complete!"
+            echo "API  → http://${{ secrets.EC2_HOST }}:8080/api/health"
+            echo "Web  → http://${{ secrets.EC2_HOST }}:3000"
