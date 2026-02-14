@@ -1,8 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    appDir: true,
-  },
+
   transpilePackages: ["@repo/ui", "@repo/types"],
   async rewrites() {
     return [

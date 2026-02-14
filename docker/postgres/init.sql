@@ -1,5 +1,6 @@
 -- Initialize database if it doesn't exist
-CREATE DATABASE drishti_kon;
+SELECT 'CREATE DATABASE drishti_kon'
+WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'drishti_kon')\gexec
 
 -- Create user if it doesn't exist  
 DO
