@@ -120,20 +120,24 @@ jobs:
             $DOCKER network create drishti-kon-network 2>/dev/null || true
 
             # ── PostgreSQL ──
-            if ! $DOCKER ps --format '{{.Names}}' | grep -q drishti-kon-db; then
+            if ! $DOCKER ps -a --format '{{.Names}}' | grep -q drishti-kon-db; then
               echo "Starting PostgreSQL..."
               $DOCKER run -d \
                 --name drishti-kon-db \
                 --network drishti-kon-network \
                 --restart unless-stopped \
-                -e POSTGRES_DB=${{ secrets.DB_NAME }} \
-                -e POSTGRES_USER=${{ secrets.DB_USER }} \
-                -e POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }} \
+                -e POSTGRES_DB=drishti_kon \
+                -e POSTGRES_USER=drishti \
+                -e POSTGRES_PASSWORD=drishtiKon@2026secure \
                 -v pgdata:/var/lib/postgresql/data \
                 -p 5432:5432 \
                 postgres:15-alpine
               echo "Waiting for PostgreSQL to be ready..."
-              sleep 10
+              sleep 15
+            else
+              # Restart if stopped/crashed
+              $DOCKER start drishti-kon-db 2>/dev/null || true
+              sleep 5
             fi
 
             # ── API (Spring Boot) ──
@@ -144,12 +148,12 @@ jobs:
               --network drishti-kon-network \
               --restart unless-stopped \
               -e SPRING_PROFILES_ACTIVE=production \
-              -e SPRING_DATASOURCE_URL=jdbc:postgresql://drishti-kon-db:5432/${{ secrets.DB_NAME }} \
-              -e SPRING_DATASOURCE_USERNAME=${{ secrets.DB_USER }} \
-              -e SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASSWORD }} \
-              -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
-              -e MAIL_USERNAME=${{ secrets.MAIL_USERNAME }} \
-              -e MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }} \
+              -e SPRING_DATASOURCE_URL=jdbc:postgresql://drishti-kon-db:5432/drishti_kon \
+              -e SPRING_DATASOURCE_USERNAME=drishti \
+              -e SPRING_DATASOURCE_PASSWORD=drishtiKon@2026secure \
+              -e JWT_SECRET=d8f2a1b7c9e04563af8d2e1b7c9a0456d8f2a1b7c9e04563af8d2e1b \
+              -e MAIL_USERNAME=noreply.drishti@gmail.com \
+              -e MAIL_PASSWORD=placeholder-app-password \
               -p 8080:8080 \
               ${{ env.API_IMAGE }}:latest
 
