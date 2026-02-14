@@ -25,6 +25,9 @@ COPY package.json ./
 RUN npm install
 COPY . .
 
+# Ensure public dir exists (may be empty)
+RUN mkdir -p public
+
 # Build the application
 RUN npm run build
 
@@ -37,6 +40,7 @@ ENV NODE_ENV=production
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
+# Copy public assets (may be empty)
 COPY --from=builder /app/public ./public
 
 # Automatically leverage output traces to reduce image size
