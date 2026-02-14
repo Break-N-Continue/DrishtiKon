@@ -112,16 +112,19 @@ jobs:
               DOCKER="sudo docker"
             fi
 
-            # ── Pull latest images ──
+            # ── Pull latest images (force fresh pull) ──
             $DOCKER pull ${{ env.API_IMAGE }}:latest
             $DOCKER pull ${{ env.WEB_IMAGE }}:latest
 
             # ── Create shared network if it doesn't exist ──
             $DOCKER network create drishti-kon-network 2>/dev/null || true
 
-            # ── PostgreSQL ──
-            if ! $DOCKER ps -a --format '{{.Names}}' | grep -q drishti-kon-db; then
-              echo "Starting PostgreSQL..."
+            # ── PostgreSQL (persistent, only recreated if missing) ──
+            if $DOCKER ps --format '{{.Names}}' | grep -q drishti-kon-db; then
+              echo "PostgreSQL is already running."
+            elif $DOCKER ps -a --format '{{.Names}}' | grep -q drishti-kon-db; then
+              echo "PostgreSQL container exists but stopped. Removing and recreating..."
+              $DOCKER rm -f drishti-kon-db
               $DOCKER run -d \
                 --name drishti-kon-db \
                 --network drishti-kon-network \
@@ -135,14 +138,23 @@ jobs:
               echo "Waiting for PostgreSQL to be ready..."
               sleep 15
             else
-              # Restart if stopped/crashed
-              $DOCKER start drishti-kon-db 2>/dev/null || true
-              sleep 5
+              echo "Starting PostgreSQL for the first time..."
+              $DOCKER run -d \
+                --name drishti-kon-db \
+                --network drishti-kon-network \
+                --restart unless-stopped \
+                -e POSTGRES_DB=drishti_kon \
+                -e POSTGRES_USER=drishti \
+                -e POSTGRES_PASSWORD=drishtiKon@2026secure \
+                -v pgdata:/var/lib/postgresql/data \
+                -p 5432:5432 \
+                postgres:15-alpine
+              echo "Waiting for PostgreSQL to be ready..."
+              sleep 15
             fi
 
-            # ── API (Spring Boot) ──
-            $DOCKER stop drishti-kon-api  || true
-            $DOCKER rm   drishti-kon-api  || true
+            # ── API (Spring Boot) — always redeploy with latest ──
+            $DOCKER rm -f drishti-kon-api 2>/dev/null || true
             $DOCKER run -d \
               --name drishti-kon-api \
               --network drishti-kon-network \
@@ -157,9 +169,8 @@ jobs:
               -p 8080:8080 \
               ${{ env.API_IMAGE }}:latest
 
-            # ── Web (Next.js) ──
-            $DOCKER stop drishti-kon-web  || true
-            $DOCKER rm   drishti-kon-web  || true
+            # ── Web (Next.js) — always redeploy with latest ──
+            $DOCKER rm -f drishti-kon-web 2>/dev/null || true
             $DOCKER run -d \
               --name drishti-kon-web \
               --network drishti-kon-network \
@@ -169,7 +180,7 @@ jobs:
               -p 3000:3000 \
               ${{ env.WEB_IMAGE }}:latest
 
-            # ── Cleanup old images ──
+            # ── Cleanup old/dangling images ──
             $DOCKER image prune -f
 
             echo "Deployment complete!"
