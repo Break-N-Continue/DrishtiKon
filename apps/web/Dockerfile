@@ -28,6 +28,9 @@ COPY . .
 # Ensure public dir exists (may be empty)
 RUN mkdir -p public
 
+# Set API_BASE_URL for Docker networking at build time
+ENV API_BASE_URL=http://drishti-kon-api:8080
+
 # Build the application
 RUN npm run build
 

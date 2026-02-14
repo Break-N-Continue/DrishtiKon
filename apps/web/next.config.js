@@ -6,7 +6,7 @@ const nextConfig = {
     return [
       {
         source: "/api/:path*",
-        destination: "http://localhost:8080/api/:path*", // Spring Boot backend
+        destination: `${process.env.API_BASE_URL || "http://localhost:8080"}/api/:path*`,
       },
     ];
   },

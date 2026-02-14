@@ -176,6 +176,7 @@ jobs:
               --network drishti-kon-network \
               --restart unless-stopped \
               -e NODE_ENV=production \
+              -e API_BASE_URL=http://drishti-kon-api:8080 \
               -e NEXT_PUBLIC_API_URL=http://${{ secrets.EC2_HOST }}:8080/api \
               -p 3000:3000 \
               ${{ env.WEB_IMAGE }}:latest
