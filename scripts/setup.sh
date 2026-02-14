@@ -34,39 +34,116 @@ print_info() {
 # Check if required tools are installed
 check_requirements() {
     echo "Checking requirements..."
+    local missing_tools=""
     
     # Check Node.js
     if command -v node &> /dev/null; then
         NODE_VERSION=$(node --version)
-        print_status "Node.js is installed: $NODE_VERSION"
+        NODE_MAJOR=$(echo $NODE_VERSION | sed 's/v\([0-9]*\).*/\1/')
+        if [ "$NODE_MAJOR" -ge 18 ]; then
+            print_status "Node.js is installed: $NODE_VERSION"
+        else
+            print_error "Node.js version is too old: $NODE_VERSION (required: 18+)"
+            missing_tools="${missing_tools}nodejs "
+        fi
     else
-        print_error "Node.js is not installed. Please install Node.js 18+"
-        exit 1
+        print_error "Node.js is not installed"
+        missing_tools="${missing_tools}nodejs "
     fi
     
     # Check Java
     if command -v java &> /dev/null; then
         JAVA_VERSION=$(java -version 2>&1 | head -n 1)
-        print_status "Java is installed: $JAVA_VERSION"
+        if echo "$JAVA_VERSION" | grep -q "21\|22\|23"; then
+            print_status "Java is installed: $JAVA_VERSION"
+        else
+            print_warning "Java version might be incompatible. Java 21 is recommended."
+            print_info "Current version: $JAVA_VERSION"
+        fi
     else
-        print_error "Java is not installed. Please install Java 21"
-        exit 1
+        print_error "Java is not installed"
+        missing_tools="${missing_tools}java "
     fi
     
     # Check Docker
     if command -v docker &> /dev/null; then
         DOCKER_VERSION=$(docker --version)
         print_status "Docker is installed: $DOCKER_VERSION"
+        
+        # Check if user can run docker without sudo
+        if docker ps &> /dev/null; then
+            print_status "Docker permissions are correctly configured"
+        else
+            print_warning "Docker requires sudo. Add your user to docker group:"
+            echo "  sudo usermod -aG docker \$USER"
+            echo "  Then logout and login again"
+        fi
     else
-        print_warning "Docker is not installed. You can install dependencies manually."
+        print_error "Docker is not installed"
+        missing_tools="${missing_tools}docker "
     fi
     
     # Check Docker Compose
-    if command -v docker-compose &> /dev/null; then
-        COMPOSE_VERSION=$(docker-compose --version)
-        print_status "Docker Compose is installed: $COMPOSE_VERSION"
+    if command -v docker-compose &> /dev/null || docker compose version &> /dev/null; then
+        if command -v docker-compose &> /dev/null; then
+            COMPOSE_VERSION=$(docker-compose --version)
+        else
+            COMPOSE_VERSION=$(docker compose version)
+        fi
+        print_status "Docker Compose is available: $COMPOSE_VERSION"
     else
-        print_warning "Docker Compose is not installed."
+        print_error "Docker Compose is not available"
+        missing_tools="${missing_tools}docker-compose "
+    fi
+    
+    # If any tools are missing, provide installation instructions
+    if [ -n "$missing_tools" ]; then
+        echo ""
+        print_error "Missing required tools: $missing_tools"
+        echo ""
+        echo "🔧 Ubuntu Installation Instructions:"
+        echo ""
+        
+        if [[ $missing_tools == *"nodejs"* ]]; then
+            echo "📦 Install Node.js 18+:"
+            echo "  curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -"
+            echo "  sudo apt install -y nodejs"
+            echo ""
+        fi
+        
+        if [[ $missing_tools == *"java"* ]]; then
+            echo "☕ Install Java 21:"
+            echo "  sudo apt update"
+            echo "  sudo apt install -y openjdk-21-jdk"
+            echo ""
+        fi
+        
+        if [[ $missing_tools == *"docker"* ]]; then
+            echo "🐳 Install Docker & Docker Compose:"
+            echo "  # Update packages"
+            echo "  sudo apt update"
+            echo "  sudo apt install -y ca-certificates curl gnupg lsb-release"
+            echo ""  
+            echo "  # Add Docker GPG key"
+            echo "  sudo mkdir -m 0755 -p /etc/apt/keyrings"
+            echo "  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg"
+            echo ""
+            echo "  # Add repository"
+            echo '  echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null'
+            echo ""
+            echo "  # Install Docker"
+            echo "  sudo apt update"
+            echo "  sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin"
+            echo ""
+            echo "  # Add user to docker group"
+            echo "  sudo groupadd docker"
+            echo "  sudo usermod -aG docker \$USER"
+            echo "  newgrp docker"
+            echo ""
+        fi
+        
+        echo "After installing missing tools, run this script again."
+        exit 1
     fi
 }
 

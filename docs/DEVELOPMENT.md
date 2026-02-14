@@ -2,6 +2,83 @@
 
 This guide helps developers set up and work with the DrishtiKon monorepo.
 
+# Development Guide
+
+This guide helps developers set up and work with the DrishtiKon monorepo.
+
+## 🚀 Quick Ubuntu Setup (Complete Installation)
+
+For Ubuntu users, here's a complete one-command setup to install all prerequisites:
+
+```bash
+#!/bin/bash
+# Complete DrishtiKon Prerequisites Installation for Ubuntu
+
+# Update system
+sudo apt update && sudo apt upgrade -y
+
+# Install basic tools
+sudo apt install -y curl wget git build-essential
+
+# Install Node.js 18
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt install -y nodejs
+
+# Install Java 21
+sudo apt install -y openjdk-21-jdk
+echo 'export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64' >> ~/.bashrc
+
+# Install Docker
+sudo apt install -y ca-certificates curl gnupg lsb-release
+sudo mkdir -m 0755 -p /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo groupadd docker
+sudo usermod -aG docker $USER
+
+# Reload environment
+source ~/.bashrc
+newgrp docker
+
+echo "✅ All prerequisites installed! Please logout and login again for Docker permissions."
+echo "📋 Ready to clone DrishtiKon and run: ./scripts/setup.sh"
+```
+
+**Save this as `install-prerequisites.sh` and run:**
+
+```bash
+chmod +x install-prerequisites.sh
+./install-prerequisites.sh
+```
+
+## 📋 Installation Checklist
+
+Before proceeding with development setup, ensure you have:
+
+- [ ] **Ubuntu 20.04 LTS or higher**
+- [ ] **Node.js 18.0.0+** (`node --version`)
+- [ ] **Java 21** (`java -version`)
+- [ ] **Docker 20.10+** (`docker --version`)
+- [ ] **Docker Compose 2.0+** (`docker compose version`)
+- [ ] **Git 2.25+** (`git --version`)
+- [ ] **4GB RAM minimum** (8GB recommended)
+- [ ] **10GB free disk space** minimum
+
+**Verification Script:**
+
+```bash
+# Quick verification of all prerequisites
+echo "Node.js: $(node --version 2>/dev/null || echo '❌ Not installed')"
+echo "Java: $(java -version 2>&1 | head -n1 || echo '❌ Not installed')"
+echo "Docker: $(docker --version 2>/dev/null || echo '❌ Not installed')"
+echo "Docker Compose: $(docker compose version 2>/dev/null || echo '❌ Not installed')"
+echo "Git: $(git --version 2>/dev/null || echo '❌ Not installed')"
+echo "RAM: $(free -h | awk '/^Mem/ {print $2}')"
+echo "Disk: $(df -h . | awk 'NR==2 {print $4}')"
+```
+
 ## 🏗️ Architecture Overview
 
 DrishtiKon follows a modern monorepo architecture with clear separation of concerns:
