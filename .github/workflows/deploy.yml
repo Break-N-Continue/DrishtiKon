@@ -70,15 +70,23 @@ jobs:
               sleep 10
             fi
 
-            # Stop and remove old app containers
+            # Stop and remove old app containers (by name)
             $DOCKER stop drishti-api drishti-web 2>/dev/null || true
             $DOCKER rm -f drishti-api drishti-web 2>/dev/null || true
-            sleep 3
 
-            # Kill anything still holding ports 8080/3000
+            # Also kill any container using ports 8080 or 3000 (regardless of name)
+            for port in 8080 3000; do
+              cid=$($DOCKER ps -q --filter "publish=$port" 2>/dev/null)
+              if [ -n "$cid" ]; then
+                $DOCKER stop $cid 2>/dev/null || true
+                $DOCKER rm -f $cid 2>/dev/null || true
+              fi
+            done
+
+            # Last resort: kill any process on these ports
             sudo fuser -k 8080/tcp 2>/dev/null || true
             sudo fuser -k 3000/tcp 2>/dev/null || true
-            sleep 1
+            sleep 2
 
             # API
             $DOCKER run -d --name drishti-api --network drishti-network --restart unless-stopped \
