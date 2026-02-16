@@ -70,8 +70,11 @@ jobs:
               sleep 10
             fi
 
+            # Stop anything on ports 8080/3000
+            $DOCKER stop drishti-api drishti-web 2>/dev/null || true
+            $DOCKER rm -f drishti-api drishti-web 2>/dev/null || true
+
             # API
-            $DOCKER rm -f drishti-api 2>/dev/null || true
             $DOCKER run -d --name drishti-api --network drishti-network --restart unless-stopped \
               -e SPRING_DATASOURCE_URL=jdbc:postgresql://drishti-db:5432/drishti_kon \
               -e SPRING_DATASOURCE_USERNAME=drishti \
@@ -79,7 +82,6 @@ jobs:
               -p 8080:8080 ${{ env.API_IMAGE }}:latest
 
             # Web
-            $DOCKER rm -f drishti-web 2>/dev/null || true
             $DOCKER run -d --name drishti-web --network drishti-network --restart unless-stopped \
               -e NODE_ENV=production \
               -e API_BASE_URL=http://drishti-api:8080 \
