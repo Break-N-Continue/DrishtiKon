@@ -10,7 +10,6 @@ public class PostResponse {
     private String description;
     private String authorName;
     private Long authorId;
-    private int upvoteCount;
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
 
@@ -23,7 +22,6 @@ public class PostResponse {
         response.setDescription(post.getDescription());
         response.setAuthorId(post.getAuthor().getId());
         response.setAuthorName(post.getAuthor().getFirstName() + " " + post.getAuthor().getLastName());
-        response.setUpvoteCount(post.getUpvoteCount());
         response.setCreatedAt(post.getCreatedAt());
         response.setUpdatedAt(post.getUpdatedAt());
         return response;
@@ -44,9 +42,6 @@ public class PostResponse {
 
     public Long getAuthorId() { return authorId; }
     public void setAuthorId(Long authorId) { this.authorId = authorId; }
-
-    public int getUpvoteCount() { return upvoteCount; }
-    public void setUpvoteCount(int upvoteCount) { this.upvoteCount = upvoteCount; }
 
     public OffsetDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(OffsetDateTime createdAt) { this.createdAt = createdAt; }

@@ -6,7 +6,6 @@ export interface Post {
   description: string;
   authorName: string;
   authorId: number;
-  upvoteCount: number;
   createdAt: string;
   updatedAt: string;
 }

@@ -37,9 +37,9 @@ public class PostService {
 
     @Transactional
     public PostResponse createPost(CreatePostRequest request) {
-        // Use the default admin user (id=1) for sample code
+        // Use the demo user (id=1) - replace with auth when you add login
         User author = userRepository.findById(1L)
-                .orElseThrow(() -> new RuntimeException("Default admin user not found. Make sure the database is initialized."));
+                .orElseThrow(() -> new RuntimeException("Demo user not found. Make sure the database is initialized."));
 
         Post post = new Post();
         post.setTitle(request.getTitle());

@@ -21,9 +21,6 @@ public class Post {
     @JoinColumn(name = "author_id", nullable = false)
     private User author;
 
-    @Column(name = "upvote_count", nullable = false)
-    private int upvoteCount = 0;
-
     @Column(name = "created_at", updatable = false)
     private OffsetDateTime createdAt;
 
@@ -53,9 +50,6 @@ public class Post {
 
     public User getAuthor() { return author; }
     public void setAuthor(User author) { this.author = author; }
-
-    public int getUpvoteCount() { return upvoteCount; }
-    public void setUpvoteCount(int upvoteCount) { this.upvoteCount = upvoteCount; }
 
     public OffsetDateTime getCreatedAt() { return createdAt; }
     public OffsetDateTime getUpdatedAt() { return updatedAt; }
