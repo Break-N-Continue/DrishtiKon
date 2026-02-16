@@ -37,7 +37,7 @@ export async function createPost(post: CreatePostData): Promise<Post> {
 
 export async function updatePost(
   id: number,
-  post: CreatePostData
+  post: CreatePostData,
 ): Promise<Post> {
   const { data } = await api.put<Post>(`/posts/${id}`, post);
   return data;

@@ -44,14 +44,14 @@ docker-compose.yml
 
 ## API Endpoints
 
-| Method | Path             | Description       |
-|--------|------------------|-------------------|
-| GET    | /api/posts       | List all posts    |
-| GET    | /api/posts/:id   | Get a post        |
-| POST   | /api/posts       | Create a post     |
-| PUT    | /api/posts/:id   | Update a post     |
-| DELETE | /api/posts/:id   | Delete a post     |
-| GET    | /api/health      | Health check      |
+| Method | Path           | Description    |
+| ------ | -------------- | -------------- |
+| GET    | /api/posts     | List all posts |
+| GET    | /api/posts/:id | Get a post     |
+| POST   | /api/posts     | Create a post  |
+| PUT    | /api/posts/:id | Update a post  |
+| DELETE | /api/posts/:id | Delete a post  |
+| GET    | /api/health    | Health check   |
 
 ## Tech Stack
 

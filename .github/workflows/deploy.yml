@@ -1,4 +1,4 @@
-name: Build & Push Docker Images
+name: Build, Push & Deploy
 
 on:
   push:
@@ -38,3 +38,53 @@ jobs:
           target: runner
           push: true
           tags: ${{ env.WEB_IMAGE }}:latest
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [build-api, build-web]
+    steps:
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            set -e
+
+            DOCKER="docker"
+            if ! docker info &>/dev/null 2>&1; then DOCKER="sudo docker"; fi
+
+            $DOCKER pull ${{ env.API_IMAGE }}:latest
+            $DOCKER pull ${{ env.WEB_IMAGE }}:latest
+
+            $DOCKER network create drishti-network 2>/dev/null || true
+
+            # Postgres (keep running if already up)
+            if ! $DOCKER ps --format '{{.Names}}' | grep -q drishti-db; then
+              $DOCKER rm -f drishti-db 2>/dev/null || true
+              $DOCKER run -d --name drishti-db --network drishti-network --restart unless-stopped \
+                -e POSTGRES_DB=drishti_kon -e POSTGRES_USER=drishti \
+                -e POSTGRES_PASSWORD=password \
+                -v pgdata:/var/lib/postgresql/data postgres:15-alpine
+              sleep 10
+            fi
+
+            # API
+            $DOCKER rm -f drishti-api 2>/dev/null || true
+            $DOCKER run -d --name drishti-api --network drishti-network --restart unless-stopped \
+              -e SPRING_DATASOURCE_URL=jdbc:postgresql://drishti-db:5432/drishti_kon \
+              -e SPRING_DATASOURCE_USERNAME=drishti \
+              -e SPRING_DATASOURCE_PASSWORD=password \
+              -p 8080:8080 ${{ env.API_IMAGE }}:latest
+
+            # Web
+            $DOCKER rm -f drishti-web 2>/dev/null || true
+            $DOCKER run -d --name drishti-web --network drishti-network --restart unless-stopped \
+              -e NODE_ENV=production \
+              -e API_BASE_URL=http://drishti-api:8080 \
+              -e NEXT_PUBLIC_API_URL=http://${{ secrets.EC2_HOST }}:8080/api \
+              -p 3000:3000 ${{ env.WEB_IMAGE }}:latest
+
+            $DOCKER image prune -f
+            echo "Deployed! API → :8080/api/health | Web → :3000"
