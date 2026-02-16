@@ -16,6 +16,7 @@ COPY package.json ./
 RUN npm install
 COPY . .
 RUN mkdir -p public
+ENV API_BASE_URL=http://drishti-api:8080
 RUN npm run build
 
 # Production stage
