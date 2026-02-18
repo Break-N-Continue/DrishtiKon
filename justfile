@@ -1,5 +1,7 @@
 # DrishtiKon - Development Commands
 
+set shell := ["bash", "-cu"]
+
 # Run frontend in dev mode
 frontend-dev:
     cd apps/web && npm install && npm run dev
@@ -9,7 +11,7 @@ backend-dev:
     docker compose up -d postgres
     @echo "Waiting for Postgres to be ready..."
     @sleep 5
-    cd apps/api && ./mvnw spring-boot:run
+    set -a && source .env && set +a && cd apps/api && ./mvnw spring-boot:run
 
 # Start everything with docker compose
 up:
@@ -38,7 +40,7 @@ dev-web:
 
 # Start the API backend (dev mode)
 dev-api:
-    cd apps/api && ./mvnw spring-boot:run
+    set -a && source .env && set +a && cd apps/api && ./mvnw spring-boot:run
 
 # Start both frontend and backend in dev mode
 dev:

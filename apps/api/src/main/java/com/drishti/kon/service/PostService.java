@@ -36,10 +36,9 @@ public class PostService {
     }
 
     @Transactional
-    public PostResponse createPost(CreatePostRequest request) {
-        // Use the demo user (id=1) - replace with auth when you add login
-        User author = userRepository.findById(1L)
-                .orElseThrow(() -> new RuntimeException("Demo user not found. Make sure the database is initialized."));
+    public PostResponse createPost(CreatePostRequest request, Long authorId) {
+        User author = userRepository.findById(authorId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         Post post = new Post();
         post.setTitle(request.getTitle());

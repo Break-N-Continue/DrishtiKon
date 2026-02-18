@@ -1,4 +1,6 @@
 import "./globals.css";
+import { AuthProvider } from "@/context/AuthContext";
+import AuthHeader from "@/components/auth/AuthHeader";
 
 export const metadata = {
   title: "DrishtiKon - College Community",
@@ -13,17 +15,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <header className="border-b border-border bg-white">
-          <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
-            <h1 className="text-xl font-bold text-primary">
-              DrishtiKon
-            </h1>
-            <span className="text-sm text-muted-foreground">
-              College Community Platform
-            </span>
-          </div>
-        </header>
-        <main className="max-w-4xl mx-auto px-4 py-8">{children}</main>
+        <AuthProvider>
+          <AuthHeader />
+          <main className="max-w-4xl mx-auto px-4 py-8">{children}</main>
+        </AuthProvider>
       </body>
     </html>
   );

@@ -2,10 +2,12 @@ package com.drishti.kon.controller;
 
 import com.drishti.kon.dto.CreatePostRequest;
 import com.drishti.kon.dto.PostResponse;
+import com.drishti.kon.entity.User;
 import com.drishti.kon.service.PostService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,20 +34,24 @@ public class PostController {
     }
 
     @PostMapping
-    public ResponseEntity<PostResponse> createPost(@Valid @RequestBody CreatePostRequest request) {
-        PostResponse created = postService.createPost(request);
+    public ResponseEntity<PostResponse> createPost(@Valid @RequestBody CreatePostRequest request,
+                                                   Authentication authentication) {
+        User author = (User) authentication.getPrincipal();
+        PostResponse created = postService.createPost(request, author.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<PostResponse> updatePost(
             @PathVariable Long id,
-            @Valid @RequestBody CreatePostRequest request) {
+            @Valid @RequestBody CreatePostRequest request,
+            Authentication authentication) {
         return ResponseEntity.ok(postService.updatePost(id, request));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, String>> deletePost(@PathVariable Long id) {
+    public ResponseEntity<Map<String, String>> deletePost(@PathVariable Long id,
+                                                         Authentication authentication) {
         postService.deletePost(id);
         return ResponseEntity.ok(Map.of("message", "Post deleted successfully"));
     }

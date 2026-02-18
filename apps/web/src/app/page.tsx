@@ -2,13 +2,30 @@
 
 import { useState, useEffect } from "react";
 import { getPosts, createPost, deletePost, type Post } from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 import CreatePostForm from "@/components/posts/CreatePostForm";
 import PostCard from "@/components/posts/PostCard";
 
 export default function HomePage() {
+  const { user } = useAuth();
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Check for OAuth error in URL
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const oauthError = params.get("error");
+    if (oauthError) {
+      if (oauthError === "unauthorized_domain") {
+        setError("Access denied. Only @aitpune.edu.in accounts are allowed.");
+      } else {
+        setError(`Authentication failed: ${oauthError}`);
+      }
+      // Clean up URL
+      window.history.replaceState({}, "", "/");
+    }
+  }, []);
 
   const fetchPosts = async () => {
     try {
@@ -19,7 +36,7 @@ export default function HomePage() {
     } catch (err: any) {
       setError(
         err?.response?.data?.error ||
-          "Failed to load posts. Is the backend running on port 8080?"
+          "Failed to load posts. Is the backend running on port 8080?",
       );
     } finally {
       setLoading(false);
@@ -57,7 +74,14 @@ export default function HomePage() {
         </p>
       </div>
 
-      <CreatePostForm onSubmit={handleCreatePost} />
+      {user ? (
+        <CreatePostForm onSubmit={handleCreatePost} />
+      ) : (
+        <div className="bg-secondary/30 border border-border rounded-lg p-4 text-center text-muted-foreground">
+          Sign in with your <strong>@aitpune.edu.in</strong> Microsoft account
+          to create posts.
+        </div>
+      )}
 
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
@@ -77,7 +101,12 @@ export default function HomePage() {
       ) : (
         <div className="space-y-4">
           {posts.map((post) => (
-            <PostCard key={post.id} post={post} onDelete={handleDeletePost} />
+            <PostCard
+              key={post.id}
+              post={post}
+              onDelete={handleDeletePost}
+              canDelete={!!user}
+            />
           ))}
         </div>
       )}

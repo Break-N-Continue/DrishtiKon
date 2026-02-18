@@ -5,9 +5,14 @@ import type { Post } from "@/lib/api";
 interface PostCardProps {
   post: Post;
   onDelete: (id: number) => void;
+  canDelete?: boolean;
 }
 
-export default function PostCard({ post, onDelete }: PostCardProps) {
+export default function PostCard({
+  post,
+  onDelete,
+  canDelete = false,
+}: PostCardProps) {
   const timeAgo = getTimeAgo(post.createdAt);
 
   return (
@@ -28,12 +33,14 @@ export default function PostCard({ post, onDelete }: PostCardProps) {
           </span>
           <span>{timeAgo}</span>
         </div>
-        <button
-          onClick={() => onDelete(post.id)}
-          className="text-destructive hover:text-destructive/80 text-sm font-medium"
-        >
-          Delete
-        </button>
+        {canDelete && (
+          <button
+            onClick={() => onDelete(post.id)}
+            className="text-destructive hover:text-destructive/80 text-sm font-medium"
+          >
+            Delete
+          </button>
+        )}
       </div>
     </div>
   );

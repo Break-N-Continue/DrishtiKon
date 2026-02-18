@@ -23,6 +23,11 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/drishti_kon
       SPRING_DATASOURCE_USERNAME: drishti
       SPRING_DATASOURCE_PASSWORD: password
+      AZURE_CLIENT_ID: ${AZURE_CLIENT_ID}
+      AZURE_CLIENT_SECRET: ${AZURE_CLIENT_SECRET}
+      AZURE_TENANT_ID: ${AZURE_TENANT_ID}
+      JWT_SECRET: ${JWT_SECRET:-TmV2ZXJVc2VUaGlzSW5Qcm9kR2VuZXJhdGVBUmVhbDI1NkJpdEtleQ==}
+      FRONTEND_URL: http://localhost:3000
     ports:
       - "8080:8080"
     depends_on:

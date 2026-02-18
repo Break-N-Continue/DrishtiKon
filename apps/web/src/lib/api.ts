@@ -18,6 +18,7 @@ export interface CreatePostData {
 const api = axios.create({
   baseURL: "/api",
   headers: { "Content-Type": "application/json" },
+  withCredentials: true,
 });
 
 export async function getPosts(): Promise<Post[]> {
