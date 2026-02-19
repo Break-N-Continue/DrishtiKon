@@ -20,12 +20,6 @@ public class User {
     @Column(name = "last_name", nullable = false)
     private String lastName;
 
-    @Column(name = "azure_oid", unique = true)
-    private String azureOid;
-
-    @Column(name = "profile_picture_url", length = 500)
-    private String profilePictureUrl;
-
     @Column(nullable = false)
     private String role = "USER";
 
@@ -58,12 +52,6 @@ public class User {
 
     public String getLastName() { return lastName; }
     public void setLastName(String lastName) { this.lastName = lastName; }
-
-    public String getAzureOid() { return azureOid; }
-    public void setAzureOid(String azureOid) { this.azureOid = azureOid; }
-
-    public String getProfilePictureUrl() { return profilePictureUrl; }
-    public void setProfilePictureUrl(String profilePictureUrl) { this.profilePictureUrl = profilePictureUrl; }
 
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }

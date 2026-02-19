@@ -8,67 +8,63 @@ import {
   useCallback,
   type ReactNode,
 } from "react";
-
-export interface AuthUser {
-  id: number;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: string;
-}
+import {
+  fetchCurrentUser,
+  logoutUser,
+  requestOtp as apiRequestOtp,
+  verifyOtp as apiVerifyOtp,
+  type AuthUser,
+} from "@/lib/api";
 
 interface AuthContextType {
   user: AuthUser | null;
   loading: boolean;
-  login: () => void;
-  logout: () => void;
+  // OTP flow
+  requestOtp: (email: string) => Promise<string>;
+  verifyOtp: (email: string, otp: string) => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
-  login: () => {},
-  logout: () => {},
+  requestOtp: async () => "",
+  verifyOtp: async () => {},
+  logout: async () => {},
 });
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchUser = useCallback(async () => {
-    try {
-      const res = await fetch("/api/auth/me", { credentials: "include" });
-      if (res.ok) {
-        const data = await res.json();
-        setUser(data);
-      } else {
-        setUser(null);
-      }
-    } catch {
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
-    fetchUser();
-  }, [fetchUser]);
-
-  const login = useCallback(() => {
-    // Direct browser navigation to backend OAuth2 authorization endpoint
-    window.location.href = `${API_URL}/oauth2/authorization/azure`;
+    fetchCurrentUser()
+      .then(setUser)
+      .finally(() => setLoading(false));
   }, []);
 
-  const logout = useCallback(() => {
-    // Direct browser navigation to backend logout endpoint (clears cookie + redirects)
-    window.location.href = `${API_URL}/auth/logout`;
+  const requestOtp = useCallback(async (email: string): Promise<string> => {
+    const { message } = await apiRequestOtp(email);
+    return message;
+  }, []);
+
+  const verifyOtp = useCallback(
+    async (email: string, otp: string): Promise<void> => {
+      const { user: loggedInUser } = await apiVerifyOtp(email, otp);
+      setUser(loggedInUser);
+    },
+    [],
+  );
+
+  const logout = useCallback(async () => {
+    await logoutUser();
+    setUser(null);
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider
+      value={{ user, loading, requestOtp, verifyOtp, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );

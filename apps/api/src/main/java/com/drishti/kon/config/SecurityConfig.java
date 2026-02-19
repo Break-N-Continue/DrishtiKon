@@ -1,8 +1,6 @@
 package com.drishti.kon.config;
 
 import com.drishti.kon.security.JwtAuthenticationFilter;
-import com.drishti.kon.security.OAuth2FailureHandler;
-import com.drishti.kon.security.OAuth2SuccessHandler;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -24,18 +22,12 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final OAuth2SuccessHandler oAuth2SuccessHandler;
-    private final OAuth2FailureHandler oAuth2FailureHandler;
 
-    @Value("${app.oauth2.frontend-url}")
+    @Value("${app.auth.frontend-url}")
     private String frontendUrl;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
-                          OAuth2SuccessHandler oAuth2SuccessHandler,
-                          OAuth2FailureHandler oAuth2FailureHandler) {
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-        this.oAuth2SuccessHandler = oAuth2SuccessHandler;
-        this.oAuth2FailureHandler = oAuth2FailureHandler;
     }
 
     @Bean
@@ -43,8 +35,10 @@ public class SecurityConfig {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
+                .formLogin(form -> form.disable())
+                .httpBasic(basic -> basic.disable())
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, authException) -> {
                             response.setContentType("application/json");
@@ -58,21 +52,11 @@ public class SecurityConfig {
                         })
                 )
                 .authorizeHttpRequests(auth -> auth
-                        // Public endpoints
                         .requestMatchers("/health").permitAll()
-                        .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/oauth2/**", "/login/**").permitAll()
+                        .requestMatchers("/auth/request-otp", "/auth/verify-otp").permitAll()
+                        .requestMatchers("/auth/me", "/auth/logout").permitAll()
                         .requestMatchers(HttpMethod.GET, "/posts/**").permitAll()
-                        // All other requests require authentication
                         .anyRequest().authenticated()
-                )
-                .oauth2Login(oauth2 -> oauth2
-                        .authorizationEndpoint(auth -> auth
-                                .baseUri("/oauth2/authorization"))
-                        .redirectionEndpoint(redir -> redir
-                                .baseUri("/login/oauth2/code/*"))
-                        .successHandler(oAuth2SuccessHandler)
-                        .failureHandler(oAuth2FailureHandler)
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

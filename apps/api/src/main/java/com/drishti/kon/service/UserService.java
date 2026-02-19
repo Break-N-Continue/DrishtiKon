@@ -21,38 +21,24 @@ public class UserService {
     }
 
     @Transactional
-    public User findOrCreateUser(String email, String name, String azureOid) {
-        // First try to find by Azure OID
-        Optional<User> existingByOid = userRepository.findByAzureOid(azureOid);
-        if (existingByOid.isPresent()) {
-            log.debug("Found existing user by Azure OID: {}", azureOid);
-            return updateUserIfNeeded(existingByOid.get(), email, name);
+    public User findOrCreateByEmail(String email) {
+        Optional<User> existing = userRepository.findByEmail(email);
+        if (existing.isPresent()) {
+            log.debug("Found existing user: {}", email);
+            return existing.get();
         }
 
-        // Then try to find by email
-        Optional<User> existingByEmail = userRepository.findByEmail(email);
-        if (existingByEmail.isPresent()) {
-            log.debug("Found existing user by email: {}, linking Azure OID", email);
-            User user = existingByEmail.get();
-            user.setAzureOid(azureOid);
-            return updateUserIfNeeded(user, email, name);
-        }
-
-        // Create new user
-        log.info("Creating new user: email={}, oid={}", email, azureOid);
+        log.info("Creating new user: {}", email);
         User newUser = new User();
         newUser.setEmail(email);
-        newUser.setAzureOid(azureOid);
         newUser.setRole("USER");
 
-        if (name != null && !name.isBlank()) {
-            String[] parts = name.trim().split("\\s+", 2);
-            newUser.setFirstName(parts[0]);
-            newUser.setLastName(parts.length > 1 ? parts[1] : "");
-        } else {
-            newUser.setFirstName(email.split("@")[0]);
-            newUser.setLastName("");
-        }
+        // Extract name from email (e.g. sandeepyadav_230295@aitpune.edu.in)
+        String localPart = email.split("@")[0];
+        // Try to split on underscore (name_regNo pattern)
+        String namePart = localPart.contains("_") ? localPart.split("_")[0] : localPart;
+        newUser.setFirstName(capitalizeFirst(namePart));
+        newUser.setLastName("");
 
         return userRepository.save(newUser);
     }
@@ -61,27 +47,12 @@ public class UserService {
         return userRepository.findById(id);
     }
 
-    private User updateUserIfNeeded(User user, String email, String name) {
-        boolean changed = false;
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
 
-        if (name != null && !name.isBlank()) {
-            String[] parts = name.trim().split("\\s+", 2);
-            String firstName = parts[0];
-            String lastName = parts.length > 1 ? parts[1] : "";
-
-            if (!firstName.equals(user.getFirstName())) {
-                user.setFirstName(firstName);
-                changed = true;
-            }
-            if (!lastName.equals(user.getLastName())) {
-                user.setLastName(lastName);
-                changed = true;
-            }
-        }
-
-        if (changed) {
-            return userRepository.save(user);
-        }
-        return user;
+    private String capitalizeFirst(String s) {
+        if (s == null || s.isEmpty()) return s;
+        return s.substring(0, 1).toUpperCase() + s.substring(1).toLowerCase();
     }
 }

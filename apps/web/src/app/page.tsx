@@ -12,21 +12,6 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Check for OAuth error in URL
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const oauthError = params.get("error");
-    if (oauthError) {
-      if (oauthError === "unauthorized_domain") {
-        setError("Access denied. Only @aitpune.edu.in accounts are allowed.");
-      } else {
-        setError(`Authentication failed: ${oauthError}`);
-      }
-      // Clean up URL
-      window.history.replaceState({}, "", "/");
-    }
-  }, []);
-
   const fetchPosts = async () => {
     try {
       setLoading(true);
@@ -78,8 +63,8 @@ export default function HomePage() {
         <CreatePostForm onSubmit={handleCreatePost} />
       ) : (
         <div className="bg-secondary/30 border border-border rounded-lg p-4 text-center text-muted-foreground">
-          Sign in with your <strong>@aitpune.edu.in</strong> Microsoft account
-          to create posts.
+          Sign in with your <strong>@aitpune.edu.in</strong> email to create
+          posts.
         </div>
       )}
 

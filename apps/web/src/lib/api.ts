@@ -15,11 +15,49 @@ export interface CreatePostData {
   description: string;
 }
 
+export interface AuthUser {
+  id: number;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+}
+
 const api = axios.create({
   baseURL: "/api",
   headers: { "Content-Type": "application/json" },
   withCredentials: true,
 });
+
+// ---- Auth ----
+
+export async function requestOtp(email: string): Promise<{ message: string }> {
+  const { data } = await api.post("/auth/request-otp", { email });
+  return data;
+}
+
+export async function verifyOtp(
+  email: string,
+  otp: string,
+): Promise<{ message: string; user: AuthUser }> {
+  const { data } = await api.post("/auth/verify-otp", { email, otp });
+  return data;
+}
+
+export async function fetchCurrentUser(): Promise<AuthUser | null> {
+  try {
+    const { data } = await api.get<AuthUser>("/auth/me");
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+export async function logoutUser(): Promise<void> {
+  await api.post("/auth/logout");
+}
+
+// ---- Posts ----
 
 export async function getPosts(): Promise<Post[]> {
   const { data } = await api.get<Post[]>("/posts");

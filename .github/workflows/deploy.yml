@@ -65,7 +65,7 @@ jobs:
               $DOCKER rm -f drishti-db 2>/dev/null || true
               $DOCKER run -d --name drishti-db --network drishti-network --restart unless-stopped \
                 -e POSTGRES_DB=drishti_kon -e POSTGRES_USER=drishti \
-                -e POSTGRES_PASSWORD=password \
+                -e POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }} \
                 -v pgdata:/var/lib/postgresql/data postgres:15-alpine
               sleep 10
             fi
@@ -92,7 +92,10 @@ jobs:
             $DOCKER run -d --name drishti-api --network drishti-network --restart unless-stopped \
               -e SPRING_DATASOURCE_URL=jdbc:postgresql://drishti-db:5432/drishti_kon \
               -e SPRING_DATASOURCE_USERNAME=drishti \
-              -e SPRING_DATASOURCE_PASSWORD=password \
+              -e SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASSWORD }} \
+              -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
+              -e SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }} \
+              -e SENDGRID_FROM_EMAIL=${{ secrets.SENDGRID_FROM_EMAIL }} \
               -p 8080:8080 ${{ env.API_IMAGE }}:latest
 
             # Web

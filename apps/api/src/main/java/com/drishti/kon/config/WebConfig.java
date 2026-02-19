@@ -8,7 +8,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    @Value("${app.oauth2.frontend-url}")
+    @Value("${app.auth.frontend-url}")
     private String frontendUrl;
 
     @Override

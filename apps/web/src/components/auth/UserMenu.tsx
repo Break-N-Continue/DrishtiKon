@@ -7,6 +7,14 @@ export default function UserMenu() {
 
   if (!user) return null;
 
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch {
+      // ignore
+    }
+  };
+
   return (
     <div className="flex items-center gap-3">
       <div className="flex items-center gap-2">
@@ -22,7 +30,7 @@ export default function UserMenu() {
         </div>
       </div>
       <button
-        onClick={logout}
+        onClick={handleLogout}
         className="px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground border border-border rounded-md hover:bg-secondary/50 transition-colors"
       >
         Sign out
