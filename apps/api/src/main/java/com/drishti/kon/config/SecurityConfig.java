@@ -15,6 +15,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
@@ -25,6 +26,9 @@ public class SecurityConfig {
 
     @Value("${app.auth.frontend-url}")
     private String frontendUrl;
+
+    @Value("${app.auth.additional-origins:}")
+    private String additionalOrigins;
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
@@ -66,7 +70,16 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of(frontendUrl));
+
+        List<String> origins = new ArrayList<>();
+        origins.add(frontendUrl);
+        if (additionalOrigins != null && !additionalOrigins.isBlank()) {
+            for (String origin : additionalOrigins.split(",")) {
+                origins.add(origin.trim());
+            }
+        }
+
+        configuration.setAllowedOrigins(origins);
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);

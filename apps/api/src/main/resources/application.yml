@@ -36,6 +36,7 @@ app:
   auth:
     allowed-domain: aitpune.edu.in
     frontend-url: ${FRONTEND_URL:http://localhost:3000}
+    additional-origins: ${ADDITIONAL_ORIGINS:}
   sendgrid:
     api-key: ${SENDGRID_API_KEY}
     from-email: ${SENDGRID_FROM_EMAIL:noreply@aitpune.edu.in}

@@ -33,6 +33,9 @@ public class AuthController {
     private final UserService userService;
     private final JwtUtil jwtUtil;
 
+    @Value("${app.auth.frontend-url}")
+    private String frontendUrl;
+
     @Value("${app.auth.allowed-domain}")
     private String allowedDomain;
 
@@ -82,9 +85,10 @@ public class AuthController {
                 User user = userService.findOrCreateByEmail(email);
                 String token = jwtUtil.generateToken(user);
 
+                boolean isSecure = frontendUrl.startsWith("https");
                 ResponseCookie cookie = ResponseCookie.from("drishti_token", token)
                         .httpOnly(true)
-                        .secure(false) // Set to true in production with HTTPS
+                        .secure(isSecure)
                         .path("/")
                         .maxAge(Duration.ofMillis(jwtExpirationMs))
                         .sameSite("Lax")
@@ -133,9 +137,10 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ResponseEntity<Map<String, String>> logout(HttpServletResponse response) {
+        boolean isSecure = frontendUrl.startsWith("https");
         ResponseCookie cookie = ResponseCookie.from("drishti_token", "")
                 .httpOnly(true)
-                .secure(false)
+                .secure(isSecure)
                 .path("/")
                 .maxAge(0)
                 .sameSite("Lax")
