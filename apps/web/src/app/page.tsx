@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getPosts, createPost, deletePost, type Post } from "@/lib/api";
+import { getPosts, createPost, type Post } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import CreatePostForm from "@/components/posts/CreatePostForm";
 import PostCard from "@/components/posts/PostCard";
@@ -41,14 +41,7 @@ export default function HomePage() {
     }
   };
 
-  const handleDeletePost = async (id: number) => {
-    try {
-      await deletePost(id);
-      setPosts((prev) => prev.filter((p) => p.id !== id));
-    } catch (err: any) {
-      setError(err?.response?.data?.error || "Failed to delete post");
-    }
-  };
+
 
   return (
     <div className="space-y-8">
@@ -89,8 +82,7 @@ export default function HomePage() {
             <PostCard
               key={post.id}
               post={post}
-              onDelete={handleDeletePost}
-              canDelete={!!user}
+              onDelete={() => {}}
             />
           ))}
         </div>
