@@ -96,6 +96,7 @@ jobs:
               -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
               -e SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }} \
               -e SENDGRID_FROM_EMAIL=${{ secrets.SENDGRID_FROM_EMAIL }} \
+              -e FRONTEND_URL=http://${{ secrets.EC2_HOST }}:3000 \
               -p 8080:8080 ${{ env.API_IMAGE }}:latest
 
             # Web
