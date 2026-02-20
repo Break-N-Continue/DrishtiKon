@@ -53,7 +53,7 @@ public class AuthController {
     @PostMapping("/request-otp")
     public ResponseEntity<Map<String, String>> requestOtp(@Valid @RequestBody OtpRequest request) {
         String email = request.getEmail().toLowerCase().trim();
-
+        System.out.println("Received OTP request for email: " + email);
         // Validate domain
         if (!email.endsWith("@" + allowedDomain)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
