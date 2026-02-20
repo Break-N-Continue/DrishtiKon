@@ -28,22 +28,16 @@ public class EmailService {
     public void sendOtpEmail(String toEmail, String otp) {
         Email from = new Email(fromEmail, fromName);
         Email to = new Email(toEmail);
-        String subject = "DrishtiKon - Your Login OTP";
+        String subject = "Your verification code for DrishtiKon";
 
         String htmlContent = """
-                <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 24px;">
-                    <h2 style="color: #2563eb; margin-bottom: 8px;">DrishtiKon</h2>
-                    <p style="color: #6b7280; font-size: 14px; margin-bottom: 24px;">College Community Platform</p>
-                    <hr style="border: none; border-top: 1px solid #e5e7eb; margin-bottom: 24px;">
-                    <p style="font-size: 16px; color: #111827;">Your one-time password is:</p>
-                    <div style="background: #f3f4f6; border-radius: 8px; padding: 20px; text-align: center; margin: 16px 0;">
-                        <span style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #111827;">%s</span>
-                    </div>
-                    <p style="font-size: 14px; color: #6b7280;">This OTP expires in <strong>5 minutes</strong>.</p>
-                    <p style="font-size: 14px; color: #6b7280;">If you didn't request this, please ignore this email.</p>
-                    <p style="font-size: 13px; color: #f59e0b; margin-top: 12px;">⚠ Can't find this email? Please check your <strong>Spam</strong> or <strong>Junk</strong> folder.</p>
-                    <hr style="border: none; border-top: 1px solid #e5e7eb; margin-top: 24px;">
-                    <p style="font-size: 12px; color: #9ca3af; margin-top: 16px;">Army Institute of Technology, Pune</p>
+                <div style="font-family: Arial, sans-serif; max-width: 520px; margin: 0 auto; padding: 24px; color: #333;">
+                    <p>Hi,</p>
+                    <p>Someone requested a login to DrishtiKon using this email address. If that was you, use the code below to continue signing in:</p>
+                    <p style="margin: 20px 0;">%s</p>
+                    <p>This code is valid for 5 minutes. If you didn't make this request, you can safely ignore this email.</p>
+                    <p style="margin-top: 24px;">Thanks,<br>DrishtiKon Team</p>
+                    <p style="font-size: 12px; color: #999; margin-top: 32px;">DrishtiKon is a student community platform. This is an automated message — please do not reply directly.</p>
                 </div>
                 """.formatted(otp);
 
