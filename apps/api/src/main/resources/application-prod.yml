@@ -1,0 +1,17 @@
+# Production profile - connects to AWS RDS PostgreSQL with SSL
+spring:
+  datasource:
+    url: jdbc:postgresql://${RDS_HOST}:${RDS_PORT:5432}/${RDS_DB_NAME:postgres}?sslmode=verify-full&sslrootcert=/certs/global-bundle.pem
+    username: ${RDS_USERNAME}
+    password: ${RDS_PASSWORD}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+
+  jpa:
+    show-sql: false
+
+logging:
+  level:
+    com.drishti.kon: INFO

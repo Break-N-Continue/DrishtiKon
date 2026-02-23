@@ -60,16 +60,6 @@ jobs:
 
             $DOCKER network create drishti-network 2>/dev/null || true
 
-            # Postgres (keep running if already up)
-            if ! $DOCKER ps --format '{{.Names}}' | grep -q drishti-db; then
-              $DOCKER rm -f drishti-db 2>/dev/null || true
-              $DOCKER run -d --name drishti-db --network drishti-network --restart unless-stopped \
-                -e POSTGRES_DB=drishti_kon -e POSTGRES_USER=drishti \
-                -e POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }} \
-                -v pgdata:/var/lib/postgresql/data postgres:15-alpine
-              sleep 10
-            fi
-
             # Stop and remove old app containers (by name)
             $DOCKER stop drishti-api drishti-web 2>/dev/null || true
             $DOCKER rm -f drishti-api drishti-web 2>/dev/null || true
@@ -88,11 +78,14 @@ jobs:
             sudo fuser -k 3000/tcp 2>/dev/null || true
             sleep 2
 
-            # API
+            # API - connects to AWS RDS (no local Postgres needed)
             $DOCKER run -d --name drishti-api --network drishti-network --restart unless-stopped \
-              -e SPRING_DATASOURCE_URL=jdbc:postgresql://drishti-db:5432/drishti_kon \
-              -e SPRING_DATASOURCE_USERNAME=drishti \
-              -e SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASSWORD }} \
+              -e SPRING_PROFILES_ACTIVE=prod \
+              -e RDS_HOST=${{ secrets.RDS_HOST }} \
+              -e RDS_PORT=${{ secrets.RDS_PORT }} \
+              -e RDS_DB_NAME=${{ secrets.RDS_DB_NAME }} \
+              -e RDS_USERNAME=${{ secrets.RDS_USERNAME }} \
+              -e RDS_PASSWORD=${{ secrets.RDS_PASSWORD }} \
               -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
               -e SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }} \
               -e SENDGRID_FROM_EMAIL=${{ secrets.SENDGRID_FROM_EMAIL }} \

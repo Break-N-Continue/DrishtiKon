@@ -20,6 +20,7 @@ services:
     build: ./apps/api
     container_name: drishti-api
     environment:
+      SPRING_PROFILES_ACTIVE: local
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/drishti_kon
       SPRING_DATASOURCE_USERNAME: drishti
       SPRING_DATASOURCE_PASSWORD: password
