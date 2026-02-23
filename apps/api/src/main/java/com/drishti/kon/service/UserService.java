@@ -1,5 +1,6 @@
 package com.drishti.kon.service;
 
+import com.drishti.kon.entity.Role;
 import com.drishti.kon.entity.User;
 import com.drishti.kon.repository.UserRepository;
 import org.slf4j.Logger;
@@ -31,14 +32,12 @@ public class UserService {
         log.info("Creating new user: {}", email);
         User newUser = new User();
         newUser.setEmail(email);
-        newUser.setRole("USER");
+        newUser.setRole(Role.STUDENT);
 
-        // Extract name from email (e.g. sandeepyadav_230295@aitpune.edu.in)
+        // Derive display name from email local part
         String localPart = email.split("@")[0];
-        // Try to split on underscore (name_regNo pattern)
         String namePart = localPart.contains("_") ? localPart.split("_")[0] : localPart;
-        newUser.setFirstName(capitalizeFirst(namePart));
-        newUser.setLastName("");
+        newUser.setDisplayName(capitalizeFirst(namePart));
 
         return userRepository.save(newUser);
     }

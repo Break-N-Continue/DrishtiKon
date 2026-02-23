@@ -101,9 +101,8 @@ public class AuthController {
                         "user", Map.of(
                                 "id", user.getId(),
                                 "email", user.getEmail(),
-                                "firstName", user.getFirstName(),
-                                "lastName", user.getLastName(),
-                                "role", user.getRole()
+                                "displayName", user.getDisplayName() != null ? user.getDisplayName() : "",
+                                "role", user.getRole().name()
                         )
                 ));
             }
@@ -129,9 +128,8 @@ public class AuthController {
         return ResponseEntity.ok(Map.of(
                 "id", user.getId(),
                 "email", user.getEmail(),
-                "firstName", user.getFirstName(),
-                "lastName", user.getLastName(),
-                "role", user.getRole()
+                "displayName", user.getDisplayName() != null ? user.getDisplayName() : "",
+                "role", user.getRole().name()
         ));
     }
 
