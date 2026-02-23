@@ -28,7 +28,7 @@ ALTER TABLE users DROP COLUMN IF EXISTS updated_at;
 
 -- Add constraint to enforce valid role values
 ALTER TABLE users ADD CONSTRAINT chk_users_role
-    CHECK (role IN ('STUDENT', 'STUDENT_COUNCIL', 'TEACHER', 'MODERATOR'));
+    CHECK (role IN ('STUDENT', 'STUDENT_COUNCIL', 'TEACHER', 'MODERATOR', 'ADMIN'));
 
 -- -------------------------------------------------------
 -- 2. Alter POSTS table
