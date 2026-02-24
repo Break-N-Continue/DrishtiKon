@@ -11,4 +11,5 @@ import java.util.List;
 public interface ProfileUpdateRequestRepository extends JpaRepository<ProfileUpdateRequest, Long> {
     List<ProfileUpdateRequest> findByUserIdOrderByCreatedAtDesc(Long userId);
     List<ProfileUpdateRequest> findByStatusOrderByCreatedAtAsc(ProfileUpdateStatus status);
+    boolean existsByUserIdAndStatus(Long userId, ProfileUpdateStatus status);
 }

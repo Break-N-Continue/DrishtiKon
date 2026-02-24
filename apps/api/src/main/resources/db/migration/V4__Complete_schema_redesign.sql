@@ -18,8 +18,9 @@ ALTER TABLE users ADD COLUMN is_banned BOOLEAN NOT NULL DEFAULT FALSE;
 -- Migrate existing data: combine first_name + last_name into display_name
 UPDATE users SET display_name = TRIM(CONCAT(first_name, ' ', last_name));
 
--- Migrate role values: map old 'USER' to 'STUDENT'
+-- Migrate role values: map old 'USER' to 'STUDENT', 'TEACHER' to 'FACULTY'
 UPDATE users SET role = 'STUDENT' WHERE role = 'USER' OR role IS NULL;
+UPDATE users SET role = 'FACULTY' WHERE role = 'TEACHER';
 
 -- Drop old columns
 ALTER TABLE users DROP COLUMN IF EXISTS first_name;
@@ -28,7 +29,7 @@ ALTER TABLE users DROP COLUMN IF EXISTS updated_at;
 
 -- Add constraint to enforce valid role values
 ALTER TABLE users ADD CONSTRAINT chk_users_role
-    CHECK (role IN ('STUDENT', 'STUDENT_COUNCIL', 'TEACHER', 'MODERATOR', 'ADMIN'));
+    CHECK (role IN ('STUDENT', 'STUDENT_COUNCIL', 'FACULTY', 'CLUB', 'JD', 'DIRO', 'MODERATOR', 'ADMIN'));
 
 -- -------------------------------------------------------
 -- 2. Alter POSTS table
