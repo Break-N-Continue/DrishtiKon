@@ -146,8 +146,7 @@ export default function Sidebar({ collapsed = false }: SidebarProps) {
           <div className={`flex items-center gap-3 ${collapsed ? "justify-center" : ""}`}>
             {/* Avatar */}
             <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary shrink-0">
-              {user.firstName.charAt(0)}
-              {user.lastName.charAt(0)}
+              {user.displayName}
             </div>
             {!collapsed && (
               <>
