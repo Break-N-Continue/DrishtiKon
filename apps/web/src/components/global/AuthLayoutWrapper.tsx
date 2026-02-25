@@ -24,7 +24,7 @@ const MAX_LEFT = 400;
 
 const DEFAULT_RIGHT = 320; // px  (w-80)
 const MIN_RIGHT = 240;
-const MAX_RIGHT = 480;
+const MAX_RIGHT = 640;
 
 function readStored(key: string, fallback: number) {
   if (typeof window === "undefined") return fallback;
