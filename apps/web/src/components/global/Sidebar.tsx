@@ -4,6 +4,7 @@ import { useContext, type ReactNode } from "react";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import LoginButton from "@/components/auth/LoginButton";
 
 // ─── Navigation items ───────────────────────────────────────────────
 interface NavItem {
@@ -99,7 +100,7 @@ interface SidebarProps {
 
 export default function Sidebar({ collapsed = false }: SidebarProps) {
   const pathname = usePathname();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
   return (
     <div className="flex flex-col h-full bg-white">
@@ -139,29 +140,56 @@ export default function Sidebar({ collapsed = false }: SidebarProps) {
         })}
       </nav>
 
-      {/* User section at bottom */}
-      {user && (
-        <div className="border-t border-border p-3 shrink-0">
-          <div
-            className={`flex items-center gap-3 ${collapsed ? "justify-center" : ""}`}
-          >
+      {/* Auth section at bottom */}
+      <div className="border-t border-border p-3 shrink-0">
+        {user ? (
+          <div className={`flex items-center gap-3 ${collapsed ? "justify-center" : ""}`}>
+            {/* Avatar */}
             <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary shrink-0">
               {user.firstName.charAt(0)}
               {user.lastName.charAt(0)}
             </div>
             {!collapsed && (
-              <div className="min-w-0">
-                <p className="text-sm font-medium truncate">
-                  {user.firstName} {user.lastName}
-                </p>
-                <p className="text-xs text-muted-foreground truncate">
-                  {user.email}
-                </p>
-              </div>
+              <>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium truncate">
+                    {user.firstName} {user.lastName}
+                  </p>
+                  <p className="text-xs text-muted-foreground truncate">
+                    {user.email}
+                  </p>
+                </div>
+                {/* Sign out button */}
+                <button
+                  onClick={logout}
+                  title="Sign Out"
+                  className="shrink-0 p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1" />
+                  </svg>
+                </button>
+              </>
+            )}
+            {/* Collapsed: sign out icon below avatar */}
+            {collapsed && (
+              <button
+                onClick={logout}
+                title="Sign Out"
+                className="w-8 h-8 flex items-center justify-center rounded-full text-muted-foreground hover:bg-secondary/60 hover:text-foreground transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1" />
+                </svg>
+              </button>
             )}
           </div>
-        </div>
-      )}
+        ) : (
+          <div className={collapsed ? "flex justify-center" : ""}>
+            <LoginButton compact={collapsed} />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
