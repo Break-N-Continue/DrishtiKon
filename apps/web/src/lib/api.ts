@@ -17,7 +17,12 @@ export interface CreatePostData {
 }
 
 export interface AuthUser {
+<<<<<<< HEAD
   displayName: ReactNode;
+=======
+  regNo: any;
+  displayName: any;
+>>>>>>> fb28570 (feat: implement user profile page with activity and post management)
   id: number;
   email: string;
   firstName: string;
@@ -57,6 +62,13 @@ export async function fetchCurrentUser(): Promise<AuthUser | null> {
 
 export async function logoutUser(): Promise<void> {
   await api.post("/auth/logout");
+}
+
+// ---- Users ----
+
+export async function updateUserAbout(id: number, about: string): Promise<{ message: string }> {
+  const { data } = await api.patch(`/users/${id}/about`, { about });
+  return data;
 }
 
 // ---- Posts ----

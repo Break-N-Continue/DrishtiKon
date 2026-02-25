@@ -19,12 +19,11 @@ export default function UserMenu() {
     <div className="flex items-center gap-3">
       <div className="flex items-center gap-2">
         <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary">
-          {user.firstName.charAt(0)}
-          {user.lastName.charAt(0)}
+          {user.displayName ? user.displayName.charAt(0).toUpperCase() : "U"}
         </div>
         <div className="hidden sm:block">
           <p className="text-sm font-medium leading-tight">
-            {user.firstName} {user.lastName}
+            {user.displayName}
           </p>
           <p className="text-xs text-muted-foreground">{user.email}</p>
         </div>

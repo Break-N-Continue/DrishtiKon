@@ -16,7 +16,12 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <AuthProvider>
+<<<<<<< HEAD
           <AuthLayoutWrapper>{children}</AuthLayoutWrapper>
+=======
+          <AuthHeader />
+          <main>{children}</main>
+>>>>>>> fb28570 (feat: implement user profile page with activity and post management)
         </AuthProvider>
       </body>
     </html>
