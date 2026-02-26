@@ -37,6 +37,10 @@ public class CommentService {
         User author = userRepository.findById(authorId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        if (author.isBanned()) {
+            throw new AccessDeniedException("Banned users cannot post comments");
+        }
+
         Comment parent = null;
         if (request.getParentId() != null) {
             parent = commentRepository.findByIdAndPostId(request.getParentId(), postId)
@@ -56,7 +60,7 @@ public class CommentService {
     @Transactional(readOnly = true)
     public List<CommentResponse> getCommentsByPostId(Long postId) {
         getVisiblePostOrThrow(postId);
-        return commentRepository.findByPostIdOrderByCreatedAtAsc(postId)
+        return commentRepository.findByPostIdWithAuthorAndParent(postId)
                 .stream()
                 .map(CommentResponse::fromEntity)
                 .toList();
