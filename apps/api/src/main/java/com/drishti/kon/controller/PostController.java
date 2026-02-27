@@ -46,19 +46,20 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<PostResponse> updatePost(
-            @PathVariable Long id,
-            @Valid @RequestBody CreatePostRequest request,
-            Authentication authentication) {
-        return ResponseEntity.ok(postService.updatePost(id, request));
-    }
-
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, String>> deletePost(@PathVariable Long id,
                                                          Authentication authentication) {
-        postService.deletePost(id);
+        User requester = (User) authentication.getPrincipal();
+        postService.deletePost(id, requester);
         return ResponseEntity.ok(Map.of("message", "Post deleted successfully"));
+    }
+
+    @PatchMapping("/{id}/make-permanent")
+    public ResponseEntity<PostResponse> makePermanent(@PathVariable Long id,
+                                                      Authentication authentication) {
+        User requester = (User) authentication.getPrincipal();
+        PostResponse updated = postService.makePermanent(id, requester);
+        return ResponseEntity.ok(updated);
     }
 
     // ── Comment sub-resource endpoints ──────────────────────────────────────
