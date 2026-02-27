@@ -60,6 +60,7 @@ public class SecurityConfig {
                         .requestMatchers("/auth/request-otp", "/auth/verify-otp").permitAll()
                         .requestMatchers("/auth/me", "/auth/logout").permitAll()
                         .requestMatchers(HttpMethod.GET, "/posts/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/comments/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

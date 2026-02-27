@@ -1,8 +1,11 @@
 package com.drishti.kon.controller;
 
+import com.drishti.kon.dto.CommentResponse;
+import com.drishti.kon.dto.CreateCommentRequest;
 import com.drishti.kon.dto.CreatePostRequest;
 import com.drishti.kon.dto.PostResponse;
 import com.drishti.kon.entity.User;
+import com.drishti.kon.service.CommentService;
 import com.drishti.kon.service.PostService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -18,9 +21,11 @@ import java.util.Map;
 public class PostController {
 
     private final PostService postService;
+    private final CommentService commentService;
 
-    public PostController(PostService postService) {
+    public PostController(PostService postService, CommentService commentService) {
         this.postService = postService;
+        this.commentService = commentService;
     }
 
     @GetMapping
@@ -54,5 +59,21 @@ public class PostController {
                                                          Authentication authentication) {
         postService.deletePost(id);
         return ResponseEntity.ok(Map.of("message", "Post deleted successfully"));
+    }
+
+    // ── Comment sub-resource endpoints ──────────────────────────────────────
+
+    @PostMapping("/{postId}/comments")
+    public ResponseEntity<CommentResponse> createComment(@PathVariable Long postId,
+                                                        @Valid @RequestBody CreateCommentRequest request,
+                                                        Authentication authentication) {
+        User author = (User) authentication.getPrincipal();
+        CommentResponse created = commentService.createComment(postId, request, author.getId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }
+
+    @GetMapping("/{postId}/comments")
+    public ResponseEntity<List<CommentResponse>> getCommentsByPostId(@PathVariable Long postId) {
+        return ResponseEntity.ok(commentService.getCommentsByPostId(postId));
     }
 }
