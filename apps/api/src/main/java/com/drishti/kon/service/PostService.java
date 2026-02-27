@@ -120,4 +120,44 @@ public class PostService {
         Post saved = postRepository.save(post);
         return PostResponse.fromEntity(saved);
     }
+
+    @Transactional(readOnly = true)
+    public List<PostResponse> getPostsByUserId(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new RuntimeException("User not found with id: " + userId);
+        }
+        return postRepository.findByAuthorIdAndIsVisibleTrueOrderByCreatedAtDesc(userId)
+                .stream()
+                .map(PostResponse::fromEntity)
+                .toList();
+    }
+
+    @Transactional
+    public PostResponse addTagToPost(Long postId, Long tagId, User requester) {
+        boolean isModerator = requester.getRole() == Role.MODERATOR || requester.getRole() == Role.ADMIN;
+        if (!isModerator) {
+            throw new AccessDeniedException("Only moderators can assign tags to posts");
+        }
+
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found with id: " + postId));
+
+        if (!post.isVisible()) {
+            throw new RuntimeException("Post not found with id: " + postId);
+        }
+
+        Tag tag = tagRepository.findById(tagId)
+                .orElseThrow(() -> new RuntimeException("Tag not found with id: " + tagId));
+
+        boolean alreadyTagged = post.getPostTags().stream()
+                .anyMatch(pt -> pt.getTag().getId().equals(tagId));
+        if (alreadyTagged) {
+            throw new RuntimeException("Post already has this tag");
+        }
+
+        PostTag postTag = new PostTag(post, tag);
+        post.getPostTags().add(postTag);
+        Post saved = postRepository.save(post);
+        return PostResponse.fromEntity(saved);
+    }
 }

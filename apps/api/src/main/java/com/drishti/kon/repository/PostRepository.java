@@ -18,7 +18,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     Optional<Post> findByIdAndIsVisibleTrue(Long id);
 
-    List<Post> findByAuthorIdOrderByCreatedAtDesc(Long authorId);
+    List<Post> findByAuthorIdAndIsVisibleTrueOrderByCreatedAtDesc(Long authorId);
 
     @Modifying
     @Query("UPDATE Post p SET p.isVisible = false WHERE p.expiresAt IS NOT NULL AND p.expiresAt < :now AND p.isVisible = true")
