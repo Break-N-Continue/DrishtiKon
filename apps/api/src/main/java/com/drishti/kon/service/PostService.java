@@ -70,6 +70,7 @@ public class PostService {
 
             PostTag postTag = new PostTag(savedPost, tag);
             savedPost.getPostTags().add(postTag);
+            savedPost = postRepository.save(savedPost);
 
             return PostResponse.fromEntity(savedPost);
         }
