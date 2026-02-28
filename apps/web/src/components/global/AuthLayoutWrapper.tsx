@@ -3,7 +3,6 @@
 import {
   useCallback,
   useEffect,
-  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -13,13 +12,14 @@ import Sidebar from "@/components/global/Sidebar";
 import RightSidebar from "@/components/global/RightSidebar";
 import BottomNavigation from "@/components/global/BottomNavigation";
 import ResizeHandle from "@/components/global/ResizeHandle";
+import Navbar from "@/components/global/Navbar";
 
 // ─── Persistence helpers ────────────────────────────────────────────
 const LS_LEFT = "panel-left-width";
 const LS_RIGHT = "panel-right-width";
 
 const DEFAULT_LEFT = 256; // px  (w-64)
-const MIN_LEFT = 64;
+const MIN_LEFT = 80; // px - minimum width for icon-only mode
 const MAX_LEFT = 400;
 
 const DEFAULT_RIGHT = 320; // px  (w-80)
@@ -76,11 +76,14 @@ export default function AuthLayoutWrapper({
 function LayoutShell({ children }: { children: ReactNode }) {
   const [leftWidth, setLeftWidth] = useState(DEFAULT_LEFT);
   const [rightWidth, setRightWidth] = useState(DEFAULT_RIGHT);
+  const [expandedLeftWidth, setExpandedLeftWidth] = useState(DEFAULT_LEFT);
   const [hydrated, setHydrated] = useState(false);
 
   // Hydrate stored widths after mount (avoids SSR mismatch)
   useEffect(() => {
-    setLeftWidth(readStored(LS_LEFT, DEFAULT_LEFT));
+    const storedWidth = readStored(LS_LEFT, DEFAULT_LEFT);
+    setLeftWidth(storedWidth);
+    setExpandedLeftWidth(storedWidth > MIN_LEFT ? storedWidth : DEFAULT_LEFT);
     setRightWidth(readStored(LS_RIGHT, DEFAULT_RIGHT));
     setHydrated(true);
   }, []);
@@ -96,9 +99,22 @@ function LayoutShell({ children }: { children: ReactNode }) {
   const handleLeftResizeEnd = useCallback(() => {
     setLeftWidth((w) => {
       localStorage.setItem(LS_LEFT, String(w));
+      // Track expanded width when user manually resizes beyond minimum
+      if (w > MIN_LEFT) {
+        setExpandedLeftWidth(w);
+      }
       return w;
     });
   }, []);
+
+  // ── Toggle sidebar collapse/expand ────────────────────────────────
+  const toggleLeftSidebar = useCallback(() => {
+    setLeftWidth((current) => {
+      const newWidth = current <= MIN_LEFT ? expandedLeftWidth : MIN_LEFT;
+      localStorage.setItem(LS_LEFT, String(newWidth));
+      return newWidth;
+    });
+  }, [expandedLeftWidth]);
 
   // ── Right handle drag (dragging left = wider, right = narrower) ───
   const handleRightResize = useCallback((delta: number) => {
@@ -117,48 +133,52 @@ function LayoutShell({ children }: { children: ReactNode }) {
 
   return (
     <>
-      {/*
-        ── Desktop: full-height flex row ─────────────────────────────
-        Each panel scrolls independently (overflow-y-auto).
-        On < md the sidebar/right panel are hidden via CSS and we
-        fall back to the mobile layout (bottom nav + single column).
-      */}
-      <div className="flex h-screen overflow-hidden bg-background">
-        {/* ── Left Sidebar ──────────────────────────────────────── */}
-        <div
-          className="hidden md:flex flex-col shrink-0 border-r border-border overflow-hidden"
-          style={hydrated ? { width: leftWidth } : { width: DEFAULT_LEFT }}
-        >
-          <Sidebar collapsed={leftWidth <= 80} />
-        </div>
+      <div className="flex h-screen flex-col overflow-hidden bg-background">
+        <Navbar />
 
-        {/* Left resize handle */}
-        <ResizeHandle
-          onResize={handleLeftResize}
-          onResizeEnd={handleLeftResizeEnd}
-          side="right"
-        />
+        {/*
+          ── Desktop: full-height flex row under navbar ──────────────
+          Each panel scrolls independently (overflow-y-auto).
+          On < md the sidebar/right panel are hidden via CSS and we
+          fall back to the mobile layout (bottom nav + single column).
+        */}
+        <div className="flex min-h-0 flex-1 overflow-hidden">
+          {/* ── Left Sidebar ──────────────────────────────────────── */}
+          <div
+            className="hidden md:flex flex-col shrink-0 border-r border-border overflow-hidden"
+            style={hydrated ? { width: leftWidth } : { width: DEFAULT_LEFT }}
+          >
+            <Sidebar collapsed={leftWidth <= 80} onToggleCollapse={toggleLeftSidebar} />
+          </div>
 
-        {/* ── Middle Feed (fluid) ───────────────────────────────── */}
-        <main className="flex-1 min-w-0 overflow-y-auto pb-20 md:pb-0">
-          <div className="max-w-4xl mx-auto px-4 py-6">{children}</div>
-        </main>
-
-        {/* Right resize handle (only visible when right panel is) */}
-        <div className="hidden xl:flex">
+          {/* Left resize handle */}
           <ResizeHandle
-            onResize={handleRightResize}
-            onResizeEnd={handleRightResizeEnd}
-            side="left"
+            onResize={handleLeftResize}
+            onResizeEnd={handleLeftResizeEnd}
+            side="right"
           />
-        </div>
 
-        {/* ── Right Panel ───────────────────────────────────────── */}
-        <div
-          className="hidden xl:flex flex-col shrink-0 border-l border-border overflow-hidden"
-          style={hydrated ? { width: rightWidth } : { width: DEFAULT_RIGHT }}
-        >
-          <RightSidebar />
+          {/* ── Middle Feed (fluid) ───────────────────────────────── */}
+          <main className="flex-1 min-w-0 overflow-y-auto pb-20 md:pb-0">
+            <div className="max-w-4xl mx-auto px-4 py-6">{children}</div>
+          </main>
+
+          {/* Right resize handle (only visible when right panel is) */}
+          <div className="hidden xl:flex">
+            <ResizeHandle
+              onResize={handleRightResize}
+              onResizeEnd={handleRightResizeEnd}
+              side="left"
+            />
+          </div>
+
+          {/* ── Right Panel ───────────────────────────────────────── */}
+          <div
+            className="hidden xl:flex flex-col shrink-0 border-l border-border overflow-hidden"
+            style={hydrated ? { width: rightWidth } : { width: DEFAULT_RIGHT }}
+          >
+            <RightSidebar />
+          </div>
         </div>
       </div>
 
