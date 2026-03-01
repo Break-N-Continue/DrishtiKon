@@ -1,4 +1,5 @@
 import axios from "axios";
+import { ReactNode } from "react";
 
 export interface Post {
   id: number;
@@ -16,6 +17,7 @@ export interface CreatePostData {
 }
 
 export interface AuthUser {
+  displayName: ReactNode;
   id: number;
   email: string;
   firstName: string;

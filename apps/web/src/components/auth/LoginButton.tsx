@@ -5,7 +5,12 @@ import { useAuth } from "@/context/AuthContext";
 
 type Step = "email" | "otp";
 
-export default function LoginButton() {
+interface LoginButtonProps {
+  /** Show only an icon trigger (for collapsed sidebar) */
+  compact?: boolean;
+}
+
+export default function LoginButton({ compact = false }: LoginButtonProps) {
   const { requestOtp, verifyOtp } = useAuth();
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<Step>("email");
@@ -60,11 +65,48 @@ export default function LoginButton() {
   };
 
   if (!open) {
+    if (compact) {
+      return (
+        <button
+          onClick={() => setOpen(true)}
+          title="Sign In"
+          className="w-8 h-8 flex items-center justify-center rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+        >
+          {/* person icon */}
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+            />
+          </svg>
+        </button>
+      );
+    }
     return (
       <button
         onClick={() => setOpen(true)}
-        className="px-4 py-2 bg-primary text-primary-foreground text-sm font-medium rounded-md hover:opacity-90 transition-colors"
+        className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:bg-secondary/60 hover:text-foreground transition-colors"
       >
+        <svg
+          className="w-5 h-5 shrink-0"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+          />
+        </svg>
         Sign In
       </button>
     );

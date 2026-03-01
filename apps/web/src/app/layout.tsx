@@ -1,6 +1,6 @@
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
-import AuthHeader from "@/components/auth/AuthHeader";
+import AuthLayoutWrapper from "@/components/global/AuthLayoutWrapper";
 
 export const metadata = {
   title: "DrishtiKon - College Community",
@@ -16,8 +16,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <AuthProvider>
-          <AuthHeader />
-          <main className="max-w-4xl mx-auto px-4 py-8">{children}</main>
+          <AuthLayoutWrapper>{children}</AuthLayoutWrapper>
         </AuthProvider>
       </body>
     </html>
