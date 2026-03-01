@@ -2,6 +2,7 @@ package com.drishti.kon.dto;
 
 import com.drishti.kon.entity.Post;
 import java.time.OffsetDateTime;
+import java.util.List;
 
 public class PostResponse {
 
@@ -10,6 +11,9 @@ public class PostResponse {
     private String description;
     private String authorName;
     private Long authorId;
+    private boolean isVisible;
+    private OffsetDateTime expiresAt;
+    private List<String> tags;
     private OffsetDateTime createdAt;
 
     public PostResponse() {}
@@ -21,7 +25,14 @@ public class PostResponse {
         response.setDescription(post.getDescription());
         response.setAuthorId(post.getAuthor().getId());
         response.setAuthorName(post.getAuthor().getDisplayName());
+        response.setVisible(post.isVisible());
+        response.setExpiresAt(post.getExpiresAt());
         response.setCreatedAt(post.getCreatedAt());
+        response.setTags(
+                post.getPostTags().stream()
+                        .map(pt -> pt.getTag().getName())
+                        .toList()
+        );
         return response;
     }
 
@@ -40,6 +51,15 @@ public class PostResponse {
 
     public Long getAuthorId() { return authorId; }
     public void setAuthorId(Long authorId) { this.authorId = authorId; }
+
+    public boolean isVisible() { return isVisible; }
+    public void setVisible(boolean visible) { isVisible = visible; }
+
+    public OffsetDateTime getExpiresAt() { return expiresAt; }
+    public void setExpiresAt(OffsetDateTime expiresAt) { this.expiresAt = expiresAt; }
+
+    public List<String> getTags() { return tags; }
+    public void setTags(List<String> tags) { this.tags = tags; }
 
     public OffsetDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(OffsetDateTime createdAt) { this.createdAt = createdAt; }

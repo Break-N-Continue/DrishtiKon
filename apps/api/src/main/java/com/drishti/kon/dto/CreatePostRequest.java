@@ -3,6 +3,8 @@ package com.drishti.kon.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+import java.time.OffsetDateTime;
+
 public class CreatePostRequest {
 
     @NotBlank(message = "Title is required")
@@ -12,6 +14,10 @@ public class CreatePostRequest {
     @NotBlank(message = "Description is required")
     @Size(min = 10, message = "Description must be at least 10 characters")
     private String description;
+
+    private OffsetDateTime expiresAt;
+
+    private Long tagId;
 
     public CreatePostRequest() {}
 
@@ -25,4 +31,10 @@ public class CreatePostRequest {
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
+
+    public OffsetDateTime getExpiresAt() { return expiresAt; }
+    public void setExpiresAt(OffsetDateTime expiresAt) { this.expiresAt = expiresAt; }
+
+    public Long getTagId() { return tagId; }
+    public void setTagId(Long tagId) { this.tagId = tagId; }
 }
