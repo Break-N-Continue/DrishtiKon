@@ -2,6 +2,7 @@
 
 import type { SVGProps } from "react";
 
+// Brand badge icon representing community/users
 function UsersIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} {...props}>
@@ -14,6 +15,7 @@ function UsersIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+// Search bar icon for post discovery
 function SearchIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} {...props}>
@@ -23,6 +25,7 @@ function SearchIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+// Feature suggestion button icon
 function IdeaIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} {...props}>
@@ -35,6 +38,7 @@ function IdeaIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+// Bug report button icon
 function BugIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} {...props}>
@@ -45,6 +49,7 @@ function BugIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+// Main navigation bar with branding, search, and action buttons
 export default function Navbar() {
   return (
     <nav className="navbar-shell">
