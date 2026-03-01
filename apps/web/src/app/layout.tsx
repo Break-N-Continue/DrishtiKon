@@ -1,5 +1,6 @@
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
+import { RightSidebarProvider } from "@/context/RightSidebarContext";
 import AuthLayoutWrapper from "@/components/global/AuthLayoutWrapper";
 
 export const metadata = {
@@ -16,12 +17,9 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <AuthProvider>
-<<<<<<< HEAD
-          <AuthLayoutWrapper>{children}</AuthLayoutWrapper>
-=======
-          <AuthHeader />
-          <main>{children}</main>
->>>>>>> fb28570 (feat: implement user profile page with activity and post management)
+          <RightSidebarProvider>
+            <AuthLayoutWrapper>{children}</AuthLayoutWrapper>
+          </RightSidebarProvider>
         </AuthProvider>
       </body>
     </html>

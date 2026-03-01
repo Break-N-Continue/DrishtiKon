@@ -17,12 +17,8 @@ export interface CreatePostData {
 }
 
 export interface AuthUser {
-<<<<<<< HEAD
-  displayName: ReactNode;
-=======
   regNo: any;
   displayName: any;
->>>>>>> fb28570 (feat: implement user profile page with activity and post management)
   id: number;
   email: string;
   firstName: string;

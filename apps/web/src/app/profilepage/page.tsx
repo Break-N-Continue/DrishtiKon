@@ -2,17 +2,16 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from "@/context/AuthContext";
+import { useRightSidebar } from "@/context/RightSidebarContext";
 import { getPosts, updateUserAbout, type Post } from "@/lib/api";
 // import LeftSidebar from "@/components/LeftSidebar";
 import ProfileHeader from "@/components/profile/ProfileHeader";
 import ActivityCard from "@/components/profile/ActivityCard";
 import UserPosts from "@/components/profile/UserPosts";
-import AllPostsPanel from "@/components/profile/AllPostsPanel";
-import AllActivitiesPanel from "@/components/profile/AllActivitiesPanel";
-import UpdateRequestPanel from "@/components/profile/UpdateRequestPanel";
 
 export default function ProfilePage() {
   const { user, loading } = useAuth();
+  const { setPosts, setActivities, setUpdateProfile } = useRightSidebar();
   const [showAllPosts, setShowAllPosts] = useState(false);
   const [showAllActivities, setShowAllActivities] = useState(false);
   const [showUpdateRequest, setShowUpdateRequest] = useState(false);
@@ -73,32 +72,105 @@ export default function ProfilePage() {
     fetchUserPosts();
   }, [user]);
 
+  // Clear context and reset states when component mounts to ensure consistency
+  useEffect(() => {
+    // Reset all local states on mount
+    setShowAllPosts(false);
+    setShowAllActivities(false);
+    setShowUpdateRequest(false);
+    
+    // Clear context on mount
+    setPosts(null);
+    setActivities(null);
+    setUpdateProfile(null);
+
+    // Cleanup: Clear context when leaving the profile page
+    return () => {
+      setPosts(null);
+      setActivities(null);
+      setUpdateProfile(null);
+    };
+  }, []);
+
   const handleShowAllPosts = (show: boolean) => {
     setShowAllPosts(show);
+    // Pass posts to RightSidebar context when "Show All" is clicked
     if (show) {
+      setPosts(userPosts);
       setShowAllActivities(false);
       setShowUpdateRequest(false);
+      setActivities(null);
+      setUpdateProfile(null);
+    } else {
+      // Clear when closing
+      setPosts(null);
     }
   };
 
   const handleShowAllActivities = (show: boolean) => {
     setShowAllActivities(show);
+    // Pass activities to RightSidebar context when "Show All" is clicked
     if (show) {
+      // Sample activities data - in real app, fetch from backend
+      const sampleActivities = [
+        {
+          id: 1,
+          title: "Upvoted: Tips for Campus Placement Interview",
+          description: "Great tips on how to ace your placement interviews. Very helpful resource for final-year students.",
+          type: "upvote" as const,
+          author: "John_Dev",
+          date: "3 days ago"
+        },
+        {
+          id: 2,
+          title: "Commented on: Best Study Groups on Campus",
+          description: "You commented: 'Anyone interested in forming a VANET research group? I'm working on protocol optimization...'",
+          type: "comment" as const,
+          author: "Sarah_Tech",
+          date: "1 week ago"
+        },
+        {
+          id: 3,
+          title: "Upvoted: Next.js 14 Migration Guide",
+          description: "Comprehensive guide on migrating from Next.js 13 to 14. Covers all the breaking changes and new features.",
+          type: "upvote" as const,
+          author: "Alex_Coder",
+          date: "2 weeks ago"
+        }
+      ];
+      setActivities(sampleActivities);
       setShowAllPosts(false);
+      setPosts(null);
       setShowUpdateRequest(false);
+      setUpdateProfile(null);
+    } else {
+      // Clear when closing
+      setActivities(null);
     }
   };
 
   const handleToggleUpdateRequest = () => {
-    setShowUpdateRequest(!showUpdateRequest);
-    if (!showUpdateRequest) {
+    const newState = !showUpdateRequest;
+    setShowUpdateRequest(newState);
+    
+    // Pass update profile data to RightSidebar context when toggled
+    if (newState) {
+      setUpdateProfile({
+        currentName: user?.displayName || `${user?.firstName} ${user?.lastName}` || user?.email.split('@')[0] || 'Student',
+        currentYear: "2026"
+      });
       setShowAllPosts(false);
       setShowAllActivities(false);
+      setPosts(null);
+      setActivities(null);
+    } else {
+      // Clear when closing
+      setUpdateProfile(null);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50">
+    <div className="min-h-screen bg-white">
       {/* Loading State */}
       {loading && (
         <div className="flex items-center justify-center min-h-screen">
@@ -160,14 +232,12 @@ export default function ProfilePage() {
 
       {/* Main Content - Only shown when authenticated */}
       {!loading && user && (
-        <div className="w-full px-4 md:px-8 lg:px-12 py-8 grid grid-cols-1 md:grid-cols-12 gap-8">
+        <div className="w-full py-6 grid grid-cols-1 md:grid-cols-12 gap-5">
         {/* Left Sidebar */}
         {/* <LeftSidebar /> */}
 
-        {/* Main Profile Container - Responsive width */}
-        <main className={`col-span-1 transition-all duration-700 ease-in-out ${
-          (showAllPosts || showAllActivities || showUpdateRequest) ? 'md:col-span-6' : 'md:col-span-12'
-        }`}>
+        {/* Main Profile Container - Never shrinks, panels show in RightSidebar */}
+        <main className="col-span-1 md:col-span-12 transition-all duration-700 ease-in-out">
           <div className="bg-gradient-to-br from-white via-indigo-50 to-white rounded-3xl p-10 shadow-lg border border-cyan-200 backdrop-blur-sm">
             <div className="mb-10 pb-8 border-b-2 border-gradient-to-r from-indigo-200 to-cyan-200 flex items-center justify-between">
               <div>
@@ -196,20 +266,6 @@ export default function ProfilePage() {
 
           </div>
         </main>
-
-        {/* Right Sidebar - All Posts Panel */}
-        <AllPostsPanel isVisible={showAllPosts} posts={userPosts} />
-        
-        {/* Right Sidebar - All Activities Panel */}
-        <AllActivitiesPanel isVisible={showAllActivities} />
-        
-        {/* Right Sidebar - Update Request Panel */}
-        <UpdateRequestPanel 
-          isVisible={showUpdateRequest} 
-          onClose={() => setShowUpdateRequest(false)}
-          currentName={user.displayName || `${user.firstName} ${user.lastName}` || user.email.split('@')[0]}
-          currentYear="2026"
-        />
         </div>
       )}
     </div>

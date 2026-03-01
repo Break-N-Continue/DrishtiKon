@@ -1,0 +1,73 @@
+'use client';
+
+import { createContext, useContext, useState, type ReactNode } from 'react';
+
+interface Post {
+  id: number;
+  title: string;
+  description: string;
+  tags?: string[];
+  date: string;
+}
+
+interface Activity {
+  id: number;
+  title: string;
+  description: string;
+  type: "upvote" | "comment";
+  author: string;
+  date: string;
+}
+
+interface UpdateProfileData {
+  currentName: string;
+  currentYear: string;
+}
+
+interface RightSidebarContextType {
+  posts: Post[] | null;
+  setPosts: (posts: Post[] | null) => void;
+  activities: Activity[] | null;
+  setActivities: (activities: Activity[] | null) => void;
+  updateProfile: UpdateProfileData | null;
+  setUpdateProfile: (data: UpdateProfileData | null) => void;
+  isShowingPosts: boolean;
+  isShowingActivities: boolean;
+  isShowingUpdateProfile: boolean;
+}
+
+// Context for sharing posts, activities, and profile updates with RightSidebar from any child component
+const RightSidebarContext = createContext<RightSidebarContextType | undefined>(undefined);
+
+export function RightSidebarProvider({ children }: { children: ReactNode }) {
+  const [posts, setPosts] = useState<Post[] | null>(null);
+  const [activities, setActivities] = useState<Activity[] | null>(null);
+  const [updateProfile, setUpdateProfile] = useState<UpdateProfileData | null>(null);
+
+  return (
+    <RightSidebarContext.Provider
+      value={{
+        posts,
+        setPosts,
+        activities,
+        setActivities,
+        updateProfile,
+        setUpdateProfile,
+        isShowingPosts: posts !== null,
+        isShowingActivities: activities !== null,
+        isShowingUpdateProfile: updateProfile !== null,
+      }}
+    >
+      {children}
+    </RightSidebarContext.Provider>
+  );
+}
+
+// Hook to use RightSidebar context from any component
+export function useRightSidebar() {
+  const context = useContext(RightSidebarContext);
+  if (!context) {
+    throw new Error('useRightSidebar must be used within RightSidebarProvider');
+  }
+  return context;
+}
