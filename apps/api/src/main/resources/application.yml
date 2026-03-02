@@ -33,6 +33,10 @@ app:
     allowed-domain: aitpune.edu.in
     frontend-url: ${FRONTEND_URL:http://localhost:3000}
     additional-origins: ${ADDITIONAL_ORIGINS:}
+  moderators:
+    # Comma-separated list of emails that receive the MODERATOR role on startup.
+    # Override per-environment or supply via MODERATOR_EMAILS env var.
+    emails: ${MODERATOR_EMAILS:}
   sendgrid:
     api-key: ${SENDGRID_API_KEY}
     from-email: ${SENDGRID_FROM_EMAIL:noreply@aitpune.edu.in}

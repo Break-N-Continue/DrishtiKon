@@ -53,6 +53,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 User user = userRepository.findById(Long.parseLong(userId)).orElse(null);
 
                 if (user != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    // Reject banned users before setting authentication
+                    if (user.isBanned()) {
+                        response.setContentType("application/json");
+                        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                        response.getWriter().write("{\"error\": \"Your account has been banned.\"}");
+                        return;
+                    }
+
                     UsernamePasswordAuthenticationToken authToken =
                             new UsernamePasswordAuthenticationToken(
                                     user,
