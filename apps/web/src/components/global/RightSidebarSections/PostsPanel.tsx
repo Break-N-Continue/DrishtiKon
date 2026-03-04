@@ -38,7 +38,7 @@ export default function PostsPanel({ posts }: PostsPanelProps) {
         {posts.map((post) => (
           <div
             key={post.id}
-            className="p-4 bg-gradient-to-br from-white to-cyan-50 border-2 border-indigo-200 rounded-lg shadow-sm hover:shadow-md hover:border-indigo-300 transition cursor-pointer relative"
+            className="p-4 bg-cyan-50 border-2 border-indigo-200 rounded-lg shadow-sm hover:shadow-md hover:border-indigo-300 transition cursor-pointer relative"
           >
             {/* Post title and action menu */}
             <div className="flex justify-between items-start mb-2">
@@ -74,7 +74,7 @@ export default function PostsPanel({ posts }: PostsPanelProps) {
                 post.tags.slice(0, 2).map((tag, idx) => (
                   <span
                     key={idx}
-                    className="text-xs bg-gradient-to-r from-indigo-100 to-cyan-100 text-indigo-700 px-2 py-0.5 rounded-full border border-indigo-300 font-semibold"
+                    className="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full border border-indigo-300 font-semibold"
                   >
                     #{tag}
                   </span>

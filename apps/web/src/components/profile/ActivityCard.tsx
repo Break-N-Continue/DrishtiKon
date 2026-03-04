@@ -2,11 +2,7 @@
 
 import { useState } from 'react';
 import { MoreVertical } from 'lucide-react';
-
-interface ActivityCardProps {
-  onShowAllChange?: (showAll: boolean) => void;
-  isShowingAll?: boolean;
-}
+import type { Activity, ActivityCardProps } from '@/lib/types';
 
 export default function ActivityCard({ onShowAllChange, isShowingAll = false }: ActivityCardProps) {
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
@@ -15,7 +11,7 @@ export default function ActivityCard({ onShowAllChange, isShowingAll = false }: 
     onShowAllChange?.(value);
   };
 
-  const activities = [
+  const activities: Activity[] = [
     {
       id: 1,
       title: "Upvoted: Tips for Campus Placement Interview",
@@ -45,10 +41,10 @@ export default function ActivityCard({ onShowAllChange, isShowingAll = false }: 
   const activitiesToDisplay = isShowingAll ? activities : activities.slice(0, 3);
 
   return (
-    <div className="w-full mt-8 bg-gradient-to-br from-white via-indigo-50 to-white rounded-2xl p-8 shadow-lg border border-cyan-200 backdrop-blur-sm">
+    <div className="w-full mt-8 bg-white rounded-2xl p-8 shadow-lg border border-cyan-200">
       <div className="flex items-center justify-between mb-8 pb-6 border-b-2 border-indigo-100">
         <div>
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-cyan-600 bg-clip-text text-transparent">Your Activity</h2>
+          <h2 className="text-3xl font-bold text-indigo-700">Your Activity</h2>
           <p className="text-sm text-slate-500 mt-1">Posts you've upvoted or commented on</p>
         </div>
         <div className="flex items-center gap-4">
@@ -56,7 +52,7 @@ export default function ActivityCard({ onShowAllChange, isShowingAll = false }: 
           {activities.length > 1 && (
             <button
               onClick={() => handleShowAll(!isShowingAll)}
-              className="py-2 px-4 bg-gradient-to-r from-indigo-600 to-cyan-600 text-white border border-indigo-300 font-semibold rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-300 text-sm whitespace-nowrap"
+              className="py-2 px-4 bg-indigo-600 text-white border border-indigo-500 font-semibold rounded-lg hover:bg-indigo-700 hover:shadow-lg hover:scale-105 transition-all duration-300 text-sm whitespace-nowrap"
             >
               {isShowingAll ? '← Show Less' : 'Show All →'}
             </button>
@@ -74,7 +70,7 @@ export default function ActivityCard({ onShowAllChange, isShowingAll = false }: 
             <div
               key={activity.id}
               className={`
-                w-full bg-gradient-to-br from-white to-cyan-50 border-2 border-indigo-200 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-700 ease-in-out cursor-pointer backdrop-blur-sm
+                w-full bg-cyan-50 border-2 border-indigo-200 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-700 ease-in-out cursor-pointer
                 absolute top-0 left-0
               `}
               style={{

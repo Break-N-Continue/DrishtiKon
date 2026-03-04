@@ -1,28 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, type ReactNode } from 'react';
-
-interface Post {
-  id: number;
-  title: string;
-  description: string;
-  tags?: string[];
-  date: string;
-}
-
-interface Activity {
-  id: number;
-  title: string;
-  description: string;
-  type: "upvote" | "comment";
-  author: string;
-  date: string;
-}
-
-interface UpdateProfileData {
-  currentName: string;
-  currentYear: string;
-}
+import type { Post, Activity, UpdateProfileData } from '@/lib/types';
 
 interface RightSidebarContextType {
   posts: Post[] | null;

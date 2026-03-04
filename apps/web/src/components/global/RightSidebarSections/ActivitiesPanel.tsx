@@ -2,20 +2,7 @@
 
 import { useState } from "react";
 import { MoreVertical } from "lucide-react";
-
-interface Activity {
-  id: number;
-  title: string;
-  description: string;
-  type: "upvote" | "comment";
-  author: string;
-  date: string;
-}
-
-interface ActivitiesPanelProps {
-  // Display activities from RightSidebar context when user clicks "Show All"
-  activities: Activity[];
-}
+import type { Activity, ActivitiesPanelProps } from "@/lib/types";
 
 /**
  * ActivitiesPanel Component
@@ -39,7 +26,7 @@ export default function ActivitiesPanel({ activities }: ActivitiesPanelProps) {
         {activities.map((activity) => (
           <div
             key={activity.id}
-            className="p-4 bg-gradient-to-br from-white to-cyan-50 border-2 border-indigo-200 rounded-lg shadow-sm hover:shadow-md hover:border-indigo-300 transition cursor-pointer relative"
+            className="p-4 bg-cyan-50 border-2 border-indigo-200 rounded-lg shadow-sm hover:shadow-md hover:border-indigo-300 transition cursor-pointer relative"
           >
             {/* Activity title and action menu */}
             <div className="flex justify-between items-start mb-2">

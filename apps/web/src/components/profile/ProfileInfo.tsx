@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import { Pencil, Save, X } from 'lucide-react';
+import type { ProfileInfoProps } from '@/lib/types';
 
-export default function ProfileInfo({ name, year, about, onAboutChange }: { name: string, year: string, about: string, onAboutChange?: (about: string) => void }) {
+export default function ProfileInfo({ name, year, about, onAboutChange }: ProfileInfoProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedAbout, setEditedAbout] = useState(about);
 
@@ -21,16 +22,16 @@ export default function ProfileInfo({ name, year, about, onAboutChange }: { name
 
   return (
     <div className="w-full space-y-4">
-      <div className="p-4 bg-gradient-to-r from-indigo-50 to-cyan-50 rounded-lg border-l-4 border-indigo-400 backdrop-blur-sm">
-        <p><span className="font-bold bg-gradient-to-r from-indigo-600 to-cyan-600 bg-clip-text text-transparent">Name:</span> <span className="text-slate-700 font-semibold">{name}</span></p>
+      <div className="p-4 bg-indigo-50 rounded-lg border-l-4 border-indigo-500">
+        <p><span className="font-bold text-indigo-700">Name:</span> <span className="text-slate-700 font-semibold">{name}</span></p>
       </div>
-      <div className="p-4 bg-gradient-to-r from-cyan-50 to-indigo-50 rounded-lg border-l-4 border-cyan-400 backdrop-blur-sm">
-        <p><span className="font-bold bg-gradient-to-r from-indigo-600 to-cyan-600 bg-clip-text text-transparent">Year:</span> <span className="text-slate-700 font-semibold">{year}</span></p>
+      <div className="p-4 bg-cyan-50 rounded-lg border-l-4 border-cyan-500">
+        <p><span className="font-bold text-cyan-700">Year:</span> <span className="text-slate-700 font-semibold">{year}</span></p>
       </div>
-      <div className="p-5 bg-gradient-to-r from-indigo-50 to-cyan-50 rounded-lg border-l-4 border-indigo-400 backdrop-blur-sm relative">
+      <div className="p-5 bg-indigo-50 rounded-lg border-l-4 border-indigo-500 relative">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1">
-            <h3 className="font-bold bg-gradient-to-r from-indigo-600 to-cyan-600 bg-clip-text text-transparent mb-3 text-lg">About</h3>
+            <h3 className="font-bold text-indigo-700 mb-3 text-lg">About</h3>
             {isEditing ? (
               <div className="space-y-3">
                 <textarea
@@ -43,7 +44,7 @@ export default function ProfileInfo({ name, year, about, onAboutChange }: { name
                 <div className="flex gap-2">
                   <button
                     onClick={handleSave}
-                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-cyan-600 text-white rounded-lg hover:shadow-lg transition-all font-semibold text-sm"
+                    className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 hover:shadow-lg transition-all font-semibold text-sm"
                   >
                     <Save size={16} />
                     Save

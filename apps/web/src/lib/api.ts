@@ -1,30 +1,33 @@
 import axios from "axios";
-import { ReactNode } from "react";
+import {
+  Post,
+  PostWithDate,
+  CreatePostData,
+  UpdatePostData,
+  AuthUser,
+  Activity,
+  ActivityResponse,
+  UserProfile,
+  ProfileUpdateRequest,
+  ApiResponse,
+  AuthResponse,
+  OtpRequestResponse,
+} from "./types";
 
-export interface Post {
-  id: number;
-  title: string;
-  description: string;
-  authorName: string;
-  authorId: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface CreatePostData {
-  title: string;
-  description: string;
-}
-
-export interface AuthUser {
-  regNo: any;
-  displayName: any;
-  id: number;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: string;
-}
+export type {
+  Post,
+  PostWithDate,
+  CreatePostData,
+  UpdatePostData,
+  AuthUser,
+  Activity,
+  ActivityResponse,
+  UserProfile,
+  ProfileUpdateRequest,
+  ApiResponse,
+  AuthResponse,
+  OtpRequestResponse,
+} from "./types";
 
 const api = axios.create({
   baseURL: "/api",
@@ -79,6 +82,11 @@ export async function getPost(id: number): Promise<Post> {
   return data;
 }
 
+export async function getUserPosts(userId: number): Promise<Post[]> {
+  const { data } = await api.get<Post[]>(`/posts/user/${userId}`);
+  return data;
+}
+
 export async function createPost(post: CreatePostData): Promise<Post> {
   const { data } = await api.post<Post>("/posts", post);
   return data;
@@ -95,3 +103,27 @@ export async function updatePost(
 export async function deletePost(id: number): Promise<void> {
   await api.delete(`/posts/${id}`);
 }
+
+// ---- Profile ----
+
+export async function getUserProfile(userId: number): Promise<UserProfile> {
+  const { data } = await api.get<UserProfile>(`/users/${userId}`);
+  return data;
+}
+
+export async function updateUserProfile(
+  userId: number,
+  profile: ProfileUpdateRequest,
+): Promise<{ message: string; user: UserProfile }> {
+  const { data } = await api.patch(`/users/${userId}`, profile);
+  return data;
+}
+
+export async function requestProfileUpdate(
+  userId: number,
+  profile: ProfileUpdateRequest,
+): Promise<{ message: string }> {
+  const { data } = await api.post(`/users/${userId}/profile-update-request`, profile);
+  return data;
+}
+

@@ -101,11 +101,9 @@
   --gray-200: 220 15% 91%;
   --gray-300: 220 12% 85%;
   
-  /* Gradient Overlays */
-  --gradient-primary-secondary: linear-gradient(135deg, hsl(238 84% 59%) 0%, hsl(190 96% 44%) 100%);
-  --gradient-primary-violet: linear-gradient(135deg, hsl(238 84% 59%) 0%, hsl(272 100% 58%) 100%);
-  --gradient-cool: linear-gradient(135deg, hsl(238 84% 59%) 0%, hsl(190 96% 44%) 50%, hsl(272 100% 58%) 100%);
-  --gradient-subtle-bg: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(220 15% 98%) 100%);
+  /* Professional Solid Colors - No Gradients */
+  --bg-subtle: 220 15% 98%; /* Very subtle gray for backgrounds */
+  --bg-accent-light: 238 100% 98%; /* Very light indigo for accents */
 
   /* Navbar Tokens */
   --navbar-border: var(--cyan-200);
@@ -124,25 +122,12 @@
   --navbar-action-secondary-text: var(--slate-700);
   --navbar-action-hover-bg: var(--cyan-50);
   --navbar-action-hover-text: var(--cyan-700);
-  --navbar-brand-gradient: linear-gradient(
-    135deg,
-    hsl(var(--indigo-600)) 0%,
-    hsl(var(--cyan-600)) 100%
-  );
-  --navbar-brand-text-gradient: linear-gradient(
-    90deg,
-    hsl(var(--indigo-600)) 0%,
-    hsl(var(--cyan-600)) 100%
-  );
+  --navbar-brand-bg: var(--indigo-600);
+  --navbar-brand-text: var(--indigo-600);
   --navbar-brand-foreground: 0 0% 100%;
 
   /* Sidebar Tokens */
-  --sidebar-shell-bg: linear-gradient(
-    180deg,
-    hsl(var(--slate-50)) 0%,
-    hsl(0 0% 100%) 62%,
-    hsl(var(--cyan-50)) 100%
-  );
+  --sidebar-shell-bg: var(--slate-50);
   --sidebar-panel-bg: 0 0% 100%;
   --sidebar-panel-border: var(--cyan-100);
   --sidebar-divider: var(--cyan-100);
@@ -150,23 +135,11 @@
   --sidebar-item-text: var(--slate-600);
   --sidebar-item-hover-bg: var(--cyan-50);
   --sidebar-item-hover-text: var(--cyan-700);
-  --sidebar-item-active-bg: linear-gradient(
-    90deg,
-    hsl(var(--indigo-50)) 0%,
-    hsl(var(--cyan-50)) 100%
-  );
+  --sidebar-item-active-bg: var(--indigo-50);
   --sidebar-item-active-border: var(--indigo-600);
   --sidebar-item-active-text: var(--indigo-600);
-  --sidebar-avatar-gradient: linear-gradient(
-    135deg,
-    hsl(var(--indigo-600)) 0%,
-    hsl(var(--cyan-600)) 100%
-  );
-  --sidebar-auth-chip-bg: linear-gradient(
-    90deg,
-    hsl(var(--indigo-50)) 0%,
-    hsl(var(--cyan-50)) 100%
-  );
+  --sidebar-avatar-bg: var(--indigo-600);
+  --sidebar-auth-chip-bg: var(--indigo-50);
   --sidebar-auth-chip-border: var(--indigo-200);
 }
 
@@ -188,25 +161,18 @@ body {
     @apply sticky top-0 z-40 w-full border-b px-4 py-3 md:px-6;
     border-color: hsl(var(--navbar-border));
     box-shadow: var(--navbar-shadow);
-    background-image: linear-gradient(
-      90deg,
-      hsl(var(--slate-50)) 0%,
-      hsl(0 0% 100%) 50%,
-      hsl(var(--cyan-50)) 100%
-    );
+    background-color: hsl(0 0% 100%);
   }
 
   .navbar-brand-badge {
     @apply rounded-lg p-2 shadow-sm;
-    background-image: var(--navbar-brand-gradient);
+    background-color: hsl(var(--navbar-brand-bg));
     color: hsl(var(--navbar-brand-foreground));
   }
 
   .navbar-brand-text {
-    background-image: var(--navbar-brand-text-gradient);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+    color: hsl(var(--navbar-brand-text));
+    font-weight: 800;
   }
 
   .navbar-search {
@@ -257,7 +223,7 @@ body {
 
   .sidebar-shell {
     @apply flex h-full flex-col;
-    background-image: var(--sidebar-shell-bg);
+    background-color: hsl(var(--sidebar-shell-bg));
   }
 
   .sidebar-shell-expanded {
@@ -319,7 +285,7 @@ body {
   .sidebar-item-active-expanded {
     @apply shadow-md;
     border-color: hsl(var(--sidebar-item-active-border));
-    background-image: var(--sidebar-item-active-bg);
+    background-color: hsl(var(--sidebar-item-active-bg));
     color: hsl(var(--sidebar-item-active-text));
   }
 
@@ -336,13 +302,13 @@ body {
 
   .sidebar-avatar {
     @apply flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white shadow-sm;
-    background-image: var(--sidebar-avatar-gradient);
+    background-color: hsl(var(--sidebar-avatar-bg));
   }
 
   .sidebar-auth-chip {
     @apply rounded-lg border p-2;
     border-color: hsl(var(--sidebar-auth-chip-border));
-    background-image: var(--sidebar-auth-chip-bg);
+    background-color: hsl(var(--sidebar-auth-chip-bg));
   }
 
   .sidebar-ghost-action {

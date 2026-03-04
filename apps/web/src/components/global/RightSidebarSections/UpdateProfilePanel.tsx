@@ -98,7 +98,7 @@ export default function UpdateProfilePanel({
           <button
             type="submit"
             disabled={!name && !year}
-            className="w-full bg-gradient-to-r from-indigo-600 to-cyan-600 text-white px-3 py-2 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 hover:from-indigo-700 hover:to-cyan-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm"
+            className="w-full bg-indigo-600 text-white px-3 py-2 rounded-lg font-semibold hover:bg-indigo-700 hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm"
           >
             <Send size={14} />
             Submit Request
