@@ -1,7 +1,7 @@
 package com.drishti.kon.service;
 
 import com.drishti.kon.entity.Post;
-import com.drishti.kon.entity.PostUpvote;
+import com.drishti.kon.entity.Upvote;
 import com.drishti.kon.entity.User;
 import com.drishti.kon.repository.PostRepository;
 import com.drishti.kon.repository.PostUpvoteRepository;
@@ -33,7 +33,7 @@ public class PostUpvoteService {
             return false; // now not upvoted
         }
 
-        PostUpvote upvote = new PostUpvote();
+        Upvote upvote = new Upvote();
         upvote.setUser(user);
         upvote.setPost(post);
 

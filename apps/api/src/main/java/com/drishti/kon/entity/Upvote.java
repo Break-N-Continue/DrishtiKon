@@ -1,6 +1,7 @@
 package com.drishti.kon.entity;
 
 import jakarta.persistence.*;
+import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "upvotes", uniqueConstraints = {
@@ -20,6 +21,14 @@ public class Upvote {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private OffsetDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = OffsetDateTime.now();
+    }
+
     // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -29,4 +38,7 @@ public class Upvote {
 
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
+
+    public OffsetDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(OffsetDateTime createdAt) { this.createdAt = createdAt; }
 }

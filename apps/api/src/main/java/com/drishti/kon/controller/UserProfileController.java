@@ -27,30 +27,30 @@ public class UserProfileController {
         this.userProfileService = userProfileService;
     }
 
-    @GetMapping("/{id}/posts")
-    public ResponseEntity<PagedResponse<PostResponse>> getUserPosts(@PathVariable Long id,
+    @GetMapping("/{userid}/posts")
+    public ResponseEntity<PagedResponse<PostResponse>> getUserPosts(@PathVariable Long userid,
                                                                     @RequestParam(defaultValue = "0") @Min(0) int page,
                                                                     @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size,
                                                                     Authentication authentication) {
         User requester = (User) authentication.getPrincipal();
-        return ResponseEntity.ok(userProfileService.getUserVisiblePosts(id, page, size, requester));
+        return ResponseEntity.ok(userProfileService.getUserVisiblePosts(userid, page, size, requester));
     }
 
-    @GetMapping("/{id}/upvoted")
-    public ResponseEntity<PagedResponse<PostResponse>> getUserUpvotedPosts(@PathVariable Long id,
+    @GetMapping("/{userid}/upvoted")
+    public ResponseEntity<PagedResponse<PostResponse>> getUserUpvotedPosts(@PathVariable Long userid,
                                                                             @RequestParam(defaultValue = "0") @Min(0) int page,
                                                                             @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size,
                                                                             Authentication authentication) {
         User requester = (User) authentication.getPrincipal();
-        return ResponseEntity.ok(userProfileService.getUserVisibleUpvotedPosts(id, page, size, requester));
+        return ResponseEntity.ok(userProfileService.getUserVisibleUpvotedPosts(userid, page, size, requester));
     }
 
-    @GetMapping("/{id}/comments")
-    public ResponseEntity<PagedResponse<UserProfileCommentResponse>> getUserComments(@PathVariable Long id,
+    @GetMapping("/{userid}/comments")
+    public ResponseEntity<PagedResponse<UserProfileCommentResponse>> getUserComments(@PathVariable Long userid,
                                                                                       @RequestParam(defaultValue = "0") @Min(0) int page,
                                                                                       @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size,
                                                                                       Authentication authentication) {
         User requester = (User) authentication.getPrincipal();
-        return ResponseEntity.ok(userProfileService.getUserComments(id, page, size, requester));
+        return ResponseEntity.ok(userProfileService.getUserComments(userid, page, size, requester));
     }
 }

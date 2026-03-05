@@ -1,6 +1,5 @@
 package com.drishti.kon.controller;
 
-import com.drishti.kon.entity.PostUpvote;
 import com.drishti.kon.entity.User;
 import com.drishti.kon.service.PostUpvoteService;
 import org.springframework.http.ResponseEntity;
