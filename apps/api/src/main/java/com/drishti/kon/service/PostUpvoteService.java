@@ -5,16 +5,19 @@ import com.drishti.kon.entity.PostUpvote;
 import com.drishti.kon.entity.User;
 import com.drishti.kon.repository.PostRepository;
 import com.drishti.kon.repository.PostUpvoteRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@RequiredArgsConstructor
 public class PostUpvoteService {
 
     private final PostRepository postRepository;
     private final PostUpvoteRepository postUpvoteRepository;
+
+    public PostUpvoteService(PostRepository postRepository, PostUpvoteRepository postUpvoteRepository) {
+        this.postRepository = postRepository;
+        this.postUpvoteRepository = postUpvoteRepository;
+    }
 
     @Transactional
     public boolean toggleUpvote(Long postId, User user) {

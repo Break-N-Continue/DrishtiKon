@@ -1,6 +1,7 @@
 package com.drishti.kon.entity;
 
 import jakarta.persistence.*;
+import java.time.OffsetDateTime;
 
 @Entity
 @Table(
@@ -21,6 +22,14 @@ public class PostUpvote {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private OffsetDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = OffsetDateTime.now();
+    }
 
     public Long getId() {
         return id;
@@ -44,5 +53,13 @@ public class PostUpvote {
 
     public void setPost(Post post) {
         this.post = post;
+    }
+
+    public OffsetDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(OffsetDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }
