@@ -15,3 +15,11 @@ spring:
 logging:
   level:
     com.drishti.kon: INFO
+
+app:
+  moderators:
+    emails:
+      - sandeepyadav_230295@aitpune.edu.in
+      - souravkushwaha_230290@aitpune.edu.in
+      - sahilkumar_230298@aitpune.edu.in
+      - maneeshkumar_230287@aitpune.edu.in

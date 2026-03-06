@@ -3,6 +3,7 @@ package com.drishti.kon.controller;
 import com.drishti.kon.dto.OtpRequest;
 import com.drishti.kon.dto.OtpVerifyRequest;
 import com.drishti.kon.entity.User;
+import com.drishti.kon.security.CurrentUser;
 import com.drishti.kon.security.JwtUtil;
 import com.drishti.kon.service.EmailService;
 import com.drishti.kon.service.OtpService;
@@ -16,7 +17,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
@@ -117,19 +117,29 @@ public class AuthController {
         };
     }
 
+    /**
+     * Returns the profile of the currently authenticated user.
+     * The {@link CurrentUser} resolver re-reads the user from the database on every
+     * request, so role changes are reflected immediately without requiring re-login.
+     *
+     * @return 200 with user profile, or 401 if not authenticated, 403 if banned.
+     */
     @GetMapping("/me")
-    public ResponseEntity<?> getCurrentUser(Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated()) {
+    public ResponseEntity<?> getCurrentUser(@CurrentUser User user) {
+        if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "Not authenticated"));
         }
 
-        User user = (User) authentication.getPrincipal();
         return ResponseEntity.ok(Map.of(
                 "id", user.getId(),
                 "email", user.getEmail(),
                 "displayName", user.getDisplayName() != null ? user.getDisplayName() : "",
-                "role", user.getRole().name()
+                "role", user.getRole().name(),
+                "regNo", user.getRegNo() != null ? user.getRegNo() : "",
+                "yearOfStudy", user.getYearOfStudy() != null ? user.getYearOfStudy() : 0,
+                "about", user.getAbout() != null ? user.getAbout() : "",
+                "isBanned", user.isBanned()
         ));
     }
 
