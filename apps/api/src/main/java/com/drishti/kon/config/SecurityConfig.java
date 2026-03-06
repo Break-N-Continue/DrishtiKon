@@ -61,6 +61,8 @@ public class SecurityConfig {
                         .requestMatchers("/auth/me", "/auth/logout").permitAll()
                         .requestMatchers(HttpMethod.GET, "/posts/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/comments/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/tags").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/config/links").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
