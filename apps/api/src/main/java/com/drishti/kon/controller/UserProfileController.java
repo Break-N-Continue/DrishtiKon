@@ -30,8 +30,8 @@ public class UserProfileController {
         this.userProfileService = userProfileService;
     }
 
-    @GetMapping("/{id}/posts")
-    public ResponseEntity<PageResponseDto<PostResponse>> getPostsByUser(@PathVariable Long id,
+    @GetMapping("/{userid}/posts")
+    public ResponseEntity<PageResponseDto<PostResponse>> getPostsByUser(@PathVariable Long userid,
                                                                         @RequestParam(defaultValue = "0") int page,
                                                                         @RequestParam(defaultValue = "20") int size,
                                                                         Authentication authentication) {
@@ -42,8 +42,8 @@ public class UserProfileController {
         ));
     }
 
-    @GetMapping("/{id}/upvoted")
-    public ResponseEntity<PageResponseDto<PostResponse>> getUpvotedPostsByUser(@PathVariable Long id,
+    @GetMapping("/{userid}/upvoted")
+    public ResponseEntity<PageResponseDto<PostResponse>> getUpvotedPostsByUser(@PathVariable Long userid,
                                                                                @RequestParam(defaultValue = "0") int page,
                                                                                @RequestParam(defaultValue = "20") int size,
                                                                                Authentication authentication) {
@@ -54,8 +54,8 @@ public class UserProfileController {
         ));
     }
 
-    @GetMapping("/{id}/comments")
-    public ResponseEntity<PageResponseDto<UserProfileCommentResponse>> getCommentsByUser(@PathVariable Long id,
+    @GetMapping("/{userid}/comments")
+    public ResponseEntity<PageResponseDto<UserProfileCommentResponse>> getCommentsByUser(@PathVariable Long userid,
                                                                                           @RequestParam(defaultValue = "0") int page,
                                                                                           @RequestParam(defaultValue = "20") int size,
                                                                                           Authentication authentication) {
