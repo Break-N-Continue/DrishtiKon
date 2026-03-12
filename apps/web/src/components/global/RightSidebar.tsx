@@ -23,8 +23,14 @@ import {
  * Width & visibility controlled by AuthLayoutWrapper flex container
  */
 export default function RightSidebar() {
-  const { posts, activities, updateProfile } = useRightSidebar();
+  const { posts, setPosts, activities, setActivities, updateProfile, setUpdateProfile } = useRightSidebar();
   const pathname = usePathname();
+
+  const handleCloseSidebar = () => {
+    setPosts(null);
+    setActivities(null);
+    setUpdateProfile(null);
+  };
 
   // Check if we're on the profile page
   const isProfilePage = pathname?.includes("/profilepage");
@@ -56,6 +62,7 @@ export default function RightSidebar() {
       <UpdateProfilePanel
         currentName={updateProfile.currentName}
         currentYear={updateProfile.currentYear}
+        onClose={handleCloseSidebar}
       />
     );
   }

@@ -2,19 +2,7 @@
 
 import { useState } from "react";
 import { MoreVertical } from "lucide-react";
-
-interface Post {
-  id: number;
-  title: string;
-  description: string;
-  tags?: string[];
-  date: string;
-}
-
-interface PostsPanelProps {
-  // Display posts from RightSidebar context when user clicks "Show All"
-  posts: Post[];
-}
+import type { PostsPanelProps } from "@/lib/types";
 
 /**
  * PostsPanel Component

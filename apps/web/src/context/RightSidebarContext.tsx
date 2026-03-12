@@ -1,11 +1,11 @@
 'use client';
 
 import { createContext, useContext, useState, type ReactNode } from 'react';
-import type { Post, Activity, UpdateProfileData } from '@/lib/types';
+import type { PostWithDate, Activity, UpdateProfileData } from '@/lib/types';
 
 interface RightSidebarContextType {
-  posts: Post[] | null;
-  setPosts: (posts: Post[] | null) => void;
+  posts: PostWithDate[] | null;
+  setPosts: (posts: PostWithDate[] | null) => void;
   activities: Activity[] | null;
   setActivities: (activities: Activity[] | null) => void;
   updateProfile: UpdateProfileData | null;
@@ -19,7 +19,7 @@ interface RightSidebarContextType {
 const RightSidebarContext = createContext<RightSidebarContextType | undefined>(undefined);
 
 export function RightSidebarProvider({ children }: { children: ReactNode }) {
-  const [posts, setPosts] = useState<Post[] | null>(null);
+  const [posts, setPosts] = useState<PostWithDate[] | null>(null);
   const [activities, setActivities] = useState<Activity[] | null>(null);
   const [updateProfile, setUpdateProfile] = useState<UpdateProfileData | null>(null);
 
