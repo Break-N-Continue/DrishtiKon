@@ -5,12 +5,12 @@ import com.drishti.kon.dto.CreateCommentRequest;
 import com.drishti.kon.dto.CreatePostRequest;
 import com.drishti.kon.dto.PostResponse;
 import com.drishti.kon.entity.User;
+import com.drishti.kon.security.CurrentUser;
 import com.drishti.kon.service.CommentService;
 import com.drishti.kon.service.PostService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -40,24 +40,21 @@ public class PostController {
 
     @PostMapping
     public ResponseEntity<PostResponse> createPost(@Valid @RequestBody CreatePostRequest request,
-                                                   Authentication authentication) {
-        User author = (User) authentication.getPrincipal();
+                                                   @CurrentUser User author) {
         PostResponse created = postService.createPost(request, author.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, String>> deletePost(@PathVariable Long id,
-                                                         Authentication authentication) {
-        User requester = (User) authentication.getPrincipal();
+                                                         @CurrentUser User requester) {
         postService.deletePost(id, requester);
         return ResponseEntity.ok(Map.of("message", "Post deleted successfully"));
     }
 
     @PatchMapping("/{id}/make-permanent")
     public ResponseEntity<PostResponse> makePermanent(@PathVariable Long id,
-                                                      Authentication authentication) {
-        User requester = (User) authentication.getPrincipal();
+                                                      @CurrentUser User requester) {
         PostResponse updated = postService.makePermanent(id, requester);
         return ResponseEntity.ok(updated);
     }
@@ -70,8 +67,7 @@ public class PostController {
     @PostMapping("/{id}/tags/{tagId}")
     public ResponseEntity<PostResponse> addTagToPost(@PathVariable Long id,
                                                      @PathVariable Long tagId,
-                                                     Authentication authentication) {
-        User requester = (User) authentication.getPrincipal();
+                                                     @CurrentUser User requester) {
         PostResponse updated = postService.addTagToPost(id, tagId, requester);
         return ResponseEntity.ok(updated);
     }
@@ -81,8 +77,7 @@ public class PostController {
     @PostMapping("/{postId}/comments")
     public ResponseEntity<CommentResponse> createComment(@PathVariable Long postId,
                                                         @Valid @RequestBody CreateCommentRequest request,
-                                                        Authentication authentication) {
-        User author = (User) authentication.getPrincipal();
+                                                        @CurrentUser User author) {
         CommentResponse created = commentService.createComment(postId, request, author.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }

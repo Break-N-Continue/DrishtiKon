@@ -1,0 +1,14 @@
+package com.drishti.kon.dto;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
+public class TagRequest {
+
+    @NotBlank(message = "Tag name must not be blank")
+    @Size(max = 50, message = "Tag name must not exceed 50 characters")
+    private String name;
+
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+}
