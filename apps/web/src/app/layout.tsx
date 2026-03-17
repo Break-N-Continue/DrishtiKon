@@ -1,5 +1,6 @@
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
+import { RightSidebarProvider } from "@/context/RightSidebarContext";
 import AuthLayoutWrapper from "@/components/global/AuthLayoutWrapper";
 
 export const metadata = {
@@ -16,7 +17,9 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <AuthProvider>
-          <AuthLayoutWrapper>{children}</AuthLayoutWrapper>
+          <RightSidebarProvider>
+            <AuthLayoutWrapper>{children}</AuthLayoutWrapper>
+          </RightSidebarProvider>
         </AuthProvider>
       </body>
     </html>

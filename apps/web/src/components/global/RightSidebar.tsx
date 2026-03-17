@@ -1,112 +1,82 @@
 "use client";
 
+import { useRightSidebar } from "@/context/RightSidebarContext";
+import { usePathname } from "next/navigation";
+import {
+  PostsPanel,
+  ActivitiesPanel,
+  UpdateProfilePanel,
+  CampusNews,
+  UpdatesSection,
+  TrendingSection,
+  FooterSection,
+} from "./RightSidebarSections";
+
 /**
- * RightSidebar – desktop-only panel (third column).
+ * RightSidebar Component
+ * ──────────────────────
+ * Desktop-only third column panel (visible on xl+ screens)
+ * Orchestrates different sidebar sections based on context & route:
+ * - On profile page: Shows only when posts/activities/update form active, hides when all inactive
+ * - On other pages: Always shows default content (news, updates, trending)
  *
- * Width & visibility are controlled by the parent flex container
- * in AuthLayoutWrapper. This component simply renders its content
- * and scrolls independently.
+ * Width & visibility controlled by AuthLayoutWrapper flex container
  */
 export default function RightSidebar() {
+  const { posts, setPosts, activities, setActivities, updateProfile, setUpdateProfile } = useRightSidebar();
+  const pathname = usePathname();
+
+  const handleCloseSidebar = () => {
+    setPosts(null);
+    setActivities(null);
+    setUpdateProfile(null);
+  };
+
+  // Check if we're on the profile page
+  const isProfilePage = pathname?.includes("/profilepage");
+
+  // Check if any section is active on profile page
+  const hasActiveSections =
+    (posts && posts.length > 0) ||
+    (activities && activities.length > 0) ||
+    updateProfile !== null;
+
+  // ─ Posts mode: Display user's posts ONLY on profile page when shared via context
+  if (isProfilePage && posts && posts.length > 0) {
+    return <PostsPanel posts={posts} />;
+  }
+
+  // ─ Activities mode: Display user's activities ONLY on profile page when shared via context
+  if (isProfilePage && activities && activities.length > 0) {
+    return <ActivitiesPanel activities={activities} />;
+  }
+
+  // ─ Update Profile mode: Display update form ONLY on profile page when shared via context
+  if (isProfilePage && updateProfile) {
+    return (
+      <UpdateProfilePanel
+        currentName={updateProfile.currentName}
+        currentYear={updateProfile.currentYear}
+        onClose={handleCloseSidebar}
+      />
+    );
+  }
+
+  // ─ Default mode: Show campus news, updates, and trending content (always on non-profile pages)
   return (
     <div className="h-full overflow-y-auto bg-white">
       <div className="space-y-6 p-4 pb-8">
-        {/* ── Campus News ────────────────────────── */}
-        <section className="rounded-xl border border-border bg-white p-4">
-          <h3 className="text-sm font-semibold text-foreground mb-3">
-            Campus News
-          </h3>
-          <ul className="space-y-3">
-            {[
-              {
-                title: "Spring Fest 2026 registrations open",
-                time: "2h ago",
-              },
-              {
-                title: "New library timings effective March 1",
-                time: "5h ago",
-              },
-              {
-                title: "Guest lecture on AI & Ethics – March 4",
-                time: "1d ago",
-              },
-            ].map((item) => (
-              <li key={item.title}>
-                <a href="#" className="block group">
-                  <p className="text-sm text-foreground group-hover:text-primary transition-colors line-clamp-2">
-                    {item.title}
-                  </p>
-                  <span className="text-xs text-muted-foreground">
-                    {item.time}
-                  </span>
-                </a>
-              </li>
-            ))}
-          </ul>
-        </section>
+        {/* Campus News Section */}
+        <CampusNews />
 
-        {/* ── Updates ────────────────────────────── */}
-        <section className="rounded-xl border border-border bg-white p-4">
-          <h3 className="text-sm font-semibold text-foreground mb-3">
-            Updates
-          </h3>
-          <ul className="space-y-3">
-            {[
-              "Mid-semester exams start March 15",
-              "Placement drive – TCS on campus",
-              "NSS Blood Donation Camp – March 8",
-            ].map((item) => (
-              <li key={item} className="flex items-start gap-2">
-                <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
-                <p className="text-sm text-muted-foreground">{item}</p>
-              </li>
-            ))}
-          </ul>
-        </section>
+        {/* Updates Section */}
+        <UpdatesSection />
 
-        {/* ── Trending ───────────────────────────── */}
-        <section className="rounded-xl border border-border bg-white p-4">
-          <h3 className="text-sm font-semibold text-foreground mb-3">
-            Trending
-          </h3>
-          <div className="flex flex-wrap gap-2">
-            {[
-              "#SpringFest2026",
-              "#Placements",
-              "#CampusLife",
-              "#TechTalks",
-              "#AIT",
-              "#Hackathon",
-            ].map((tag) => (
-              <a
-                key={tag}
-                href="#"
-                className="px-2.5 py-1 rounded-full text-xs font-medium bg-secondary text-secondary-foreground hover:bg-primary/10 hover:text-primary transition-colors"
-              >
-                {tag}
-              </a>
-            ))}
-          </div>
-        </section>
+        {/* Trending Section */}
+        <TrendingSection />
 
-        {/* ── Footer links ───────────────────────── */}
-        <div className="px-1 text-xs text-muted-foreground space-y-1">
-          <div className="flex flex-wrap gap-x-2 gap-y-1">
-            <a href="#" className="hover:underline">
-              About
-            </a>
-            <a href="#" className="hover:underline">
-              Terms
-            </a>
-            <a href="#" className="hover:underline">
-              Privacy
-            </a>
-            <a href="#" className="hover:underline">
-              Help
-            </a>
-          </div>
-          <p>&copy; {new Date().getFullYear()} DrishtiKon</p>
-        </div>
+        {/* Footer Section */}
+        <FooterSection />
       </div>
     </div>
   );

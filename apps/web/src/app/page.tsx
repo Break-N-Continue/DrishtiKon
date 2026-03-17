@@ -44,13 +44,14 @@ export default function HomePage() {
 
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h2 className="text-2xl font-bold mb-2">Community Posts</h2>
-        <p className="text-muted-foreground">
-          Share ideas, questions, and discussions with your college community.
-        </p>
-      </div>
+    <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="space-y-8">
+        <div>
+          <h2 className="text-2xl font-bold mb-2">Community Posts</h2>
+          <p className="text-muted-foreground">
+            Share ideas, questions, and discussions with your college community.
+          </p>
+        </div>
 
       {user ? (
         <CreatePostForm onSubmit={handleCreatePost} />
@@ -87,6 +88,7 @@ export default function HomePage() {
           ))}
         </div>
       )}
+      </div>
     </div>
   );
 }

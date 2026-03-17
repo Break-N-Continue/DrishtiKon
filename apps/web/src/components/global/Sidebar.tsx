@@ -34,7 +34,7 @@ const navItems: NavItem[] = [
   },
   {
     label: "User Profile",
-    href: "/profilpage",
+    href: "/profilepage",
     icon: (
       <svg
         className="w-5 h-5"
