@@ -16,8 +16,14 @@ export default function PostCard({
   const timeAgo = getTimeAgo(post.createdAt);
   const tags = post.tags ?? [];
 
+  // Determine border color based on tags (just for visual variety matching the design)
+  const borderColorClass = 
+    tags[0]?.toLowerCase() === 'governance' ? 'border-secondary' :
+    tags[0]?.toLowerCase() === 'academic success' ? 'border-tertiary' : 
+    'border-primary';
+
   return (
-    <article className="bg-surface-container-lowest p-8 border-l-4 border-primary shadow-sm hover:shadow-md transition-shadow animate-fade-in-up rounded-r-xl">
+    <article className={`bg-surface-container-lowest p-8 border-l-4 ${borderColorClass} shadow-sm hover:shadow-md transition-shadow animate-fade-in-up`}>
       <div className="flex justify-between items-start mb-4">
         {tags.length > 0 ? (
           <span className="font-label text-xs uppercase tracking-widest text-secondary font-bold">
@@ -61,7 +67,7 @@ export default function PostCard({
           {canDelete && (
             <button
               onClick={() => onDelete(post.id)}
-              className="material-symbols-outlined text-sm text-destructive hover:text-destructive/80 transition-colors cursor-pointer p-1 rounded-full hover:bg-destructive/5"
+              className="material-symbols-outlined text-sm text-error hover:text-error/80 transition-colors cursor-pointer p-1 rounded-full hover:bg-error-container"
             >
               delete
             </button>

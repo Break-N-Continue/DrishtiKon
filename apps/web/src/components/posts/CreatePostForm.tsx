@@ -31,8 +31,8 @@ export default function CreatePostForm({ onSubmit }: CreatePostFormProps) {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="w-full bg-surface-container-lowest p-6 shadow-sm ring-1 ring-outline-variant/10 rounded-xl 
-                   text-primary hover:shadow-md transition-all flex items-center gap-4 group"
+        className="w-full bg-surface-container-lowest p-8 shadow-sm ring-1 ring-outline-variant/10 rounded-xl 
+                   text-primary hover:shadow-md transition-all flex items-center gap-4 group composer-expand"
       >
         <span
           className="material-symbols-outlined text-primary group-hover:scale-110 transition-transform"
@@ -40,7 +40,7 @@ export default function CreatePostForm({ onSubmit }: CreatePostFormProps) {
         >
           edit_note
         </span>
-        <span className="font-headline text-lg font-semibold italic text-primary">
+        <span className="font-headline text-xl font-semibold italic text-primary">
           Contribute to the Archive
         </span>
       </button>
@@ -71,7 +71,7 @@ export default function CreatePostForm({ onSubmit }: CreatePostFormProps) {
             minLength={5}
             maxLength={255}
             required
-            className="w-full bg-transparent border-0 border-b border-outline-variant/40 focus:ring-0 focus:border-secondary transition-all font-headline text-lg py-2 px-0 placeholder:text-outline/50"
+            className="w-full bg-transparent border-0 border-b border-outline-variant/40 focus:ring-0 focus:border-primary focus:none transition-all font-headline text-lg py-2 px-0 placeholder:text-outline/50"
           />
         </div>
         <div className="relative">
@@ -83,7 +83,7 @@ export default function CreatePostForm({ onSubmit }: CreatePostFormProps) {
             minLength={10}
             rows={3}
             required
-            className="w-full bg-transparent border-0 border-b border-outline-variant/40 focus:ring-0 focus:border-secondary transition-all font-body text-sm py-2 px-0 resize-none placeholder:text-outline/50"
+            className="w-full bg-transparent border-0 border-b border-outline-variant/40 focus:ring-0 focus:border-primary focus:outline-none transition-all font-body text-sm py-2 px-0 resize-none placeholder:text-outline/50"
           />
         </div>
         <div className="flex gap-3 justify-end">
@@ -94,14 +94,14 @@ export default function CreatePostForm({ onSubmit }: CreatePostFormProps) {
               setTitle("");
               setDescription("");
             }}
-            className="px-6 py-2 rounded font-bold text-sm tracking-wide text-secondary hover:text-on-surface transition-colors"
+            className="px-6 py-2 rounded font-bold text-sm tracking-wide text-primary hover:bg-surface-container-high transition-colors"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={submitting}
-            className="bg-gradient-to-br from-primary to-primary-container text-primary-foreground px-8 py-2 rounded font-bold text-sm tracking-wide shadow-sm hover:opacity-90 transition-opacity btn-hover-lift disabled:opacity-50"
+            className="bg-primary text-on-primary px-8 py-2 rounded font-bold text-sm tracking-wide shadow-sm hover:opacity-90 transition-opacity btn-hover-lift disabled:opacity-50"
           >
             {submitting ? "Publishing..." : "Publish"}
           </button>

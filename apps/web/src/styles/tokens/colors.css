@@ -41,4 +41,9 @@
   --on-error-container: #93000a;
   --primary-fixed: #ffdad7;
   --surface-bright: #f8f9fa;
+  --primary: #52090c;
+  --error: #ba1a1a;
+  --background: #f8f9fa;
+  --on-background: #191c1d;
+  --on-error: #ffffff;
 }
