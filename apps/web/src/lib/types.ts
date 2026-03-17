@@ -3,6 +3,8 @@
  * All components and API functions should reference types from this file
  */
 
+import type { UpdateProfileData } from "@/hooks/profile/types";
+
 // ============================================================================
 // AUTH TYPES
 // ============================================================================
@@ -73,28 +75,7 @@ export interface ActivityResponse {
 // PROFILE TYPES
 // ============================================================================
 
-export interface UserProfile {
-  id: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  regNo?: string;
-  about?: string;
-  year?: string;
-  role: string;
-  displayName?: string;
-}
-
-export interface UpdateProfileData {
-  currentName: string;
-  currentYear: string;
-}
-
-export interface ProfileUpdateRequest {
-  name?: string;
-  year?: string;
-  about?: string;
-}
+// Migrated to src/hooks/profile/types.ts
 
 // ============================================================================
 // SIDEBAR CONTEXT TYPES
@@ -128,11 +109,6 @@ export interface OtpRequestResponse {
 // COMPONENT PROP TYPES
 // ============================================================================
 
-export interface ActivityCardProps {
-  onShowAllChange?: (showAll: boolean) => void;
-  isShowingAll?: boolean;
-}
-
 export interface AllActivitiesPanelProps {
   isVisible: boolean;
 }
@@ -142,43 +118,10 @@ export interface AllPostsPanelProps {
   posts?: PostWithDate[];
 }
 
-export interface UserPostsProps {
-  onShowAllChange?: (showAll: boolean) => void;
-  isShowingAll?: boolean;
-  posts?: PostWithDate[];
-}
-
-export interface ProfileHeaderProps {
-  name: string;
-  year: string;
-  about: string;
-  onAboutChange?: (about: string) => void;
-}
-
-export interface ProfileInfoProps {
-  name: string;
-  year: string;
-  about: string;
-  onAboutChange?: (about: string) => void;
-}
-
-export interface UpdateRequestPanelProps {
-  isVisible: boolean;
-  onClose: () => void;
-  currentName?: string;
-  currentYear?: string;
-}
-
 export interface ActivitiesPanelProps {
   activities: Activity[];
 }
 
 export interface PostsPanelProps {
   posts: PostWithDate[];
-}
-
-export interface UpdateRequestFormProps {
-  currentName?: string;
-  currentYear?: string;
-  onClose?: () => void;
 }

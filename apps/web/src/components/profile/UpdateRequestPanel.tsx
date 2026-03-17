@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { X, Send } from 'lucide-react';
-import type { UpdateRequestPanelProps } from '@/lib/types';
+import type { UpdateRequestPanelProps } from '@/hooks/profile/types';
 
 export default function UpdateRequestPanel({ isVisible, onClose, currentName = 'Student', currentYear = '2026' }: UpdateRequestPanelProps) {
   const [name, setName] = useState('');

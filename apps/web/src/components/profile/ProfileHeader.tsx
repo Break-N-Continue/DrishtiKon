@@ -1,6 +1,6 @@
 import ProfileAvatar from './ProfileAvatar';
 import ProfileInfo from './ProfileInfo';
-import type { ProfileHeaderProps } from '@/lib/types';
+import type { ProfileHeaderProps } from '@/hooks/profile/types';
 
 export default function ProfileHeader({ name, year, about, onAboutChange }: ProfileHeaderProps) {
   return (

@@ -41,11 +41,6 @@ export default function RightSidebar() {
     (activities && activities.length > 0) ||
     updateProfile !== null;
 
-  // ─ Hide sidebar on profile page when no sections are active
-  if (isProfilePage && !hasActiveSections) {
-    return null;
-  }
-
   // ─ Posts mode: Display user's posts ONLY on profile page when shared via context
   if (isProfilePage && posts && posts.length > 0) {
     return <PostsPanel posts={posts} />;

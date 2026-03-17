@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Pencil, Save, X } from 'lucide-react';
-import type { ProfileInfoProps } from '@/lib/types';
+import type { ProfileInfoProps } from '@/hooks/profile/types';
 
 export default function ProfileInfo({ name, year, about, onAboutChange }: ProfileInfoProps) {
   const [isEditing, setIsEditing] = useState(false);

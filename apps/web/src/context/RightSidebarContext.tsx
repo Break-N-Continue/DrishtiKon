@@ -1,7 +1,8 @@
 'use client';
 
 import { createContext, useContext, useState, type ReactNode } from 'react';
-import type { PostWithDate, Activity, UpdateProfileData } from '@/lib/types';
+import type { PostWithDate, Activity } from '@/lib/types';
+import type { UpdateProfileData } from '@/hooks/profile/types';
 
 interface RightSidebarContextType {
   posts: PostWithDate[] | null;

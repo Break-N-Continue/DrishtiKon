@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { MoreVertical } from 'lucide-react';
-import type { PostWithDate, UserPostsProps } from '@/lib/types';
+import type { PostWithDate } from '@/lib/types';
+import type { UserPostsProps } from '@/hooks/profile/types';
 
 export default function UserPosts({ onShowAllChange, isShowingAll = false, posts = [] }: UserPostsProps) {
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);

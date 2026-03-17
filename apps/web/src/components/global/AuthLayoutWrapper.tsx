@@ -131,8 +131,10 @@ function LayoutShell({ children }: { children: ReactNode }) {
     });
   }, [expandedLeftWidth]);
 
-  // ── Right handle drag (dragging left = wider, right = narrower) ───
+  const [isRightDragging, setIsRightDragging] = useState(false);
+
   const handleRightResize = useCallback((delta: number) => {
+    setIsRightDragging(true);
     setRightWidth((w) => {
       const next = Math.min(MAX_RIGHT, Math.max(MIN_RIGHT, w - delta));
       return next;
@@ -140,6 +142,7 @@ function LayoutShell({ children }: { children: ReactNode }) {
   }, []);
 
   const handleRightResizeEnd = useCallback(() => {
+    setIsRightDragging(false);
     setRightWidth((w) => {
       localStorage.setItem(LS_RIGHT, String(w));
       return w;
@@ -199,7 +202,7 @@ function LayoutShell({ children }: { children: ReactNode }) {
 
           {/* ── Right Panel (shrinks to 0 on profile when no sections active) ───── */}
           <div
-            className="hidden xl:flex flex-col shrink-0 border-l border-border overflow-hidden transition-all duration-500 ease-in-out"
+            className={`hidden xl:flex flex-col shrink-0 border-l border-border overflow-hidden ${!isRightDragging ? 'transition-all duration-500 ease-in-out' : ''} ${effectiveRightWidth === 0 ? 'opacity-0 border-transparent' : 'opacity-100'}`}
             style={hydrated ? { width: effectiveRightWidth } : { width: DEFAULT_RIGHT }}
           >
             <RightSidebar />

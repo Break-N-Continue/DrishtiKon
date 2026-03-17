@@ -1,170 +1,23 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useAuth } from "@/context/AuthContext";
-import { useRightSidebar } from "@/context/RightSidebarContext";
-import { getUserPosts, updateUserAbout, type Post, type PostWithDate, type Activity } from "@/lib/api";
+import { useProfile } from "@/hooks/profile/useProfile";
+import { useUpdateProfile } from "@/hooks/profile/useUpdateProfile";
+import { useProfileLayout } from "@/hooks/profile/useProfileLayout";
 import ProfileHeader from "@/components/profile/ProfileHeader";
 import ActivityCard from "@/components/profile/ActivityCard";
 import UserPosts from "@/components/profile/UserPosts";
 
 export default function ProfilePage() {
-  const { user, loading } = useAuth();
-  const { setPosts, setActivities, setUpdateProfile } = useRightSidebar();
-  const [showAllPosts, setShowAllPosts] = useState(false);
-  const [showAllActivities, setShowAllActivities] = useState(false);
-  const [showUpdateRequest, setShowUpdateRequest] = useState(false);
-  const [userPosts, setUserPosts] = useState<PostWithDate[]>([]);
-  const [postsLoading, setPostsLoading] = useState(true);
-  const [about, setAbout] = useState("Computer Science Student - VANET Enthusiast");
-  const [isSavingAbout, setIsSavingAbout] = useState(false);
-
-  const handleAboutChange = async (newAbout: string) => {
-    if (!user) return;
-    
-    try {
-      setIsSavingAbout(true);
-      await updateUserAbout(user.id, newAbout);
-      setAbout(newAbout);
-      console.log('About saved successfully:', newAbout);
-    } catch (error) {
-      console.error('Failed to save about:', error);
-      // Optionally show error message to user
-    } finally {
-      setIsSavingAbout(false);
-    }
-  };
-
-  // Fetch posts from backend when user is loaded
-  useEffect(() => {
-    if (!user) {
-      setPostsLoading(false);
-      return;
-    }
-
-    const fetchUserPosts = async () => {
-      try {
-        setPostsLoading(true);
-        const allPosts = await getUserPosts(user.id);
-        // Filter posts to show only those by the current user
-        const filtered: PostWithDate[] = allPosts
-          .filter(post => post.authorId === user.id)
-          .map(post => ({
-            ...post,
-            date: new Date(post.createdAt).toLocaleDateString('en-US', { 
-              year: 'numeric', 
-              month: 'short', 
-              day: 'numeric' 
-            }),
-            tags: post.tags || []
-          }));
-        setUserPosts(allPosts.length === 0 ? [] : filtered);
-      } catch (error) {
-        console.error('Failed to fetch posts:', error);
-      } finally {
-        setPostsLoading(false);
-      }
-    };
-
-    fetchUserPosts();
-  }, [user]);
-
-  // Clear context and reset states when component mounts to ensure consistency
-  useEffect(() => {
-    // Reset all local states on mount
-    setShowAllPosts(false);
-    setShowAllActivities(false);
-    setShowUpdateRequest(false);
-    
-    // Clear context on mount
-    setPosts(null);
-    setActivities(null);
-    setUpdateProfile(null);
-
-    // Cleanup: Clear context when leaving the profile page
-    return () => {
-      setPosts(null);
-      setActivities(null);
-      setUpdateProfile(null);
-    };
-  }, [setActivities, setUpdateProfile, setPosts]);
-
-  const handleShowAllPosts = (show: boolean) => {
-    setShowAllPosts(show);
-    // Pass posts to RightSidebar context when "Show All" is clicked
-    if (show) {
-      setPosts(userPosts);
-      setShowAllActivities(false);
-      setShowUpdateRequest(false);
-      setActivities(null);
-      setUpdateProfile(null);
-    } else {
-      // Clear when closing
-      setPosts(null);
-    }
-  };
-
-  const handleShowAllActivities = (show: boolean) => {
-    setShowAllActivities(show);
-    // Pass activities to RightSidebar context when "Show All" is clicked
-    if (show) {
-      // Sample activities data - in real app, fetch from backend
-      const sampleActivities: Activity[] = [
-        {
-          id: 1,
-          title: "Upvoted: Tips for Campus Placement Interview",
-          description: "Great tips on how to ace your placement interviews. Very helpful resource for final-year students.",
-          type: "upvote",
-          author: "John_Dev",
-          date: "3 days ago"
-        },
-        {
-          id: 2,
-          title: "Commented on: Best Study Groups on Campus",
-          description: "You commented: 'Anyone interested in forming a VANET research group? I'm working on protocol optimization...'",
-          type: "comment",
-          author: "Sarah_Tech",
-          date: "1 week ago"
-        },
-        {
-          id: 3,
-          title: "Upvoted: Next.js 14 Migration Guide",
-          description: "Comprehensive guide on migrating from Next.js 13 to 14. Covers all the breaking changes and new features.",
-          type: "upvote",
-          author: "Alex_Coder",
-          date: "2 weeks ago"
-        }
-      ];
-      setActivities(sampleActivities);
-      setShowAllPosts(false);
-      setPosts(null);
-      setShowUpdateRequest(false);
-      setUpdateProfile(null);
-    } else {
-      // Clear when closing
-      setActivities(null);
-    }
-  };
-
-  const handleToggleUpdateRequest = () => {
-    const newState = !showUpdateRequest;
-    setShowUpdateRequest(newState);
-    
-    // Pass update profile data to RightSidebar context when toggled
-    if (newState) {
-      setUpdateProfile({
-        currentName: user?.displayName || `${user?.firstName} ${user?.lastName}` || user?.email.split('@')[0] || 'Student',
-        currentYear: "2026"
-      });
-      setShowAllPosts(false);
-      setShowAllActivities(false);
-      setPosts(null);
-      setActivities(null);
-    } else {
-      // Clear when closing
-      setUpdateProfile(null);
-    }
-  };
+  const { user, loading, userPosts } = useProfile();
+  const { about, handleAboutChange } = useUpdateProfile();
+  const {
+    showAllPosts,
+    showAllActivities,
+    showUpdateRequest,
+    handleShowAllPosts,
+    handleShowAllActivities,
+    handleToggleUpdateRequest
+  } = useProfileLayout();
 
   return (
     <div className="min-h-screen bg-white">
@@ -253,8 +106,15 @@ export default function ProfilePage() {
               onAboutChange={handleAboutChange}
             />
 
-            <UserPosts onShowAllChange={handleShowAllPosts} isShowingAll={showAllPosts} posts={userPosts} />
-            <ActivityCard onShowAllChange={handleShowAllActivities} isShowingAll={showAllActivities} />
+            <UserPosts 
+              onShowAllChange={(show) => handleShowAllPosts(show, userPosts)} 
+              isShowingAll={showAllPosts} 
+              posts={userPosts} 
+            />
+            <ActivityCard 
+              onShowAllChange={handleShowAllActivities} 
+              isShowingAll={showAllActivities} 
+            />
 
           </div>
         </main>

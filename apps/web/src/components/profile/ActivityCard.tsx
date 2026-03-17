@@ -1,11 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { MoreVertical } from 'lucide-react';
-import type { Activity, ActivityCardProps } from '@/lib/types';
+import type { Activity } from '@/lib/types';
+import type { ActivityCardProps } from '@/hooks/profile/types';
 
 export default function ActivityCard({ onShowAllChange, isShowingAll = false }: ActivityCardProps) {
-  const [openMenuId, setOpenMenuId] = useState<number | null>(null);
 
   const handleShowAll = (value: boolean) => {
     onShowAllChange?.(value);

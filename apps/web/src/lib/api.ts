@@ -7,12 +7,12 @@ import {
   AuthUser,
   Activity,
   ActivityResponse,
-  UserProfile,
-  ProfileUpdateRequest,
   ApiResponse,
   AuthResponse,
   OtpRequestResponse,
 } from "./types";
+
+import type { UserProfile, ProfileUpdateRequest } from "@/hooks/profile/types";
 
 export type {
   Post,
@@ -22,12 +22,12 @@ export type {
   AuthUser,
   Activity,
   ActivityResponse,
-  UserProfile,
-  ProfileUpdateRequest,
   ApiResponse,
   AuthResponse,
   OtpRequestResponse,
 } from "./types";
+
+export type { UserProfile, ProfileUpdateRequest } from "@/hooks/profile/types";
 
 const api = axios.create({
   baseURL: "/api",
