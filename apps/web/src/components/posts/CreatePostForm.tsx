@@ -31,76 +31,82 @@ export default function CreatePostForm({ onSubmit }: CreatePostFormProps) {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="w-full py-3 px-4 border-2 border-dashed border-primary/30 rounded-lg text-primary hover:border-primary hover:bg-primary/5 transition-colors font-medium"
+        className="w-full bg-surface-container-lowest p-6 shadow-sm ring-1 ring-outline-variant/10 rounded-xl 
+                   text-primary hover:shadow-md transition-all flex items-center gap-4 group"
       >
-        + Create New Post
+        <span
+          className="material-symbols-outlined text-primary group-hover:scale-110 transition-transform"
+          style={{ fontVariationSettings: "'FILL' 1" }}
+        >
+          edit_note
+        </span>
+        <span className="font-headline text-lg font-semibold italic text-primary">
+          Contribute to the Archive
+        </span>
       </button>
     );
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="bg-white border border-border rounded-lg p-6 shadow-sm space-y-4"
-    >
-      <h3 className="text-lg font-semibold">Create a New Post</h3>
-
-      <div>
-        <label htmlFor="title" className="block text-sm font-medium mb-1">
-          Title
-        </label>
-        <input
-          id="title"
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="Enter post title (min 5 chars)"
-          minLength={5}
-          maxLength={255}
-          required
-          className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
-        />
-      </div>
-
-      <div>
-        <label
-          htmlFor="description"
-          className="block text-sm font-medium mb-1"
+    <section className="bg-surface-container-lowest p-8 shadow-sm ring-1 ring-outline-variant/10 composer-expand rounded-xl">
+      <div className="flex items-center gap-4 mb-6">
+        <span
+          className="material-symbols-outlined text-primary"
+          style={{ fontVariationSettings: "'FILL' 1" }}
         >
-          Description
-        </label>
-        <textarea
-          id="description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Describe your post (min 10 chars)"
-          minLength={10}
-          rows={4}
-          required
-          className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring resize-vertical"
-        />
+          edit_note
+        </span>
+        <h3 className="font-headline text-xl font-semibold italic text-primary">
+          Contribute to the Archive
+        </h3>
       </div>
-
-      <div className="flex gap-3">
-        <button
-          type="submit"
-          disabled={submitting}
-          className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:opacity-90 disabled:opacity-50 font-medium"
-        >
-          {submitting ? "Creating..." : "Create Post"}
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            setIsOpen(false);
-            setTitle("");
-            setDescription("");
-          }}
-          className="px-4 py-2 border border-border rounded-md hover:bg-secondary transition-colors"
-        >
-          Cancel
-        </button>
-      </div>
-    </form>
+      <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
+        <div className="relative">
+          <input
+            id="title"
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Title of Publication"
+            minLength={5}
+            maxLength={255}
+            required
+            className="w-full bg-transparent border-0 border-b border-outline-variant/40 focus:ring-0 focus:border-secondary transition-all font-headline text-lg py-2 px-0 placeholder:text-outline/50"
+          />
+        </div>
+        <div className="relative">
+          <textarea
+            id="description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Enter content or abstract..."
+            minLength={10}
+            rows={3}
+            required
+            className="w-full bg-transparent border-0 border-b border-outline-variant/40 focus:ring-0 focus:border-secondary transition-all font-body text-sm py-2 px-0 resize-none placeholder:text-outline/50"
+          />
+        </div>
+        <div className="flex gap-3 justify-end">
+          <button
+            type="button"
+            onClick={() => {
+              setIsOpen(false);
+              setTitle("");
+              setDescription("");
+            }}
+            className="px-6 py-2 rounded font-bold text-sm tracking-wide text-secondary hover:text-on-surface transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={submitting}
+            className="bg-gradient-to-br from-primary to-primary-container text-primary-foreground px-8 py-2 rounded font-bold text-sm tracking-wide shadow-sm hover:opacity-90 transition-opacity btn-hover-lift disabled:opacity-50"
+          >
+            {submitting ? "Publishing..." : "Publish"}
+          </button>
+        </div>
+      </form>
+    </section>
   );
 }
