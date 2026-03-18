@@ -163,7 +163,7 @@ function LayoutShell({ children }: { children: ReactNode }) {
         <div className="flex min-h-0 flex-1 overflow-hidden">
           {/* ── Left Sidebar ──────────────────────────────────────── */}
           <div
-            className="hidden md:flex flex-col shrink-0 border-r border-border overflow-hidden"
+            className="hidden md:flex flex-col shrink-0 overflow-hidden"
             style={hydrated ? { width: leftWidth } : { width: DEFAULT_LEFT }}
           >
             <Sidebar collapsed={leftWidth <= 80} onToggleCollapse={toggleLeftSidebar} />
@@ -202,7 +202,7 @@ function LayoutShell({ children }: { children: ReactNode }) {
 
           {/* ── Right Panel (shrinks to 0 on profile when no sections active) ───── */}
           <div
-            className={`hidden xl:flex flex-col shrink-0 border-l border-border overflow-hidden ${!isRightDragging ? 'transition-all duration-500 ease-in-out' : ''} ${effectiveRightWidth === 0 ? 'opacity-0 border-transparent' : 'opacity-100'}`}
+            className={`hidden xl:flex flex-col shrink-0 overflow-hidden ${!isRightDragging ? 'transition-all duration-500 ease-in-out' : ''} ${effectiveRightWidth === 0 ? 'opacity-0' : 'opacity-100'}`}
             style={hydrated ? { width: effectiveRightWidth } : { width: DEFAULT_RIGHT }}
           >
             <RightSidebar />
