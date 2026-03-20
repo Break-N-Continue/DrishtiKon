@@ -2,322 +2,63 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  /* Base Colors - Light & Clean */
-  --background: 0 0% 100%; /* Pure white */
-  --foreground: 220 13% 20%; /* Deep slate for text */
-  
-  /* Card Colors */
-  --card: 0 0% 100%; /* Pure white for cards */
-  --card-foreground: 220 13% 20%; /* Deep gray for text */
-  
-  /* Popover Colors */
-  --popover: 0 0% 100%; /* White */
-  --popover-foreground: 220 13% 20%; /* Deep gray */
-  
-  /* Primary Colors - Indigo (Core Brand) */
-  --primary: 238 84% 59%; /* Vibrant but warm Indigo */
-  --primary-foreground: 0 0% 100%; /* White */
-  
-  /* Secondary Colors - Cyan (Interactive) */
-  --secondary: 190 96% 44%; /* Bright, energetic Cyan */
-  --secondary-foreground: 0 0% 100%; /* White */
-  
-  /* Tertiary - Violet (Accent) */
-  --tertiary: 272 100% 58%; /* Smooth Violet */
-  --tertiary-foreground: 0 0% 100%; /* White */
-  
-  /* Muted Colors */
-  --muted: 210 20% 93%; /* Subtle gray */
-  --muted-foreground: 220 10% 50%; /* Medium gray */
-  
-  /* Accent Colors - Light & Colorful */
-  --accent: 190 100% 93%; /* Light cyan background */
-  --accent-foreground: 190 96% 44%; /* Cyan text */
-  
-  /* Destructive Colors */
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 0 0% 100%;
-  
-  /* Border Colors - Light & Colorful */
-  --border: 220 18% 88%; /* Soft gray borders */
-  --border-primary: 238 84% 88%; /* Very light indigo */
-  --border-secondary: 190 100% 88%; /* Very light cyan */
-  --border-accent: 272 100% 90%; /* Very light violet */
-  
-  /* Input Colors */
-  --input: 220 15% 96%; /* Very light gray */
-  
-  /* Ring Color - Indigo */
-  --ring: 238 84% 59%; /* Indigo */
-  
-  /* Radius - Modern rounded */
-  --radius: 0.625rem;
-  
-  /* Extended Color Palette - Light & Vibrant */
-  /* Indigo Shades */
-  --indigo-50: 238 100% 98%;
-  --indigo-100: 238 98% 95%;
-  --indigo-200: 238 96% 90%;
-  --indigo-300: 238 90% 82%;
-  --indigo-400: 238 87% 72%;
-  --indigo-600: 238 84% 59%;
-  --indigo-700: 238 82% 48%;
-  --indigo-900: 238 72% 28%;
-  
-  /* Cyan Shades */
-  --cyan-50: 190 100% 96%;
-  --cyan-100: 190 98% 93%;
-  --cyan-200: 190 96% 88%;
-  --cyan-300: 190 94% 80%;
-  --cyan-400: 190 96% 65%;
-  --cyan-600: 190 96% 44%;
-  --cyan-700: 190 92% 35%;
-  --cyan-800: 190 88% 25%;
-  
-  /* Violet Shades */
-  --violet-50: 272 100% 98%;
-  --violet-100: 272 100% 96%;
-  --violet-200: 272 98% 92%;
-  --violet-300: 272 96% 86%;
-  --violet-400: 272 98% 72%;
-  --violet-600: 272 100% 58%;
-  --violet-700: 272 98% 48%;
-  --violet-900: 272 80% 30%;
-  
-  /* Slate Shades - Typography */
-  --slate-50: 220 25% 99%;
-  --slate-300: 220 15% 80%;
-  --slate-400: 220 12% 68%;
-  --slate-500: 220 11% 55%;
-  --slate-600: 220 12% 42%;
-  --slate-700: 220 13% 30%;
-  --slate-800: 220 14% 20%;
-  --slate-900: 220 13% 20%;
-  
-  /* Gray Shades - Backgrounds & Borders */
-  --gray-50: 220 20% 98%;
-  --gray-100: 220 18% 96%;
-  --gray-200: 220 15% 91%;
-  --gray-300: 220 12% 85%;
-  
-  /* Professional Solid Colors - No Gradients */
-  --bg-subtle: 220 15% 98%; /* Very subtle gray for backgrounds */
-  --bg-accent-light: 238 100% 98%; /* Very light indigo for accents */
+@import '../styles/tokens/colors.css';
+@import '../styles/tokens/typography.css';
+@import '../styles/tokens/animations.css';
+@import '../styles/components.css';
 
-  /* Navbar Tokens */
-  --navbar-border: var(--cyan-200);
-  --navbar-shadow: 0 6px 18px hsl(220 35% 25% / 0.08);
-  --navbar-search-bg: 0 0% 100%;
-  --navbar-search-border: var(--cyan-200);
-  --navbar-search-border-hover: var(--cyan-300);
-  --navbar-search-icon: var(--cyan-600);
-  --navbar-search-text: var(--slate-700);
-  --navbar-search-placeholder: var(--slate-400);
-  --navbar-action-primary-bg: var(--indigo-50);
-  --navbar-action-primary-border: var(--indigo-200);
-  --navbar-action-primary-text: var(--indigo-600);
-  --navbar-action-secondary-bg: 0 0% 100%;
-  --navbar-action-secondary-border: var(--cyan-200);
-  --navbar-action-secondary-text: var(--slate-700);
-  --navbar-action-hover-bg: var(--cyan-50);
-  --navbar-action-hover-text: var(--cyan-700);
-  --navbar-brand-bg: var(--indigo-600);
-  --navbar-brand-text: var(--indigo-600);
-  --navbar-brand-foreground: 0 0% 100%;
+@layer base {
+  :root {
+    /* Shadcn component tokens - kept for Shadcn UI atoms (card, popover, etc.) */
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
 
-  /* Sidebar Tokens */
-  --sidebar-shell-bg: var(--slate-50);
-  --sidebar-panel-bg: 0 0% 100%;
-  --sidebar-panel-border: var(--cyan-100);
-  --sidebar-divider: var(--cyan-100);
-  --sidebar-heading: var(--indigo-600);
-  --sidebar-item-text: var(--slate-600);
-  --sidebar-item-hover-bg: var(--cyan-50);
-  --sidebar-item-hover-text: var(--cyan-700);
-  --sidebar-item-active-bg: var(--indigo-50);
-  --sidebar-item-active-border: var(--indigo-600);
-  --sidebar-item-active-text: var(--indigo-600);
-  --sidebar-avatar-bg: var(--indigo-600);
-  --sidebar-auth-chip-bg: var(--indigo-50);
-  --sidebar-auth-chip-border: var(--indigo-200);
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+  }
 }
 
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background-color: hsl(var(--background));
-  color: hsl(var(--foreground));
-  min-height: 100vh;
-}
-
-@layer components {
-  .navbar-shell {
-    @apply sticky top-0 z-40 w-full border-b px-4 py-3 md:px-6;
-    border-color: hsl(var(--navbar-border));
-    box-shadow: var(--navbar-shadow);
-    background-color: hsl(0 0% 100%);
+@layer base {
+  * {
+    @apply border-border;
   }
-
-  .navbar-brand-badge {
-    @apply rounded-lg p-2 shadow-sm;
-    background-color: hsl(var(--navbar-brand-bg));
-    color: hsl(var(--navbar-brand-foreground));
-  }
-
-  .navbar-brand-text {
-    color: hsl(var(--navbar-brand-text));
-    font-weight: 800;
-  }
-
-  .navbar-search {
-    @apply flex w-full max-w-md items-center rounded-full border px-4 py-2 shadow-sm transition-colors;
-    border-color: hsl(var(--navbar-search-border));
-    background-color: hsl(var(--navbar-search-bg));
-  }
-
-  .navbar-search:hover {
-    border-color: hsl(var(--navbar-search-border-hover));
-  }
-
-  .navbar-search-icon {
-    color: hsl(var(--navbar-search-icon));
-  }
-
-  .navbar-search-input {
-    color: hsl(var(--navbar-search-text));
-  }
-
-  .navbar-search-input::placeholder {
-    color: hsl(var(--navbar-search-placeholder));
-  }
-
-  .navbar-action-primary {
-    @apply inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors md:px-4 md:text-sm;
-    border-color: hsl(var(--navbar-action-primary-border));
-    background-color: hsl(var(--navbar-action-primary-bg));
-    color: hsl(var(--navbar-action-primary-text));
-  }
-
-  .navbar-action-primary:hover {
-    background-color: hsl(var(--navbar-action-hover-bg));
-    color: hsl(var(--navbar-action-hover-text));
-  }
-
-  .navbar-action-secondary {
-    @apply inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors md:px-4 md:text-sm;
-    border-color: hsl(var(--navbar-action-secondary-border));
-    background-color: hsl(var(--navbar-action-secondary-bg));
-    color: hsl(var(--navbar-action-secondary-text));
-  }
-
-  .navbar-action-secondary:hover {
-    background-color: hsl(var(--navbar-action-hover-bg));
-    color: hsl(var(--navbar-action-hover-text));
-  }
-
-  .sidebar-shell {
-    @apply flex h-full flex-col;
-    background-color: hsl(var(--sidebar-shell-bg));
-  }
-
-  .sidebar-shell-expanded {
-    @apply p-3;
-  }
-
-  .sidebar-shell-collapsed {
-    @apply p-1;
-  }
-
-  .sidebar-panel {
-    @apply flex h-full flex-col rounded-xl border shadow-sm;
-    border-color: hsl(var(--sidebar-panel-border));
-    background-color: hsl(var(--sidebar-panel-bg));
-  }
-
-  .sidebar-header {
-    @apply shrink-0 border-b;
-    border-color: hsl(var(--sidebar-divider));
-  }
-
-  .sidebar-heading {
-    @apply text-xs font-bold tracking-wide;
-    color: hsl(var(--sidebar-heading));
-  }
-
-  .sidebar-toggle {
-    @apply flex items-center justify-center rounded-lg p-2 transition-colors;
-    color: hsl(var(--sidebar-item-text));
-  }
-
-  .sidebar-toggle:hover {
-    background-color: hsl(var(--sidebar-item-hover-bg));
-    color: hsl(var(--sidebar-item-hover-text));
-  }
-
-  .sidebar-nav {
-    @apply flex-1 space-y-2 overflow-y-auto py-4;
-  }
-
-  .sidebar-item {
-    @apply flex items-center gap-4 rounded-lg px-4 py-3.5 text-base font-semibold transition-all;
-    color: hsl(var(--sidebar-item-text));
-  }
-
-  .sidebar-item-expanded {
-    @apply border-l-4 border-transparent;
-  }
-
-  .sidebar-item-collapsed {
-    @apply justify-center px-2;
-  }
-
-  .sidebar-item:hover {
-    background-color: hsl(var(--sidebar-item-hover-bg));
-    color: hsl(var(--sidebar-item-hover-text));
-  }
-
-  .sidebar-item-active-expanded {
-    @apply shadow-md;
-    border-color: hsl(var(--sidebar-item-active-border));
-    background-color: hsl(var(--sidebar-item-active-bg));
-    color: hsl(var(--sidebar-item-active-text));
-  }
-
-  .sidebar-item-active-collapsed {
-    @apply scale-105;
-    background-color: hsl(var(--indigo-100));
-    color: hsl(var(--sidebar-item-active-text));
-  }
-
-  .sidebar-footer {
-    @apply shrink-0 border-t;
-    border-color: hsl(var(--sidebar-divider));
-  }
-
-  .sidebar-avatar {
-    @apply flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white shadow-sm;
-    background-color: hsl(var(--sidebar-avatar-bg));
-  }
-
-  .sidebar-auth-chip {
-    @apply rounded-lg border p-2;
-    border-color: hsl(var(--sidebar-auth-chip-border));
-    background-color: hsl(var(--sidebar-auth-chip-bg));
-  }
-
-  .sidebar-ghost-action {
-    @apply flex h-9 w-9 shrink-0 items-center justify-center rounded-lg p-2 transition-colors;
-    color: hsl(var(--sidebar-item-text));
-  }
-
-  .sidebar-ghost-action:hover {
-    background-color: hsl(var(--sidebar-item-hover-bg));
-    color: hsl(var(--sidebar-item-hover-text));
+  body {
+    @apply bg-surface text-on-surface antialiased;
   }
 }
