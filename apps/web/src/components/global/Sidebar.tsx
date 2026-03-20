@@ -15,7 +15,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   {
     label: "Home",
-    href: "/",
+    href: "/homePage",
     icon: (
       <svg
         className="w-5 h-5"
@@ -66,93 +66,88 @@ export default function Sidebar({ collapsed = false, onToggleCollapse }: Sidebar
   const { user, logout } = useAuth();
 
   return (
-    <div className={`sidebar-shell ${collapsed ? "sidebar-shell-collapsed" : "sidebar-shell-expanded"}`}>
-      <div className="sidebar-panel">
-      {/* Toggle button at top */}
-      <div className={`sidebar-header flex items-center ${collapsed ? 'justify-center py-3 px-1' : 'justify-between py-3 px-4'}`}>
-        {!collapsed && (
-          <p className="sidebar-heading">MENU</p>
-        )}
-        <button
-          onClick={onToggleCollapse}
-          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          className="sidebar-toggle"
-        >
-          {collapsed ? (
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-            </svg>
-          ) : (
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-            </svg>
+    <div className={`transition-all duration-300 bg-surface flex flex-col h-full w-full`}>
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Toggle button at top */}
+        <div className={`flex items-center ${collapsed ? 'justify-center py-4 px-2' : 'justify-between py-4 px-4'}`}>
+          {!collapsed && (
+            <p className="text-on-surface-variant font-semibold text-xs tracking-wider">MENU</p>
           )}
-        </button>
-      </div>
-      
-      {/* Navigation links */}
-      <nav className={`sidebar-nav ${collapsed ? 'px-1' : 'px-3'}`}>
-        {navItems.map((item) => {
-          const active = pathname === item.href;
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`sidebar-item ${collapsed ? 'sidebar-item-collapsed' : 'sidebar-item-expanded'} ${
-                active
-                  ? collapsed 
-                    ? "sidebar-item-active-collapsed"
-                    : "sidebar-item-active-expanded"
-                  : !collapsed
-                    ? "hover:shadow-sm"
-                    : ""
-              }`}
-              title={collapsed ? item.label : undefined}
-            >
-              <span className={collapsed ? "scale-110" : ""}>{item.icon}</span>
-              {!collapsed && <span className="truncate">{item.label}</span>}
-            </Link>
-          );
-        })}
-      </nav>
-
-      {/* Auth section at bottom */}
-      <div className={`sidebar-footer ${collapsed ? 'p-2' : 'p-3'}`}>
-        {user ? (
-          <div className={`flex items-center gap-3 ${collapsed ? "flex-col justify-center" : "justify-start"}`}>
-            {/* Avatar - only visible when expanded */}
-            {!collapsed && (
-              <div className="sidebar-avatar">
-                {String(user.displayName).charAt(0).toUpperCase()}
-              </div>
-            )}
-            {/* Display name - only visible when expanded */}
-            {!collapsed && (
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium truncate text-slate-900">
-                  {user.displayName}
-                </p>
-              </div>
-            )}
-            {/* Sign out button */}
-            <button
-              onClick={logout}
-              title="Sign Out"
-              className="sidebar-ghost-action"
-            >
+          <button
+            onClick={onToggleCollapse}
+            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            className="text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface rounded-md p-1.5 transition-colors"
+          >
+            {collapsed ? (
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
               </svg>
-            </button>
-          </div>
-        ) : (
-          <div className={collapsed ? "flex justify-center" : ""}>
-            <div className={collapsed ? "" : "sidebar-auth-chip"}>
-              <LoginButton compact={collapsed} />
+            ) : (
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+              </svg>
+            )}
+          </button>
+        </div>
+
+        {/* Navigation links */}
+        <nav className={`flex-1 overflow-y-auto py-2 ${collapsed ? 'px-2' : 'px-3'} space-y-1`}>
+          {navItems.map((item) => {
+            const active = pathname === item.href;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex items-center transition-colors rounded-lg ${collapsed ? 'justify-center py-3' : 'gap-3 py-2.5 px-3'} ${active
+                    ? "bg-secondary-container text-on-secondary-container font-medium"
+                    : "text-on-surface-variant hover:bg-surface-container hover:text-on-surface"
+                  }`}
+                title={collapsed ? item.label : undefined}
+              >
+                <span className={collapsed ? "scale-110" : ""}>{item.icon}</span>
+                {!collapsed && <span className="truncate">{item.label}</span>}
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Auth section at bottom */}
+        <div className={`border-t border-outline-variant bg-surface-container-low ${collapsed ? 'p-2' : 'p-3'}`}>
+          {user ? (
+            <div className={`flex items-center gap-3 ${collapsed ? "flex-col justify-center" : "justify-start"}`}>
+              {/* Avatar - only visible when expanded */}
+              {!collapsed && (
+                <div className="bg-primary-container text-on-primary-container shrink-0 h-9 w-9 rounded-full flex items-center justify-center font-bold">
+                  {String(user.displayName).charAt(0).toUpperCase()}
+                </div>
+              )}
+              {/* Display name - only visible when expanded */}
+              {!collapsed && (
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium truncate text-on-surface">
+                    {user.displayName}
+                  </p>
+                </div>
+              )}
+              {/* Sign out button */}
+              <button
+                onClick={logout}
+                title="Sign Out"
+                className={`text-on-surface-variant hover:text-error hover:bg-error-container rounded-md transition-colors ${collapsed ? 'p-2' : 'p-1.5'}`}
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1" />
+                </svg>
+              </button>
             </div>
-          </div>
-        )}
-      </div>
+          ) : (
+            <div className={collapsed ? "flex justify-center" : ""}>
+              <div className="w-full">
+                <LoginButton compact={collapsed} />
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
