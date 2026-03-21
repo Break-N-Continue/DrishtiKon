@@ -21,57 +21,47 @@ export default function ProfileInfo({ name, year, about, onAboutChange }: Profil
   };
 
   return (
-    <div className="w-full space-y-4">
-      <div className="p-4 bg-indigo-50 rounded-lg border-l-4 border-indigo-500">
-        <p><span className="font-bold text-indigo-700">Name:</span> <span className="text-slate-700 font-semibold">{name}</span></p>
-      </div>
-      <div className="p-4 bg-cyan-50 rounded-lg border-l-4 border-cyan-500">
-        <p><span className="font-bold text-cyan-700">Year:</span> <span className="text-slate-700 font-semibold">{year}</span></p>
-      </div>
-      <div className="p-5 bg-indigo-50 rounded-lg border-l-4 border-indigo-500 relative">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex-1">
-            <h3 className="font-bold text-indigo-700 mb-3 text-lg">About</h3>
-            {isEditing ? (
-              <div className="space-y-3">
-                <textarea
-                  value={editedAbout}
-                  onChange={(e) => setEditedAbout(e.target.value)}
-                  className="w-full px-4 py-3 bg-white border-2 border-indigo-300 rounded-lg focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all text-slate-700 placeholder-slate-400 resize-none"
-                  rows={4}
-                  placeholder="Write something about yourself..."
-                />
-                <div className="flex gap-2">
-                  <button
-                    onClick={handleSave}
-                    className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 hover:shadow-lg transition-all font-semibold text-sm"
-                  >
-                    <Save size={16} />
-                    Save
-                  </button>
-                  <button
-                    onClick={handleCancel}
-                    className="flex items-center gap-2 px-4 py-2 bg-slate-300 text-slate-700 rounded-lg hover:bg-slate-400 transition-all font-semibold text-sm"
-                  >
-                    <X size={16} />
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <p className="text-slate-700 leading-relaxed text-sm">{editedAbout}</p>
-            )}
-          </div>
-          {!isEditing && (
+    <div className="w-full relative group">
+      {isEditing ? (
+        <div className="space-y-3 mt-4">
+          <textarea
+            value={editedAbout}
+            onChange={(e) => setEditedAbout(e.target.value)}
+            className="w-full px-4 py-3 bg-surface-container-low border border-outline-variant/40 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-on-surface placeholder:text-outline/50 font-body text-sm resize-none"
+            rows={4}
+            placeholder="Write something about yourself..."
+          />
+          <div className="flex gap-2">
             <button
-              onClick={() => setIsEditing(true)}
-              className="p-2 hover:bg-indigo-100 rounded-lg transition-colors flex-shrink-0 group"
+              onClick={handleSave}
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-lg hover:opacity-90 transition-all font-bold text-sm shadow-sm"
             >
-              <Pencil size={18} className="text-indigo-600 group-hover:text-cyan-600 transition-colors" />
+              <Save size={16} />
+              Save
             </button>
-          )}
+            <button
+              onClick={handleCancel}
+              className="flex items-center gap-2 px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-lg hover:bg-surface-container-highest transition-all font-bold text-sm"
+            >
+              <X size={16} />
+              Cancel
+            </button>
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="relative pr-8 pl-6 py-2 border-l-2 border-primary/20">
+          <p className="text-on-surface-variant leading-relaxed text-lg font-light italic serif">
+            "{editedAbout || 'Add a bio quote...'}"
+          </p>
+          <button
+            onClick={() => setIsEditing(true)}
+            className="absolute top-0 right-0 p-2 rounded-full opacity-0 group-hover:opacity-100 hover:bg-surface-container-high transition-all text-secondary hover:text-primary focus:opacity-100"
+            title="Edit Bio"
+          >
+            <Pencil size={16} />
+          </button>
+        </div>
+      )}
     </div>
   );
 }

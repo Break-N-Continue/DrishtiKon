@@ -91,17 +91,20 @@ export default function Sidebar({ collapsed = false, onToggleCollapse }: Sidebar
         </div>
 
         {/* Navigation links */}
-        <nav className={`flex-1 overflow-y-auto py-2 ${collapsed ? 'px-2' : 'px-3'} space-y-1`}>
+        <nav className="flex-1 overflow-y-auto py-2 flex flex-col space-y-1">
           {navItems.map((item) => {
             const active = pathname === item.href;
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center transition-colors rounded-lg ${collapsed ? 'justify-center py-3' : 'gap-3 py-2.5 px-3'} ${active
-                    ? "bg-secondary-container text-on-secondary-container font-medium"
-                    : "text-on-surface-variant hover:bg-surface-container hover:text-on-surface"
-                  }`}
+                className={`flex items-center transition-all duration-300 ${
+                  collapsed ? 'justify-center py-3 px-2' : 'gap-3 py-2.5 pl-7 pr-6'
+                } ${
+                  active
+                    ? "text-primary font-bold border-r-4 border-primary bg-surface-container-high"
+                    : "text-secondary opacity-80 hover:bg-surface-container-highest hover:text-on-surface border-r-4 border-transparent"
+                }`}
                 title={collapsed ? item.label : undefined}
               >
                 <span className={collapsed ? "scale-110" : ""}>{item.icon}</span>
