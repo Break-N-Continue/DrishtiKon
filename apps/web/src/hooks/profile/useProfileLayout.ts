@@ -5,7 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 
 export function useProfileLayout() {
   const { user } = useAuth();
-  const { setPosts, setActivities, setUpdateProfile } = useRightSidebar();
+  const { setPosts, setActivities, setUpdateProfile, updateProfile } = useRightSidebar();
   const [showAllPosts, setShowAllPosts] = useState(false);
   const [showAllActivities, setShowAllActivities] = useState(false);
   const [showUpdateRequest, setShowUpdateRequest] = useState(false);
@@ -25,6 +25,13 @@ export function useProfileLayout() {
       setUpdateProfile(null);
     };
   }, [setActivities, setUpdateProfile, setPosts]);
+
+  // Sync showUpdateRequest when the panel is closed externally (e.g., X button in sidebar)
+  useEffect(() => {
+    if (updateProfile === null) {
+      setShowUpdateRequest(false);
+    }
+  }, [updateProfile]);
 
   const handleShowAllPosts = useCallback((show: boolean, userPosts: PostWithDate[]) => {
     setShowAllPosts(show);
@@ -55,10 +62,14 @@ export function useProfileLayout() {
   const handleToggleUpdateRequest = useCallback(() => {
     const newState = !showUpdateRequest;
     setShowUpdateRequest(newState);
-    
+
     if (newState) {
+      const resolvedName = user?.displayName 
+        || (user?.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : null)
+        || user?.email?.split('@')[0]
+        || 'Student';
       setUpdateProfile({
-        currentName: user?.displayName || user?.firstName ? `${user?.firstName} ${user?.lastName || ''}`.trim() : user?.email?.split('@')[0] || 'Student',
+        currentName: resolvedName,
         currentYear: "2026"
       });
       setShowAllPosts(false);
@@ -70,12 +81,19 @@ export function useProfileLayout() {
     }
   }, [showUpdateRequest, user, setPosts, setActivities, setUpdateProfile]);
 
+  // Called by the X button in the Right Sidebar panel to sync state back
+  const handleCloseUpdateRequest = useCallback(() => {
+    setShowUpdateRequest(false);
+    setUpdateProfile(null);
+  }, [setUpdateProfile]);
+
   return {
     showAllPosts,
     showAllActivities,
     showUpdateRequest,
     handleShowAllPosts,
     handleShowAllActivities,
-    handleToggleUpdateRequest
+    handleToggleUpdateRequest,
+    handleCloseUpdateRequest
   };
 }

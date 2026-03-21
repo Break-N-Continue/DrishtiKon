@@ -1,19 +1,19 @@
 'use client';
 
-import { useState } from 'react';
-import { MoreVertical } from 'lucide-react';
-import type { PostWithDate } from '@/lib/types';
 import type { UserPostsProps } from '@/hooks/profile/types';
+import { useRightSidebar } from '@/context/RightSidebarContext';
 
 export default function UserPosts({ onShowAllChange, isShowingAll = false, posts = [] }: UserPostsProps) {
-  const [openMenuId, setOpenMenuId] = useState<number | null>(null);
-
+  const { posts: selectedPosts, setPosts } = useRightSidebar();
+  
   const handleShowAll = (value: boolean) => {
     onShowAllChange?.(value);
   };
 
   // Show up to 3 posts in the collapsed stack, or all of them if expanded
   const postsToDisplay = isShowingAll ? posts : posts.slice(0, 3);
+  
+  const selectedPostId = selectedPosts?.[0]?.id;
 
   return (
     <div className="mb-12">
@@ -35,46 +35,38 @@ export default function UserPosts({ onShowAllChange, isShowingAll = false, posts
       </div>
 
       <div className="space-y-6">
-        {postsToDisplay.map((post) => (
-          <div key={post.id} className="bg-surface-container-lowest p-6 rounded-xl ring-1 ring-outline-variant/10 shadow-sm cursor-pointer hover:ring-primary/20 transition-all group">
-            <div className="flex justify-between items-start mb-3">
-              <span className="text-[10px] font-label uppercase tracking-[0.2em] text-secondary/60">
-                {post.tags && post.tags.length > 0 ? `Post • ${post.tags[0]}` : 'Post'}
-              </span>
-              {isShowingAll && (
-                <div className="relative">
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setOpenMenuId(openMenuId === post.id ? null : post.id); }}
-                    className="p-1 hover:bg-surface-container-high rounded-full transition text-secondary hover:text-primary"
-                  >
-                    <MoreVertical size={16} />
-                  </button>
-                  {openMenuId === post.id && (
-                    <div className="absolute right-0 mt-2 bg-surface border border-outline-variant/20 rounded-lg shadow-lg z-50 min-w-[120px] overflow-hidden">
-                      <button className="w-full text-left px-4 py-2 text-sm text-on-surface hover:bg-surface-container-high font-medium transition">
-                        Edit
-                      </button>
-                      <button className="w-full text-left px-4 py-2 text-sm text-error hover:bg-error-container font-medium transition border-t border-outline-variant/10">
-                        Delete
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
+        {postsToDisplay.map((post) => {
+          const isActive = post.id === selectedPostId;
+          
+          return (
+            <div
+              key={post.id}
+              onClick={() => setPosts([post])}
+              className={`p-6 rounded-xl transition-all duration-300 cursor-pointer group ${
+                isActive 
+                  ? 'bg-surface-container-low ring-2 ring-primary shadow-md transform -translate-y-1' 
+                  : 'bg-surface-container-lowest ring-1 ring-outline-variant/10 shadow-sm hover:ring-primary/40 hover:bg-surface-container-low hover:-translate-y-0.5'
+              }`}
+            >
+              <div className="flex justify-between items-start mb-3">
+                <span className={`text-[10px] font-label uppercase tracking-[0.2em] ${isActive ? 'text-primary' : 'text-secondary/60'}`}>
+                  {post.tags && post.tags.length > 0 ? `Post • ${post.tags[0]}` : 'Post'}
+                </span>
+              </div>
+
+              <h4 className="font-headline text-2xl text-on-surface group-hover:text-primary transition-colors mb-3">
+                {post.title}
+              </h4>
+              <p className="text-on-surface-variant text-sm line-clamp-2 leading-relaxed mb-4">
+                {post.description}
+              </p>
+
+              <div className="mt-4 flex gap-4 text-xs text-secondary/60">
+                <span className="flex items-center gap-1 font-medium">{post.date}</span>
+              </div>
             </div>
-            
-            <h4 className="font-headline text-2xl text-on-surface group-hover:text-primary transition-colors mb-3">
-              {post.title}
-            </h4>
-            <p className="text-on-surface-variant text-sm line-clamp-2 leading-relaxed mb-4">
-              {post.description}
-            </p>
-            
-            <div className="mt-4 flex gap-4 text-xs text-secondary/60">
-              <span className="flex items-center gap-1 font-medium">{post.date}</span>
-            </div>
-          </div>
-        ))}
+          );
+        })}
 
         {posts.length === 0 && (
           <div className="text-center py-12 text-on-surface-variant italic font-serif">
