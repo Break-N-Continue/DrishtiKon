@@ -59,11 +59,6 @@ public class PostController {
         return ResponseEntity.ok(updated);
     }
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<PostResponse>> getPostsByUser(@PathVariable Long userId) {
-        return ResponseEntity.ok(postService.getPostsByUserId(userId));
-    }
-
     @PostMapping("/{id}/tags/{tagId}")
     public ResponseEntity<PostResponse> addTagToPost(@PathVariable Long id,
                                                      @PathVariable Long tagId,
