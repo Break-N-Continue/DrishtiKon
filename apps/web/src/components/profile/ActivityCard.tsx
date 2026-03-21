@@ -34,74 +34,75 @@ export default function ActivityCard({ onShowAllChange, isShowingAll = false }: 
       type: "upvote",
       author: "Alex_Coder",
       date: "2 weeks ago"
+    },
+    {
+      id: 4,
+      title: "Upvoted: Next.js 14 Migration Guide",
+      description: "Comprehensive guide on migrating from Next.js 13 to 14. Covers all the breaking changes and new features.",
+      type: "upvote",
+      author: "Alex_Coder",
+      date: "2 weeks ago"
+    },
+    {
+      id: 5,
+      title: "Upvoted: Next.js 14 Migration Guide",
+      description: "Comprehensive guide on migrating from Next.js 13 to 14. Covers all the breaking changes and new features.",
+      type: "upvote",
+      author: "Alex_Coder",
+      date: "2 weeks ago"
+    },
+    {
+      id: 6,
+      title: "Upvoted: Next.js 14 Migration Guide",
+      description: "Comprehensive guide on migrating from Next.js 13 to 14. Covers all the breaking changes and new features.",
+      type: "upvote",
+      author: "Alex_Coder",
+      date: "2 weeks ago"
     }
   ];
 
   const activitiesToDisplay = isShowingAll ? activities : activities.slice(0, 3);
 
   return (
-    <div className="w-full mt-8 bg-white rounded-2xl p-8 shadow-lg border border-cyan-200">
-      <div className="flex items-center justify-between mb-8 pb-6 border-b-2 border-indigo-100">
-        <div>
-          <h2 className="text-3xl font-bold text-indigo-700">Your Activity</h2>
-          <p className="text-sm text-slate-500 mt-1">Posts you've upvoted or commented on</p>
-        </div>
+    <div className="mb-12">
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="font-headline text-xl text-on-surface flex items-center gap-2">
+          <span className="material-symbols-outlined text-primary text-xl">history</span> Your Activity
+        </h3>
         <div className="flex items-center gap-4">
-          <span className="text-sm text-slate-600 font-semibold bg-indigo-50 px-3 py-1 rounded-full border border-indigo-200">{activities.length} activities</span>
+          <span className="text-[10px] text-secondary font-bold tracking-widest uppercase bg-surface-container-high px-2 py-0.5 rounded-sm">{activities.length} total</span>
           {activities.length > 1 && (
             <button
               onClick={() => handleShowAll(!isShowingAll)}
-              className="py-2 px-4 bg-indigo-600 text-white border border-indigo-500 font-semibold rounded-lg hover:bg-indigo-700 hover:shadow-lg hover:scale-105 transition-all duration-300 text-sm whitespace-nowrap"
+              className="text-[10px] font-bold uppercase tracking-widest text-primary hover:underline transition-all"
             >
-              {isShowingAll ? '← Show Less' : 'Show All →'}
+              {isShowingAll ? 'Show Less' : 'Show All'}
             </button>
           )}
         </div>
       </div>
 
-      {/* Container holding the cards - Only show stacked view when not showing all */}
-      {!isShowingAll && (
-        <div 
-          className="relative mx-auto w-full transition-all duration-700 ease-in-out" 
-          style={{ height: '300px' }}
-        >
-          {activitiesToDisplay.map((activity, index) => (
-            <div
-              key={activity.id}
-              className={`
-                w-full bg-cyan-50 border-2 border-indigo-200 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-700 ease-in-out cursor-pointer
-                absolute top-0 left-0
-              `}
-              style={{
-                transform: `translateY(${index * 24}px) translateX(${index * 8}px) rotateZ(${index * 2}deg)`,
-                zIndex: activitiesToDisplay.length - index,
-                opacity: 1,
-              }}
+      <div className="space-y-4">
+        {activitiesToDisplay.map((activity) => (
+          <div key={activity.id} className="bg-surface-container-low p-4 rounded-lg flex items-start gap-4">
+            <span
+              className={`material-symbols-outlined pt-1 text-base ${activity.type === 'upvote' ? 'text-primary' : 'text-secondary'}`}
+              style={activity.type === 'upvote' ? { fontVariationSettings: "'FILL' 1" } : {}}
             >
-              <div className="flex justify-between items-start mb-3">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className={`text-xs font-bold px-2 py-1 rounded-full ${
-                      activity.type === 'upvote' 
-                        ? 'bg-green-100 text-green-700' 
-                        : 'bg-blue-100 text-blue-700'
-                    }`}>
-                      {activity.type === 'upvote' ? '👍 Upvoted' : '💬 Commented'}
-                    </span>
-                  </div>
-                  <h3 className="text-sm font-bold text-slate-800">{activity.title}</h3>
-                </div>
-                <span className="text-sm text-slate-500 ml-3 font-medium whitespace-nowrap">{activity.date}</span>
-              </div>
-              
-              <p className="text-slate-600 mb-4 line-clamp-1 text-xs">{activity.description}</p>
-              
-              <div className="flex gap-4 pt-4 border-t border-indigo-100">
-              </div>
+              {activity.type === 'upvote' ? 'favorite' : 'mode_comment'}
+            </span>
+            <div>
+              <p className="text-sm text-on-surface">
+                {activity.type === 'upvote' ? 'Liked' : 'Commented on'} <span className="font-bold">"{activity.title.replace(/^(Upvoted: |Commented on: )/, '')}"</span>
+              </p>
+              {activity.type === 'comment' && (
+                <p className="text-xs text-secondary mt-1 italic">"{activity.description.replace(/^You commented: '/, '').replace(/'$/, '')}"</p>
+              )}
+              <p className="text-[10px] text-secondary/60 mt-2 uppercase tracking-tighter">{activity.date}</p>
             </div>
-          ))}
-        </div>
-      )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

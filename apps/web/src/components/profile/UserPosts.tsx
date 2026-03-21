@@ -16,101 +16,72 @@ export default function UserPosts({ onShowAllChange, isShowingAll = false, posts
   const postsToDisplay = isShowingAll ? posts : posts.slice(0, 3);
 
   return (
-    <div className="w-full mt-8 bg-white rounded-2xl p-8 shadow-lg border border-cyan-200">
-      <div className="flex items-center justify-between mb-8 pb-6 border-b-2 border-indigo-100">
-        <div>
-          <h2 className="text-3xl font-bold text-indigo-700">Your Posts</h2>
-          <p className="text-sm text-slate-500 mt-1">Share your campus experiences</p>
-        </div>
+    <div className="mb-12">
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="font-headline text-xl text-on-surface flex items-center gap-2">
+          <span className="material-symbols-outlined text-primary text-xl">edit_note</span> Your Posts
+        </h3>
         <div className="flex items-center gap-4">
-          <span className="text-sm text-slate-600 font-semibold bg-indigo-50 px-3 py-1 rounded-full border border-indigo-200">{posts.length} posts</span>
+          <span className="text-[10px] text-secondary font-bold tracking-widest uppercase bg-surface-container-high px-2 py-0.5 rounded-sm">{posts.length} posts</span>
           {posts.length > 1 && (
             <button
               onClick={() => handleShowAll(!isShowingAll)}
-              className="py-2 px-4 bg-indigo-600 text-white border border-indigo-500 font-semibold rounded-lg hover:bg-indigo-700 hover:shadow-lg hover:scale-105 transition-all duration-300 text-sm whitespace-nowrap"
+              className="text-[10px] font-bold uppercase tracking-widest text-primary hover:underline transition-all"
             >
-              {isShowingAll ? '← Show Less' : 'Show All →'}
+              {isShowingAll ? 'Show Less' : 'Show All'}
             </button>
           )}
         </div>
       </div>
 
-      {/* Container holding the cards - Only show stacked view when not showing all */}
-      {!isShowingAll && posts.length > 0 && (
-        <div 
-          className="relative mx-auto w-full transition-all duration-700 ease-in-out" 
-          style={{ height: '300px' }}
-        >
-          {postsToDisplay.map((post, index) => (
-            <div
-              key={post.id}
-              className={`
-                w-full bg-cyan-50 border-2 border-indigo-200 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-700 ease-in-out cursor-pointer
-                absolute top-0 left-0
-              `}
-              style={{
-                transform: `translateY(${index * 24}px) translateX(${index * 8}px) rotateZ(${index * 2}deg)`,
-                zIndex: postsToDisplay.length - index,
-                opacity: 1,
-              }}
-            >
-              <div className="flex justify-between items-start mb-3">
-                <h3 className="text-sm font-bold text-slate-800 flex-1">{post.title}</h3>
-                {isShowingAll && (
-                  <div className="relative">
-                    <button
-                      onClick={() => setOpenMenuId(openMenuId === post.id ? null : post.id)}
-                      className="ml-3 p-1 hover:bg-indigo-100 rounded-full transition"
-                    >
-                      <MoreVertical size={20} className="text-slate-600" />
-                    </button>
-                    {openMenuId === post.id && (
-                      <div className="absolute right-0 mt-2 bg-white border border-indigo-200 rounded-lg shadow-lg z-50 min-w-[120px]">
-                        <button className="w-full text-left px-4 py-2 text-sm text-indigo-600 hover:bg-indigo-50 font-semibold transition">
-                          Edit
-                        </button>
-                        <button className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50 font-semibold transition border-t border-indigo-100">
-                          Delete
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                )}
-                {!isShowingAll && (
-                  <span className="text-sm text-slate-500 ml-3 font-medium">{post.date}</span>
-                )}
-              </div>
-              
-              <p className="text-slate-600 mb-5 line-clamp-1 text-xs">{post.description}</p>
-              
+      <div className="space-y-6">
+        {postsToDisplay.map((post) => (
+          <div key={post.id} className="bg-surface-container-lowest p-6 rounded-xl ring-1 ring-outline-variant/10 shadow-sm cursor-pointer hover:ring-primary/20 transition-all group">
+            <div className="flex justify-between items-start mb-3">
+              <span className="text-[10px] font-label uppercase tracking-[0.2em] text-secondary/60">
+                {post.tags && post.tags.length > 0 ? `Post • ${post.tags[0]}` : 'Post'}
+              </span>
               {isShowingAll && (
-                <p className="text-sm text-slate-500 mb-4 font-medium">{post.date}</p>
-              )}
-              
-              <div className="flex flex-wrap gap-2 mb-4">
-                {post.tags && post.tags.map((tag, tagIndex) => (
-                  <span 
-                    key={tagIndex}
-                    className="text-xs bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-full border border-indigo-300 font-semibold"
+                <div className="relative">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setOpenMenuId(openMenuId === post.id ? null : post.id); }}
+                    className="p-1 hover:bg-surface-container-high rounded-full transition text-secondary hover:text-primary"
                   >
-                    #{tag}
-                  </span>
-                ))}
-              </div>
-
-              <div className="flex gap-4 pt-4 border-t border-indigo-100">
-              </div>
+                    <MoreVertical size={16} />
+                  </button>
+                  {openMenuId === post.id && (
+                    <div className="absolute right-0 mt-2 bg-surface border border-outline-variant/20 rounded-lg shadow-lg z-50 min-w-[120px] overflow-hidden">
+                      <button className="w-full text-left px-4 py-2 text-sm text-on-surface hover:bg-surface-container-high font-medium transition">
+                        Edit
+                      </button>
+                      <button className="w-full text-left px-4 py-2 text-sm text-error hover:bg-error-container font-medium transition border-t border-outline-variant/10">
+                        Delete
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
-          ))}
-        </div>
-      )}
-      
-      {/* Empty State */}
-      {posts.length === 0 && (
-        <div className="text-center py-12 text-slate-500">
-          <p className="text-sm">No posts yet. Start sharing your thoughts!</p>
-        </div>
-      )}
+            
+            <h4 className="font-headline text-2xl text-on-surface group-hover:text-primary transition-colors mb-3">
+              {post.title}
+            </h4>
+            <p className="text-on-surface-variant text-sm line-clamp-2 leading-relaxed mb-4">
+              {post.description}
+            </p>
+            
+            <div className="mt-4 flex gap-4 text-xs text-secondary/60">
+              <span className="flex items-center gap-1 font-medium">{post.date}</span>
+            </div>
+          </div>
+        ))}
+
+        {posts.length === 0 && (
+          <div className="text-center py-12 text-on-surface-variant italic font-serif">
+            <p>No posts yet. Start sharing your thoughts.</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

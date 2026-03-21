@@ -29,7 +29,7 @@ export function useProfileLayout() {
   const handleShowAllPosts = useCallback((show: boolean, userPosts: PostWithDate[]) => {
     setShowAllPosts(show);
     if (show) {
-      setPosts(userPosts);
+      setPosts(null);
       setShowAllActivities(false);
       setShowUpdateRequest(false);
       setActivities(null);
@@ -42,33 +42,7 @@ export function useProfileLayout() {
   const handleShowAllActivities = useCallback((show: boolean) => {
     setShowAllActivities(show);
     if (show) {
-      const sampleActivities: Activity[] = [
-        {
-          id: 1,
-          title: "Upvoted: Tips for Campus Placement Interview",
-          description: "Great tips on how to ace your placement interviews. Very helpful resource for final-year students.",
-          type: "upvote",
-          author: "John_Dev",
-          date: "3 days ago"
-        },
-        {
-          id: 2,
-          title: "Commented on: Best Study Groups on Campus",
-          description: "You commented: 'Anyone interested in forming a VANET research group? I'm working on protocol optimization...'",
-          type: "comment",
-          author: "Sarah_Tech",
-          date: "1 week ago"
-        },
-        {
-          id: 3,
-          title: "Upvoted: Next.js 14 Migration Guide",
-          description: "Comprehensive guide on migrating from Next.js 13 to 14. Covers all the breaking changes and new features.",
-          type: "upvote",
-          author: "Alex_Coder",
-          date: "2 weeks ago"
-        }
-      ];
-      setActivities(sampleActivities);
+      setActivities(null);
       setShowAllPosts(false);
       setPosts(null);
       setShowUpdateRequest(false);
