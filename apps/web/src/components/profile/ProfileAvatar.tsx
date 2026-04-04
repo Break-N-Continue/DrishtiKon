@@ -2,10 +2,12 @@ import { Pencil } from 'lucide-react';
 
 export default function ProfileAvatar() {
   return (
-    <div className="relative mb-8">
-      <div className="w-28 h-28 bg-indigo-100 rounded-full border-4 border-indigo-300 shadow-lg ring-2 ring-indigo-200" /> {/* Avatar Circle */}
-      <button className="absolute bottom-0 right-0 p-2 bg-indigo-600 rounded-full hover:bg-indigo-700 hover:shadow-lg hover:scale-110 transition-all duration-300 group">
-        <Pencil size={16} className="text-white" />
+    <div className="relative flex-shrink-0">
+      <div className="w-32 h-32 bg-surface-container-highest rounded-xl shadow-sm ring-1 ring-outline-variant/20 flex items-center justify-center text-secondary">
+        <span className="material-symbols-outlined text-6xl">person</span>
+      </div>
+      <button className="absolute -bottom-3 -right-3 p-2.5 bg-surface-container-high rounded-full shadow-md hover:bg-surface-container-highest hover:scale-110 transition-all duration-300 ring-1 ring-outline-variant/30 text-secondary hover:text-primary z-10 group">
+        <Pencil size={18} className="text-secondary group-hover:text-primary transition-colors" />
       </button>
     </div>
   );

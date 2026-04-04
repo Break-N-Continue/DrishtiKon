@@ -36,28 +36,28 @@ export default function UpdateProfilePanel({
   };
 
   return (
-    <div className="h-full overflow-y-auto bg-white">
-      <div className="p-4 pb-8">
+    <div className="h-full overflow-y-auto bg-surface-container-low">
+      <div className="p-6 pb-8">
         {/* Header with close button */}
-        <div className="flex justify-between items-center mb-4 pb-4 border-b-2 border-indigo-100">
-          <h2 className="text-lg font-bold text-foreground">Update Profile</h2>
+        <div className="flex justify-between items-center mb-6 pb-4 border-b border-outline-variant/20">
+          <h2 className="text-xl font-headline font-bold text-on-surface">Update Profile</h2>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-indigo-100 rounded-full transition-colors"
+            className="p-1.5 hover:bg-surface-container-highest rounded-full transition-colors text-secondary hover:text-error"
           >
-            <X size={18} className="text-slate-600" />
+            <X size={18} />
           </button>
         </div>
 
-        <p className="text-xs text-muted-foreground mb-6">
+        <p className="text-sm text-secondary mb-8">
           Request updates to your profile information
         </p>
 
         {/* Update form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
           {/* Name update field */}
           <div className="space-y-2">
-            <label className="block text-xs font-bold text-indigo-600">
+            <label className="block text-xs font-bold text-primary tracking-wide uppercase">
               Update Name
             </label>
             <input
@@ -65,22 +65,22 @@ export default function UpdateProfilePanel({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Enter new name"
-              className="w-full px-3 py-2 bg-indigo-50 border-2 border-indigo-200 rounded-lg focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200 transition-all text-sm text-slate-700 placeholder-slate-400"
+              className="w-full px-4 py-2.5 bg-surface border border-outline-variant/30 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all text-sm text-on-surface placeholder:text-outline/40 shadow-sm"
             />
-            <p className="text-xs text-slate-500">
-              Current: <span className="font-semibold text-indigo-600">{currentName}</span>
+            <p className="text-xs text-secondary mt-2">
+              Current: <span className="font-semibold text-primary">{currentName}</span>
             </p>
           </div>
 
           {/* Year update field */}
           <div className="space-y-2">
-            <label className="block text-xs font-bold text-cyan-600">
+            <label className="block text-xs font-bold text-primary tracking-wide uppercase">
               Update Year
             </label>
             <select
               value={year}
               onChange={(e) => setYear(e.target.value)}
-              className="w-full px-3 py-2 bg-cyan-50 border-2 border-cyan-200 rounded-lg focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-200 transition-all text-sm text-slate-700 appearance-none cursor-pointer"
+              className="w-full px-4 py-2.5 bg-surface border border-outline-variant/30 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all text-sm text-on-surface appearance-none cursor-pointer shadow-sm"
             >
               <option value="">Select year</option>
               <option value="2024">2024</option>
@@ -89,8 +89,8 @@ export default function UpdateProfilePanel({
               <option value="2027">2027</option>
               <option value="2028">2028</option>
             </select>
-            <p className="text-xs text-slate-500">
-              Current: <span className="font-semibold text-cyan-600">{currentYear}</span>
+            <p className="text-xs text-secondary mt-2">
+              Current: <span className="font-semibold text-primary">{currentYear}</span>
             </p>
           </div>
 
@@ -98,16 +98,16 @@ export default function UpdateProfilePanel({
           <button
             type="submit"
             disabled={!name && !year}
-            className="w-full bg-indigo-600 text-white px-3 py-2 rounded-lg font-semibold hover:bg-indigo-700 hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm"
+            className="w-full mt-8 bg-gradient-to-br from-primary to-primary-container text-on-primary px-4 py-3 rounded-lg font-bold shadow-sm hover:opacity-90 active:scale-95 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm"
           >
-            <Send size={14} />
+            <Send size={16} />
             Submit Request
           </button>
 
           {/* Info box */}
-          <div className="mt-4 p-3 bg-indigo-100 border-l-4 border-indigo-500 rounded">
-            <p className="text-xs text-slate-700 leading-relaxed">
-              <span className="font-bold text-indigo-700">Note:</span> Your update request will be reviewed by
+          <div className="mt-6 p-4 bg-surface-container-highest border-l-4 border-primary rounded-r-lg">
+            <p className="text-xs text-on-surface-variant leading-relaxed">
+              <span className="font-bold text-primary">Note:</span> Your update request will be carefully reviewed by
               administrators.
             </p>
           </div>

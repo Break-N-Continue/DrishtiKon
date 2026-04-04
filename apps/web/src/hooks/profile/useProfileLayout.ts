@@ -5,7 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 
 export function useProfileLayout() {
   const { user } = useAuth();
-  const { setPosts, setActivities, setUpdateProfile } = useRightSidebar();
+  const { setPosts, setActivities, setUpdateProfile, updateProfile } = useRightSidebar();
   const [showAllPosts, setShowAllPosts] = useState(false);
   const [showAllActivities, setShowAllActivities] = useState(false);
   const [showUpdateRequest, setShowUpdateRequest] = useState(false);
@@ -26,10 +26,17 @@ export function useProfileLayout() {
     };
   }, [setActivities, setUpdateProfile, setPosts]);
 
+  // Sync showUpdateRequest when the panel is closed externally (e.g., X button in sidebar)
+  useEffect(() => {
+    if (updateProfile === null) {
+      setShowUpdateRequest(false);
+    }
+  }, [updateProfile]);
+
   const handleShowAllPosts = useCallback((show: boolean, userPosts: PostWithDate[]) => {
     setShowAllPosts(show);
     if (show) {
-      setPosts(userPosts);
+      setPosts(null);
       setShowAllActivities(false);
       setShowUpdateRequest(false);
       setActivities(null);
@@ -42,33 +49,7 @@ export function useProfileLayout() {
   const handleShowAllActivities = useCallback((show: boolean) => {
     setShowAllActivities(show);
     if (show) {
-      const sampleActivities: Activity[] = [
-        {
-          id: 1,
-          title: "Upvoted: Tips for Campus Placement Interview",
-          description: "Great tips on how to ace your placement interviews. Very helpful resource for final-year students.",
-          type: "upvote",
-          author: "John_Dev",
-          date: "3 days ago"
-        },
-        {
-          id: 2,
-          title: "Commented on: Best Study Groups on Campus",
-          description: "You commented: 'Anyone interested in forming a VANET research group? I'm working on protocol optimization...'",
-          type: "comment",
-          author: "Sarah_Tech",
-          date: "1 week ago"
-        },
-        {
-          id: 3,
-          title: "Upvoted: Next.js 14 Migration Guide",
-          description: "Comprehensive guide on migrating from Next.js 13 to 14. Covers all the breaking changes and new features.",
-          type: "upvote",
-          author: "Alex_Coder",
-          date: "2 weeks ago"
-        }
-      ];
-      setActivities(sampleActivities);
+      setActivities(null);
       setShowAllPosts(false);
       setPosts(null);
       setShowUpdateRequest(false);
@@ -81,10 +62,14 @@ export function useProfileLayout() {
   const handleToggleUpdateRequest = useCallback(() => {
     const newState = !showUpdateRequest;
     setShowUpdateRequest(newState);
-    
+
     if (newState) {
+      const resolvedName = user?.displayName 
+        || (user?.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : null)
+        || user?.email?.split('@')[0]
+        || 'Student';
       setUpdateProfile({
-        currentName: user?.displayName || user?.firstName ? `${user?.firstName} ${user?.lastName || ''}`.trim() : user?.email?.split('@')[0] || 'Student',
+        currentName: resolvedName,
         currentYear: "2026"
       });
       setShowAllPosts(false);
@@ -96,12 +81,19 @@ export function useProfileLayout() {
     }
   }, [showUpdateRequest, user, setPosts, setActivities, setUpdateProfile]);
 
+  // Called by the X button in the Right Sidebar panel to sync state back
+  const handleCloseUpdateRequest = useCallback(() => {
+    setShowUpdateRequest(false);
+    setUpdateProfile(null);
+  }, [setUpdateProfile]);
+
   return {
     showAllPosts,
     showAllActivities,
     showUpdateRequest,
     handleShowAllPosts,
     handleShowAllActivities,
-    handleToggleUpdateRequest
+    handleToggleUpdateRequest,
+    handleCloseUpdateRequest
   };
 }

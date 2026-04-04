@@ -28,6 +28,8 @@ export interface ProfileHeaderProps {
   year: string;
   about: string;
   onAboutChange?: (about: string) => void;
+  actionLabel: string;
+  onActionClick: () => void;
 }
 
 export interface ProfileInfoProps {
