@@ -128,16 +128,15 @@ export default function HomePage() {
       +
     </button>
 
-    {/* ── ActionDialog Demo ── */}
+    {/* ── ActionDialog Demo (Assign Academic Tags) ── */}
     <ActionDialog
       open={dialogOpen}
       onOpenChange={setDialogOpen}
-      title="Create a New Post"
-      description="Share an announcement, event, or update with the campus community."
+      showHeader={false}
       variant="single"
-      size="2xl"
+      size="md"
       primaryAction={{
-        label: "Publish",
+        label: "Confirm Changes",
         onClick: () => setDialogOpen(false),
         variant: "primary",
       }}
@@ -147,65 +146,97 @@ export default function HomePage() {
         variant: "secondary",
       }}
     >
-      <div style={{ display: "flex", flexDirection: "column", gap: "1rem", paddingTop: "0.5rem" }}>
+      <style dangerouslySetInnerHTML={{__html: `
+        .action-dialog-btn-primary { background-color: #631C1C !important; color: white !important; }
+        .action-dialog-btn-primary:hover { background-color: #4A1515 !important; }
+        .action-dialog-btn-secondary { background-color: #E6E6E6 !important; border: none !important; color: black !important; font-weight: 500 !important; }
+        .action-dialog-btn-secondary:hover { background-color: #D4D4D4 !important; }
+      `}} />
+      <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+        
+        {/* Custom Header */}
         <div>
-          <label style={{ fontSize: "0.75rem", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", opacity: 0.55 }}>
-            Title
-          </label>
+          <h2 style={{ fontFamily: "Georgia, serif", color: "#631C1C", fontSize: "1.75rem", fontWeight: 700, margin: 0, marginBottom: "0.5rem" }}>
+            Assign Academic Tags
+          </h2>
+          <p style={{ color: "#5C6B8A", fontSize: "0.9rem", margin: 0 }}>
+            Categorize this manuscript for archival discovery.
+          </p>
+        </div>
+
+        {/* Search Input */}
+        <div style={{ position: "relative" }}>
+          <span className="material-symbols-outlined" style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: "#888" }}>
+            search
+          </span>
           <input
             type="text"
-            placeholder="e.g. Annual Tech Fest 2025"
+            placeholder="yfgy"
             style={{
               width: "100%",
-              background: "transparent",
-              border: "none",
-              borderBottom: "1.5px solid rgba(0,0,0,0.15)",
+              padding: "12px 12px 12px 40px",
+              border: "1px solid #DFB5B5",
+              borderRadius: "2px",
               outline: "none",
-              fontSize: "1.1rem",
-              fontWeight: 600,
-              padding: "6px 0",
-              marginTop: "4px",
+              fontSize: "1rem",
+              color: "#333"
             }}
           />
         </div>
+
+        {/* Active Tags */}
         <div>
-          <label style={{ fontSize: "0.75rem", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", opacity: 0.55 }}>
-            Content
-          </label>
-          <textarea
-            rows={4}
-            placeholder="Write your post content here..."
-            style={{
-              width: "100%",
-              background: "transparent",
-              border: "none",
-              borderBottom: "1.5px solid rgba(0,0,0,0.15)",
-              outline: "none",
-              fontSize: "0.9rem",
-              padding: "6px 0",
-              resize: "none",
-              marginTop: "4px",
-              fontFamily: "inherit",
-            }}
-          />
-        </div>
-        <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-          {["Announcement", "Event", "Department", "Academics"].map(tag => (
+          <h3 style={{ fontSize: "0.65rem", fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "#888", marginBottom: "0.75rem" }}>
+            Active Tags
+          </h3>
+          <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
             <span
-              key={tag}
               style={{
-                padding: "4px 12px",
-                borderRadius: "999px",
-                border: "1.5px solid #6750a4",
-                color: "#6750a4",
-                fontSize: "0.75rem",
-                fontWeight: 600,
-                cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: "6px 12px",
+                backgroundColor: "#C6D3FB",
+                color: "#1E3B8A",
+                borderRadius: "2px",
+                fontSize: "0.8rem",
+                fontWeight: 600
               }}
             >
-              {tag}
+              #Philosophy
+              <span className="material-symbols-outlined" style={{ fontSize: "14px", cursor: "pointer", opacity: 0.7 }}>close</span>
             </span>
-          ))}
+          </div>
+        </div>
+
+        {/* Suggested Tags */}
+        <div>
+          <h3 style={{ fontSize: "0.65rem", fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "#888", marginBottom: "0.75rem" }}>
+            Suggested Tags
+          </h3>
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            {[
+              "#ResearchNote",
+              "#CaseStudy",
+              "#PeerReview",
+              "#AcademicEthics"
+            ].map(tag => (
+              <div key={tag} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 0" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                  <span style={{ 
+                    display: "flex", alignItems: "center", justifyItems: "center", justifyContent: "center", 
+                    backgroundColor: "#EEEEEE", color: "#846565", 
+                    width: "32px", height: "32px", borderRadius: "2px", 
+                    fontSize: "0.95rem", fontWeight: "bold" 
+                  }}>
+                    #
+                  </span>
+                  <span style={{ fontSize: "0.95rem", color: "#222" }}>{tag}</span>
+                </div>
+                <span className="material-symbols-outlined" style={{ color: "#846565", cursor: "pointer", fontSize: "1.2rem" }}>add</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </ActionDialog>
