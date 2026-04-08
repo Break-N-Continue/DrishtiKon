@@ -36,7 +36,7 @@ public class UserProfileService {
     public void updateAboutMe(Long userId, String aboutMe) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
-        user.setAboutMe(aboutMe);
+        user.setAbout(aboutMe);
         userRepository.save(user);
     }
 
