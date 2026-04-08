@@ -66,8 +66,7 @@ export default function ResizeHandle({
       onMouseDown={handleMouseDown}
       className={`
         relative z-10 hidden md:flex items-center justify-center
-        w-1 shrink-0 cursor-col-resize select-none
-        group
+        shrink-0 cursor-col-resize select-none group w-[1px]
       `}
       role="separator"
       aria-orientation="vertical"
@@ -75,11 +74,11 @@ export default function ResizeHandle({
     >
       {/* Wider invisible hit target */}
       <div className="absolute inset-y-0 -left-1.5 -right-1.5" />
-      {/* Visible bar */}
+      {/* Visible bar acting exactly as a border */}
       <div
         className={`
-          h-full w-[3px] rounded-full transition-colors duration-150
-          ${dragging ? "bg-primary" : "bg-border group-hover:bg-primary/50"}
+          h-full w-full transition-colors duration-150
+          ${dragging ? "bg-primary" : "bg-outline-variant group-hover:bg-primary/50"}
         `}
       />
     </div>

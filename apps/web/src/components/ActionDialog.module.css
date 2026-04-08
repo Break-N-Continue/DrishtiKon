@@ -1,0 +1,368 @@
+.action-dialog {
+  animation-duration: 0.35s;
+  animation-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1);
+  animation-fill-mode: both;
+  /* Hide scrollbar for all browsers */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  /* Mobile styles */
+  height: auto;
+  max-height: 92vh;
+  border-radius: 1.5rem 1.5rem 0 0;
+  overflow-y: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.action-dialog::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+.action-dialog[data-state='open'] {
+  animation-name: dialogSlideIn;
+}
+
+.action-dialog[data-state='closed'] {
+  animation-name: dialogSlideOut;
+}
+
+/* Content container */
+.dialog-content {
+  width: 100%;
+  max-width: 28rem; /* 448px - mobile default */
+  margin-left: auto;
+  margin-right: auto;
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(80vh - 3rem);
+}
+
+/* Header styles */
+.dialog-header {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.dialog-header-left {
+  text-align: left;
+}
+
+.dialog-header-center {
+  text-align: center;
+}
+
+.dialog-title {
+  font-family: var(--font-display, system-ui);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-primary-700);
+}
+
+.dialog-description {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+}
+
+/* Body - scrollable content area for single-page mode */
+.dialog-body {
+  flex: 1;
+  overflow-y: auto;
+  /* Hide scrollbar for all browsers */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.dialog-body::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+/* Footer with actions */
+.dialog-footer {
+  display: flex;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  margin-top: 1rem;
+  border-top: 1px solid var(--border, hsl(240 5.9% 90%));
+  flex-shrink: 0;
+  padding-bottom: 1.5rem;
+}
+
+/* Button base styles */
+.action-dialog-btn {
+  flex: 1;
+  height: 2.75rem;
+  padding: 0 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 0.75rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-dialog-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Primary button - pink theme */
+.action-dialog-btn-primary {
+  background-color: var(--color-primary-700, hsl(340 65% 47%));
+  color: var(--color-white, #ffffff);
+}
+
+.action-dialog-btn-primary:hover:not(:disabled) {
+  background-color: var(--color-primary-800, hsl(340 65% 40%));
+}
+
+.action-dialog-btn-primary:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Secondary button */
+.action-dialog-btn-secondary {
+  background-color: var(--color-gray-100, hsl(240 5.9% 96%));
+  color: var(--color-text, hsl(240 10% 20%));
+  border: 1px solid var(--border, hsl(240 5.9% 90%));
+}
+
+.action-dialog-btn-secondary:hover:not(:disabled) {
+  background-color: var(--color-gray-200, hsl(240 5.9% 92%));
+}
+
+.action-dialog-btn-secondary:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Destructive button */
+.action-dialog-btn-destructive {
+  background-color: var(--color-error, hsl(0 84% 60%));
+  color: var(--color-white, #ffffff);
+}
+
+.action-dialog-btn-destructive:hover:not(:disabled) {
+  background-color: hsl(0 84% 50%);
+}
+
+.action-dialog-btn-destructive:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Close button styling */
+.action-dialog > button[data-slot='sheet-close'],
+.action-dialog > button:last-child {
+  height: 2rem;
+  width: 2rem;
+  min-width: 2rem;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute !important;
+  top: 1rem !important;
+  right: 1rem !important;
+  left: auto !important;
+  bottom: auto !important;
+  border-radius: 50% !important;
+  background-color: hsl(var(--muted)) !important;
+  color: hsl(var(--muted-foreground)) !important;
+  border: none !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  transition: all 0.2s ease-in-out !important;
+  z-index: 10;
+}
+
+.action-dialog > button[data-slot='sheet-close']:hover,
+.action-dialog > button:last-child:hover {
+  background-color: hsl(var(--muted) / 0.8) !important;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.action-dialog > button[data-slot='sheet-close']:active,
+.action-dialog > button:last-child:active {
+  transform: scale(0.95);
+}
+
+.action-dialog > button[data-slot='sheet-close'] svg,
+.action-dialog > button:last-child svg {
+  height: 1.25rem;
+  width: 1.25rem;
+  display: block !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Mobile styles */
+@media (max-width: 639px) {
+  .action-dialog > button[data-slot='sheet-close'],
+  .action-dialog > button:last-child {
+    height: 2.25rem;
+    width: 2.25rem;
+    min-width: 2.25rem;
+    top: 1.25rem !important;
+    right: 1.25rem !important;
+  }
+
+  .action-dialog > button[data-slot='sheet-close'] svg,
+  .action-dialog > button:last-child svg {
+    height: 1.25rem;
+    width: 1.25rem;
+    display: block !important;
+  }
+
+  .action-dialog > button[data-slot='sheet-close']::after,
+  .action-dialog > button:last-child::after {
+    display: none !important;
+  }
+
+  .dialog-content {
+    max-height: calc(100dvh - 2rem);
+  }
+
+  .action-dialog {
+    max-height: 100dvh;
+  }
+
+  .dialog-footer {
+    padding-bottom: 1.5rem;
+  }
+
+  .action-dialog-btn {
+    height: 3rem;
+  }
+}
+
+/* Mobile animations */
+@keyframes dialogSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes dialogSlideOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+}
+
+/* Desktop/Tablet styles */
+@media (min-width: 640px) {
+  .action-dialog {
+    height: auto;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  .action-dialog > button[data-slot='sheet-close'],
+  .action-dialog > button:last-child {
+    height: 2rem;
+    width: 2rem;
+    min-width: 2rem;
+    padding: 0;
+  }
+
+  .action-dialog > button[data-slot='sheet-close']::after,
+  .action-dialog > button:last-child::after {
+    display: none;
+  }
+
+  .action-dialog > button[data-slot='sheet-close'] svg,
+  .action-dialog > button:last-child svg {
+    display: block;
+  }
+}
+
+/* Desktop modal styles */
+@media (min-width: 1024px) {
+  .action-dialog {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    right: auto !important;
+    bottom: auto !important;
+    max-width: var(--modal-max-width, 48rem);
+    width: calc(100vw - 4rem);
+    max-height: 90vh;
+    height: auto;
+    border-radius: 1.5rem;
+    border: 1px solid hsl(var(--border));
+    box-shadow:
+      0 25px 50px -12px color-mix(in srgb, var(--color-black) 25%, transparent),
+      0 0 0 1px color-mix(in srgb, var(--color-black) 5%, transparent);
+  }
+
+  .action-dialog[data-state='open'] {
+    animation: dialogCenterIn 0.35s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  }
+
+  .action-dialog[data-state='closed'] {
+    animation: dialogCenterOut 0.35s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  }
+
+  .dialog-content {
+    max-width: var(--modal-max-width, 48rem);
+    max-height: calc(85vh - 3rem);
+  }
+
+  .dialog-footer {
+    padding-bottom: 0.5rem;
+  }
+
+  .action-dialog-btn {
+    height: 2.75rem;
+  }
+
+  /* Larger close button on desktop */
+  .action-dialog > button[data-slot='sheet-close'],
+  .action-dialog > button:last-child {
+    height: 2rem;
+    width: 2rem;
+    padding: 0;
+  }
+
+  .action-dialog > button[data-slot='sheet-close'] svg,
+  .action-dialog > button:last-child svg {
+    height: 1.25rem;
+    width: 1.25rem;
+    display: block;
+  }
+
+  @keyframes dialogCenterIn {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+  }
+
+  @keyframes dialogCenterOut {
+    from {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.96);
+    }
+  }
+}

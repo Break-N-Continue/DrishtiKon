@@ -7,7 +7,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+<<<<<<< sourav3
 import org.springframework.boot.context.properties.ConfigurationProperties;
+=======
+>>>>>>> main
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,7 +37,10 @@ import java.util.List;
  * </pre>
  */
 @Component
+<<<<<<< sourav3
 @ConfigurationProperties(prefix = "app.moderators")
+=======
+>>>>>>> main
 @Order(1)
 public class ModeratorSeedRunner implements ApplicationRunner {
 

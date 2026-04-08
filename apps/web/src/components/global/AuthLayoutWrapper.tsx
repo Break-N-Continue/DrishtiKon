@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { useRightSidebar } from "@/context/RightSidebarContext";
 import { usePathname } from "next/navigation";
 import Sidebar from "@/components/global/Sidebar";
 import RightSidebar from "@/components/global/RightSidebar";
@@ -74,10 +75,24 @@ export default function AuthLayoutWrapper({
 
 // ─── Inner shell (client state for widths) ──────────────────────────
 function LayoutShell({ children }: { children: ReactNode }) {
+  const { posts, activities, updateProfile } = useRightSidebar();
+  const pathname = usePathname();
   const [leftWidth, setLeftWidth] = useState(DEFAULT_LEFT);
   const [rightWidth, setRightWidth] = useState(DEFAULT_RIGHT);
   const [expandedLeftWidth, setExpandedLeftWidth] = useState(DEFAULT_LEFT);
   const [hydrated, setHydrated] = useState(false);
+
+  // Check if we're on the profile page
+  const isProfilePage = pathname?.includes("/profilepage");
+
+  // Check if any section is active on profile page
+  const hasActiveSections =
+    (posts && posts.length > 0) ||
+    (activities && activities.length > 0) ||
+    updateProfile !== null;
+
+  // Determine the right sidebar width - 0 if on profile page with no active sections, otherwise use default
+  const effectiveRightWidth = isProfilePage && !hasActiveSections ? 0 : rightWidth;
 
   // Hydrate stored widths after mount (avoids SSR mismatch)
   useEffect(() => {
@@ -116,8 +131,10 @@ function LayoutShell({ children }: { children: ReactNode }) {
     });
   }, [expandedLeftWidth]);
 
-  // ── Right handle drag (dragging left = wider, right = narrower) ───
+  const [isRightDragging, setIsRightDragging] = useState(false);
+
   const handleRightResize = useCallback((delta: number) => {
+    setIsRightDragging(true);
     setRightWidth((w) => {
       const next = Math.min(MAX_RIGHT, Math.max(MIN_RIGHT, w - delta));
       return next;
@@ -125,6 +142,7 @@ function LayoutShell({ children }: { children: ReactNode }) {
   }, []);
 
   const handleRightResizeEnd = useCallback(() => {
+    setIsRightDragging(false);
     setRightWidth((w) => {
       localStorage.setItem(LS_RIGHT, String(w));
       return w;
@@ -145,7 +163,7 @@ function LayoutShell({ children }: { children: ReactNode }) {
         <div className="flex min-h-0 flex-1 overflow-hidden">
           {/* ── Left Sidebar ──────────────────────────────────────── */}
           <div
-            className="hidden md:flex flex-col shrink-0 border-r border-border overflow-hidden"
+            className="hidden md:flex flex-col shrink-0 overflow-hidden"
             style={hydrated ? { width: leftWidth } : { width: DEFAULT_LEFT }}
           >
             <Sidebar collapsed={leftWidth <= 80} onToggleCollapse={toggleLeftSidebar} />
@@ -160,22 +178,32 @@ function LayoutShell({ children }: { children: ReactNode }) {
 
           {/* ── Middle Feed (fluid) ───────────────────────────────── */}
           <main className="flex-1 min-w-0 overflow-y-auto pb-20 md:pb-0">
-            <div className="max-w-4xl mx-auto px-4 py-6">{children}</div>
+            <div
+              className={
+                isProfilePage
+                  ? "w-full px-[70px] py-6"
+                  : "max-w-4xl mx-auto px-4 py-6"
+              }
+            >
+              {children}
+            </div>
           </main>
 
-          {/* Right resize handle (only visible when right panel is) */}
+          {/* Right resize handle (only visible when right panel is visible and has width) */}
           <div className="hidden xl:flex">
-            <ResizeHandle
-              onResize={handleRightResize}
-              onResizeEnd={handleRightResizeEnd}
-              side="left"
-            />
+            {effectiveRightWidth > 0 && (
+              <ResizeHandle
+                onResize={handleRightResize}
+                onResizeEnd={handleRightResizeEnd}
+                side="left"
+              />
+            )}
           </div>
 
-          {/* ── Right Panel ───────────────────────────────────────── */}
+          {/* ── Right Panel (shrinks to 0 on profile when no sections active) ───── */}
           <div
-            className="hidden xl:flex flex-col shrink-0 border-l border-border overflow-hidden"
-            style={hydrated ? { width: rightWidth } : { width: DEFAULT_RIGHT }}
+            className={`hidden xl:flex flex-col shrink-0 overflow-hidden ${!isRightDragging ? 'transition-all duration-500 ease-in-out' : ''} ${effectiveRightWidth === 0 ? 'opacity-0' : 'opacity-100'}`}
+            style={hydrated ? { width: effectiveRightWidth } : { width: DEFAULT_RIGHT }}
           >
             <RightSidebar />
           </div>
