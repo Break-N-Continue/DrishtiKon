@@ -26,4 +26,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Modifying
     @Query("UPDATE Post p SET p.isVisible = false WHERE p.expiresAt IS NOT NULL AND p.expiresAt < :now AND p.isVisible = true")
     int expirePostsBefore(@Param("now") OffsetDateTime now);
+
+    @Query(value = "SELECT p.* FROM posts p LEFT JOIN upvotes u ON p.id = u.post_id WHERE p.is_visible = true GROUP BY p.id ORDER BY COUNT(u.id) DESC LIMIT 10", nativeQuery = true)
+    List<Post> findTop10ByUpvotes();
 }

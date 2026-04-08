@@ -6,6 +6,9 @@ import com.drishti.kon.entity.*;
 import com.drishti.kon.repository.PostRepository;
 import com.drishti.kon.repository.TagRepository;
 import com.drishti.kon.repository.UserRepository;
+import com.drishti.kon.repository.UpvoteRepository;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,20 +22,34 @@ public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final TagRepository tagRepository;
+    private final UpvoteRepository upvoteRepository;
 
     public PostService(PostRepository postRepository,
                        UserRepository userRepository,
-                       TagRepository tagRepository) {
+                       TagRepository tagRepository,
+                       UpvoteRepository upvoteRepository) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.tagRepository = tagRepository;
+        this.upvoteRepository = upvoteRepository;
     }
 
     @Transactional(readOnly = true)
-    public List<PostResponse> getAllPosts() {
-        return postRepository.findAllByIsVisibleTrueOrderByCreatedAtDesc()
-                .stream()
-                .map(PostResponse::fromEntity)
+    public List<PostResponse> getAllPosts(String sort) {
+        List<Post> posts;
+        if ("trending".equals(sort)) {
+            posts = postRepository.findTop10ByUpvotes();
+        } else {
+            posts = postRepository.findAllByIsVisibleTrueOrderByCreatedAtDesc();
+        }
+
+        User currentUser = getCurrentUser();
+        return posts.stream()
+                .map(post -> {
+                    long upvoteCount = upvoteRepository.countByPostId(post.getId());
+                    boolean hasUpvoted = currentUser != null && upvoteRepository.existsByPostIdAndUserId(post.getId(), currentUser.getId());
+                    return PostResponse.fromEntity(post, upvoteCount, hasUpvoted);
+                })
                 .toList();
     }
 
@@ -40,7 +57,10 @@ public class PostService {
     public PostResponse getPostById(Long id) {
         Post post = postRepository.findByIdAndIsVisibleTrue(id)
                 .orElseThrow(() -> new RuntimeException("Post not found with id: " + id));
-        return PostResponse.fromEntity(post);
+        User currentUser = getCurrentUser();
+        long upvoteCount = upvoteRepository.countByPostId(post.getId());
+        boolean hasUpvoted = currentUser != null && upvoteRepository.existsByPostIdAndUserId(post.getId(), currentUser.getId());
+        return PostResponse.fromEntity(post, upvoteCount, hasUpvoted);
     }
 
     @Transactional
@@ -76,7 +96,7 @@ public class PostService {
         }
 
         Post saved = postRepository.save(post);
-        return PostResponse.fromEntity(saved);
+        return PostResponse.fromEntity(saved, 0, false);
     }
 
     @Transactional
@@ -97,6 +117,14 @@ public class PostService {
 
         post.setVisible(false);
         postRepository.save(post);
+    }
+
+    private User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
+            return null;
+        }
+        return (User) authentication.getPrincipal();
     }
 
     @Transactional

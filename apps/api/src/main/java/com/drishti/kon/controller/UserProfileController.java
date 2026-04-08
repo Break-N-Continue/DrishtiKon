@@ -38,7 +38,7 @@ public class UserProfileController {
         User requester = (User) authentication.getPrincipal();
         Pageable pageable = buildPageable(page, size);
         return ResponseEntity.ok(PageResponseDto.fromPage(
-                userProfileService.getVisiblePostsByUser(id, requester, pageable)
+                userProfileService.getVisiblePostsByUser(userid, requester, pageable)
         ));
     }
 
@@ -50,7 +50,7 @@ public class UserProfileController {
         User requester = (User) authentication.getPrincipal();
         Pageable pageable = buildPageable(page, size);
         return ResponseEntity.ok(PageResponseDto.fromPage(
-                userProfileService.getVisibleUpvotedPostsByUser(id, requester, pageable)
+                userProfileService.getVisibleUpvotedPostsByUser(userid, requester, pageable)
         ));
     }
 
@@ -62,7 +62,7 @@ public class UserProfileController {
         User requester = (User) authentication.getPrincipal();
         Pageable pageable = buildPageable(page, size);
         return ResponseEntity.ok(PageResponseDto.fromPage(
-                userProfileService.getVisibleCommentsByUser(id, requester, pageable)
+                userProfileService.getVisibleCommentsByUser(userid, requester, pageable)
         ));
     }
 

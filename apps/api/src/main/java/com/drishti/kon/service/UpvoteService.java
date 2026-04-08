@@ -52,6 +52,6 @@ public class UpvoteService {
         }
 
         long upvoteCount = upvoteRepository.countByPostId(postId);
-        return new ToggleUpvoteResponse(postId, upvoted, upvoteCount);
+        return new ToggleUpvoteResponse(upvoted, upvoteCount);
     }
 }
