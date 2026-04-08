@@ -32,6 +32,14 @@ public class UserProfileService {
         this.userRepository = userRepository;
     }
 
+    @Transactional
+    public void updateAboutMe(Long userId, String aboutMe) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+        user.setAboutMe(aboutMe);
+        userRepository.save(user);
+    }
+
     @Transactional(readOnly = true)
     public Page<PostResponse> getVisiblePostsByUser(Long targetUserId, User requester, Pageable pageable) {
         assertAccess(targetUserId, requester);
