@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +35,7 @@ import java.util.List;
  */
 @Component
 @ConfigurationProperties(prefix = "app.moderators")
+@Order(1)
 public class ModeratorSeedRunner implements ApplicationRunner {
 
     private static final Logger log = LoggerFactory.getLogger(ModeratorSeedRunner.class);
