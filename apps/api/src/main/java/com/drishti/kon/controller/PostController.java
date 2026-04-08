@@ -88,8 +88,7 @@ public class PostController {
 
     @PostMapping("/{id}/upvote")
     public ResponseEntity<ToggleUpvoteResponse> togglePostUpvote(@PathVariable Long id,
-                                                                 Authentication authentication) {
-        User requester = (User) authentication.getPrincipal();
+                                                                 @CurrentUser User requester) {
         ToggleUpvoteResponse response = upvoteService.togglePostUpvote(id, requester.getId());
         return ResponseEntity.ok(response);
     }
