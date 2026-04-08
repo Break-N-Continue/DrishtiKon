@@ -4,10 +4,12 @@ import com.drishti.kon.dto.CommentResponse;
 import com.drishti.kon.dto.CreateCommentRequest;
 import com.drishti.kon.dto.CreatePostRequest;
 import com.drishti.kon.dto.PostResponse;
+import com.drishti.kon.dto.ToggleUpvoteResponse;
 import com.drishti.kon.entity.User;
 import com.drishti.kon.security.CurrentUser;
 import com.drishti.kon.service.CommentService;
 import com.drishti.kon.service.PostService;
+import com.drishti.kon.service.UpvoteService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,15 +24,17 @@ public class PostController {
 
     private final PostService postService;
     private final CommentService commentService;
+    private final UpvoteService upvoteService;
 
-    public PostController(PostService postService, CommentService commentService) {
+    public PostController(PostService postService, CommentService commentService, UpvoteService upvoteService) {
         this.postService = postService;
         this.commentService = commentService;
+        this.upvoteService = upvoteService;
     }
 
     @GetMapping
-    public ResponseEntity<List<PostResponse>> getAllPosts() {
-        return ResponseEntity.ok(postService.getAllPosts());
+    public ResponseEntity<List<PostResponse>> getAllPosts(@RequestParam(required = false) String sort) {
+        return ResponseEntity.ok(postService.getAllPosts(sort));
     }
 
     @GetMapping("/{id}")
@@ -59,11 +63,6 @@ public class PostController {
         return ResponseEntity.ok(updated);
     }
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<PostResponse>> getPostsByUser(@PathVariable Long userId) {
-        return ResponseEntity.ok(postService.getPostsByUserId(userId));
-    }
-
     @PostMapping("/{id}/tags/{tagId}")
     public ResponseEntity<PostResponse> addTagToPost(@PathVariable Long id,
                                                      @PathVariable Long tagId,
@@ -85,5 +84,13 @@ public class PostController {
     @GetMapping("/{postId}/comments")
     public ResponseEntity<List<CommentResponse>> getCommentsByPostId(@PathVariable Long postId) {
         return ResponseEntity.ok(commentService.getCommentsByPostId(postId));
+    }
+
+    @PostMapping("/{id}/upvote")
+    public ResponseEntity<ToggleUpvoteResponse> togglePostUpvote(@PathVariable Long id,
+                                                                 Authentication authentication) {
+        User requester = (User) authentication.getPrincipal();
+        ToggleUpvoteResponse response = upvoteService.togglePostUpvote(id, requester.getId());
+        return ResponseEntity.ok(response);
     }
 }

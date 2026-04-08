@@ -15,8 +15,17 @@ public class PostResponse {
     private OffsetDateTime expiresAt;
     private List<String> tags;
     private OffsetDateTime createdAt;
+    private long upvoteCount;
+    private boolean hasUpvoted;
 
     public PostResponse() {}
+
+    public static PostResponse fromEntity(Post post, long upvoteCount, boolean hasUpvoted) {
+        PostResponse response = fromEntity(post);
+        response.setUpvoteCount(upvoteCount);
+        response.setHasUpvoted(hasUpvoted);
+        return response;
+    }
 
     public static PostResponse fromEntity(Post post) {
         PostResponse response = new PostResponse();
@@ -63,4 +72,10 @@ public class PostResponse {
 
     public OffsetDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(OffsetDateTime createdAt) { this.createdAt = createdAt; }
+
+    public long getUpvoteCount() { return upvoteCount; }
+    public void setUpvoteCount(long upvoteCount) { this.upvoteCount = upvoteCount; }
+
+    public boolean isHasUpvoted() { return hasUpvoted; }
+    public void setHasUpvoted(boolean hasUpvoted) { this.hasUpvoted = hasUpvoted; }
 }

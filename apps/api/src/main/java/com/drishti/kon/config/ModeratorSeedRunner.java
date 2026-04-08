@@ -5,13 +5,17 @@ import com.drishti.kon.entity.User;
 import com.drishti.kon.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+<<<<<<< sourav3
+import org.springframework.boot.context.properties.ConfigurationProperties;
+=======
+>>>>>>> main
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -33,6 +37,10 @@ import java.util.List;
  * </pre>
  */
 @Component
+<<<<<<< sourav3
+@ConfigurationProperties(prefix = "app.moderators")
+=======
+>>>>>>> main
 @Order(1)
 public class ModeratorSeedRunner implements ApplicationRunner {
 
@@ -40,22 +48,27 @@ public class ModeratorSeedRunner implements ApplicationRunner {
 
     private final UserRepository userRepository;
 
-    @Value("${app.moderators.emails:}")
-    private List<String> moderatorEmails;
+    // Bound automatically by @ConfigurationProperties — supports YAML list sequences
+    private List<String> emails = Collections.emptyList();
 
     public ModeratorSeedRunner(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
+    /** Called by Spring Binder to inject {@code app.moderators.emails}. */
+    public void setEmails(List<String> emails) {
+        this.emails = emails != null ? emails : Collections.emptyList();
+    }
+
     @Override
     @Transactional
     public void run(ApplicationArguments args) {
-        if (moderatorEmails == null || moderatorEmails.isEmpty()) {
+        if (emails == null || emails.isEmpty()) {
             log.debug("No moderator emails configured — skipping seed.");
             return;
         }
 
-        for (String rawEmail : moderatorEmails) {
+        for (String rawEmail : emails) {
             String email = rawEmail.toLowerCase().trim();
             if (email.isBlank()) continue;
 

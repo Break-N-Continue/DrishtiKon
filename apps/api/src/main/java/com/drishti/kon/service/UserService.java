@@ -3,6 +3,7 @@ package com.drishti.kon.service;
 import com.drishti.kon.entity.Role;
 import com.drishti.kon.entity.User;
 import com.drishti.kon.repository.UserRepository;
+import com.drishti.kon.util.UserUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -16,9 +17,11 @@ public class UserService {
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
 
     private final UserRepository userRepository;
+    private final UserUtil userUtil;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, UserUtil userUtil) {
         this.userRepository = userRepository;
+        this.userUtil = userUtil;
     }
 
     @Transactional
@@ -38,6 +41,8 @@ public class UserService {
         String localPart = email.split("@")[0];
         String namePart = localPart.contains("_") ? localPart.split("_")[0] : localPart;
         newUser.setDisplayName(capitalizeFirst(namePart));
+
+        userUtil.setRegNoAndYearOfStudy(newUser);
 
         return userRepository.save(newUser);
     }
