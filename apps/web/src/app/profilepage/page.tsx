@@ -77,30 +77,30 @@ export default function ProfilePage() {
       {!loading && user && (
         <div className="w-full pt-4 pb-8 grid grid-cols-1 md:grid-cols-12 gap-5">
 
-        {/* Main Profile Container - Never shrinks, panels show in RightSidebar */}
-        <main className="col-span-1 md:col-span-12 transition-all duration-700 ease-in-out">
-          <div className="px-6 md:px-8 py-6 md:py-8 w-full max-w-7xl mx-auto">
-            <ProfileHeader 
-              name={user.displayName || `${user.firstName} ${user.lastName}` || user.email.split('@')[0]} 
-              year="2026" 
-              about={about}
-              onAboutChange={handleAboutChange}
-              actionLabel={showUpdateRequest ? '← Close Update Panel' : 'Request Update'}
-              onActionClick={handleToggleUpdateRequest}
-            />
+          {/* Main Profile Container - Never shrinks, panels show in RightSidebar */}
+          <main className="col-span-1 md:col-span-12 transition-all duration-700 ease-in-out">
+            <div className="px-3 md:px-8 py-6 md:py-8 w-full max-w-7xl mx-auto">
+              <ProfileHeader
+                name={user.displayName || `${user.firstName} ${user.lastName}` || user.email.split('@')[0]}
+                year="2026"
+                about={about}
+                onAboutChange={handleAboutChange}
+                actionLabel={showUpdateRequest ? '← Close Update Panel' : 'Request Update'}
+                onActionClick={handleToggleUpdateRequest}
+              />
 
-            <UserPosts 
-              onShowAllChange={(show) => handleShowAllPosts(show, userPosts)} 
-              isShowingAll={showAllPosts} 
-              posts={userPosts} 
-            />
-            <ActivityCard 
-              onShowAllChange={handleShowAllActivities} 
-              isShowingAll={showAllActivities} 
-            />
+              <UserPosts
+                onShowAllChange={(show) => handleShowAllPosts(show, userPosts)}
+                isShowingAll={showAllPosts}
+                posts={userPosts}
+              />
+              <ActivityCard
+                onShowAllChange={handleShowAllActivities}
+                isShowingAll={showAllActivities}
+              />
 
-          </div>
-        </main>
+            </div>
+          </main>
         </div>
       )}
     </div>

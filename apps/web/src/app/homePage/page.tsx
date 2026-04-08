@@ -96,10 +96,8 @@ export default function HomePage() {
     <button
       onClick={() => setDialogOpen(true)}
       title="Open ActionDialog demo"
+      className="fixed bottom-20 md:bottom-8 right-6 md:right-8 z-[100]"
       style={{
-        position: "fixed",
-        bottom: "2rem",
-        right: "2rem",
         width: "56px",
         height: "56px",
         borderRadius: "50%",
@@ -113,7 +111,6 @@ export default function HomePage() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        zIndex: 100,
         transition: "transform 0.15s, box-shadow 0.15s",
       }}
       onMouseEnter={e => {

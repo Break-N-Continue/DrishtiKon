@@ -5,19 +5,19 @@ import { useRightSidebar } from '@/context/RightSidebarContext';
 
 export default function UserPosts({ onShowAllChange, isShowingAll = false, posts = [] }: UserPostsProps) {
   const { posts: selectedPosts, setPosts } = useRightSidebar();
-  
+
   const handleShowAll = (value: boolean) => {
     onShowAllChange?.(value);
   };
 
   // Show up to 3 posts in the collapsed stack, or all of them if expanded
   const postsToDisplay = isShowingAll ? posts : posts.slice(0, 3);
-  
+
   const selectedPostId = selectedPosts?.[0]?.id;
 
   return (
     <div className="mb-12">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
         <h3 className="font-headline text-xl text-on-surface flex items-center gap-2">
           <span className="material-symbols-outlined text-primary text-xl">edit_note</span> Your Posts
         </h3>
@@ -37,16 +37,15 @@ export default function UserPosts({ onShowAllChange, isShowingAll = false, posts
       <div className="space-y-6">
         {postsToDisplay.map((post) => {
           const isActive = post.id === selectedPostId;
-          
+
           return (
             <div
               key={post.id}
               onClick={() => setPosts([post])}
-              className={`p-6 rounded-xl transition-all duration-300 cursor-pointer group ${
-                isActive 
-                  ? 'bg-surface-container-low ring-2 ring-primary shadow-md transform -translate-y-1' 
+              className={`p-6 rounded-xl transition-all duration-300 cursor-pointer group ${isActive
+                  ? 'bg-surface-container-low ring-2 ring-primary shadow-md transform -translate-y-1'
                   : 'bg-surface-container-lowest ring-1 ring-outline-variant/10 shadow-sm hover:ring-primary/40 hover:bg-surface-container-low hover:-translate-y-0.5'
-              }`}
+                }`}
             >
               <div className="flex justify-between items-start mb-3">
                 <span className={`text-[10px] font-label uppercase tracking-[0.2em] ${isActive ? 'text-primary' : 'text-secondary/60'}`}>
