@@ -77,17 +77,19 @@ export default function Navbar() {
         <div className="ml-auto flex shrink-0 items-center gap-2 md:gap-3">
           <button
             type="button"
-            className="bg-primary text-on-primary hover:bg-primary/90 px-4 py-2 rounded-full font-medium transition-colors shadow-sm flex items-center gap-2 text-sm"
+            className="bg-primary text-on-primary hover:bg-primary/90 p-2.5 md:px-4 md:py-2 rounded-full font-medium transition-colors shadow-sm flex items-center justify-center gap-2 text-sm"
+            aria-label="Suggest Feature"
           >
-            <IdeaIcon className="h-4 w-4" />
-            Suggest Feature
+            <IdeaIcon className="h-5 w-5 md:h-4 md:w-4" />
+            <span className="hidden md:inline">Suggest Feature</span>
           </button>
           <button
             type="button"
-            className="bg-secondary-container text-on-secondary-container hover:bg-secondary-container/80 px-4 py-2 rounded-full font-medium transition-colors flex items-center gap-2 text-sm"
+            className="bg-secondary-container text-on-secondary-container hover:bg-secondary-container/80 p-2.5 md:px-4 md:py-2 rounded-full font-medium transition-colors flex items-center justify-center gap-2 text-sm"
+            aria-label="Report Bug"
           >
-            <BugIcon className="h-4 w-4" />
-            Report Bug
+            <BugIcon className="h-5 w-5 md:h-4 md:w-4" />
+            <span className="hidden md:inline">Report Bug</span>
           </button>
         </div>
       </div>
