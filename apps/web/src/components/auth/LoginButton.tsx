@@ -2,17 +2,38 @@
 
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { ActionDialog } from "@/components/ActionDialog";
 
 type Step = "email" | "otp";
 
 interface LoginButtonProps {
   /** Show only an icon trigger (for collapsed sidebar) */
   compact?: boolean;
+  /** Optional custom label for the non-compact trigger */
+  label?: string;
+  /** Optional class name for trigger button */
+  className?: string;
+  /** Callback fired when trigger is clicked */
+  onTrigger?: () => void;
+  /** Controlled open state */
+  open?: boolean;
+  /** Controlled open state setter */
+  onOpenChange?: (open: boolean) => void;
+  /** Hide trigger button and control only through open/onOpenChange */
+  hideTrigger?: boolean;
 }
 
-export default function LoginButton({ compact = false }: LoginButtonProps) {
+export default function LoginButton({
+  compact = false,
+  label = "Sign In",
+  className = "",
+  onTrigger,
+  open: controlledOpen,
+  onOpenChange,
+  hideTrigger = false,
+}: LoginButtonProps) {
   const { requestOtp, verifyOtp } = useAuth();
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
   const [step, setStep] = useState<Step>("email");
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
@@ -20,8 +41,24 @@ export default function LoginButton({ compact = false }: LoginButtonProps) {
   const [info, setInfo] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const isControlled = controlledOpen !== undefined;
+  const isOpen = isControlled ? controlledOpen : internalOpen;
+
+  const setIsOpen = (nextOpen: boolean) => {
+    if (!isControlled) {
+      setInternalOpen(nextOpen);
+    }
+    onOpenChange?.(nextOpen);
+  };
+
+  const dialogTitle = step === "email" ? "Login Required" : "Enter OTP";
+  const dialogDescription =
+    step === "email"
+      ? "Welcome to the digital archive. Please authenticate to access the campus feed and research discourse."
+      : `Enter the 6-digit code sent to ${email}`;
+
   const reset = () => {
-    setOpen(false);
+    setIsOpen(false);
     setStep("email");
     setEmail("");
     setOtp("");
@@ -64,13 +101,20 @@ export default function LoginButton({ compact = false }: LoginButtonProps) {
     }
   };
 
-  if (!open) {
+  if (!isOpen) {
+    if (hideTrigger) {
+      return null;
+    }
+
     if (compact) {
       return (
         <button
-          onClick={() => setOpen(true)}
+          onClick={() => {
+            onTrigger?.();
+            setIsOpen(true);
+          }}
           title="Sign In"
-          className="w-8 h-8 flex items-center justify-center rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+          className={`w-8 h-8 flex items-center justify-center rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors ${className}`}
         >
           {/* person icon */}
           <svg
@@ -91,8 +135,11 @@ export default function LoginButton({ compact = false }: LoginButtonProps) {
     }
     return (
       <button
-        onClick={() => setOpen(true)}
-        className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:bg-secondary/60 hover:text-foreground transition-colors"
+        onClick={() => {
+          onTrigger?.();
+          setIsOpen(true);
+        }}
+        className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:bg-secondary/60 hover:text-foreground transition-colors ${className}`}
       >
         <svg
           className="w-5 h-5 shrink-0"
@@ -107,43 +154,56 @@ export default function LoginButton({ compact = false }: LoginButtonProps) {
             d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
           />
         </svg>
-        Sign In
+        {label}
       </button>
     );
   }
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-sm mx-4 p-6 relative">
-        <button
-          onClick={reset}
-          className="absolute top-3 right-3 text-muted-foreground hover:text-foreground text-lg leading-none"
-        >
-          &times;
-        </button>
-
-        <h2 className="text-lg font-semibold mb-1">Sign in to DrishtiKon</h2>
-        <p className="text-sm text-muted-foreground mb-4">
-          Use your <strong>@aitpune.edu.in</strong> email
-        </p>
+    <ActionDialog
+      open={isOpen}
+      onOpenChange={(nextOpen) => {
+        if (!nextOpen) {
+          reset();
+          return;
+        }
+        setIsOpen(true);
+      }}
+      variant="single"
+      showHeader
+      showFooter={false}
+      size="lg"
+      headerAlign="center"
+      title={dialogTitle}
+      description={dialogDescription}
+      backgroundColor="#ffffff"
+      className="border border-outline-variant/30"
+      contentClassName="max-w-[34rem]"
+    >
+      <div className="mx-auto w-full max-w-md space-y-4 pb-2">
+        <div className="mx-auto mb-2 flex h-16 w-16 items-center justify-center rounded-full border border-primary/20 bg-primary/10 text-primary">
+          <span className="material-symbols-outlined text-3xl">
+            {step === "email" ? "lock_open" : "password"}
+          </span>
+        </div>
 
         {error && (
-          <div className="mb-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2">
+          <div className="rounded-md border border-error/25 bg-error-container px-3 py-2 text-sm text-on-error-container">
             {error}
           </div>
         )}
         {info && (
-          <div className="mb-3 text-sm text-green-700 bg-green-50 border border-green-200 rounded-md px-3 py-2">
+          <div className="rounded-md border border-secondary/25 bg-secondary-container/40 px-3 py-2 text-sm text-on-surface-variant">
             {info}
           </div>
         )}
 
         {step === "email" ? (
-          <form onSubmit={handleRequestOtp} className="space-y-3">
+          <form onSubmit={handleRequestOtp} className="space-y-4">
             <div>
               <label
                 htmlFor="login-email"
-                className="block text-sm font-medium mb-1"
+                className="mb-1 block text-sm font-medium text-on-surface"
               >
                 College Email
               </label>
@@ -155,26 +215,23 @@ export default function LoginButton({ compact = false }: LoginButtonProps) {
                 placeholder="yourname@aitpune.edu.in"
                 required
                 autoFocus
-                className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                className="w-full rounded-md border border-outline-variant px-3 py-3 text-on-surface placeholder:text-on-surface-variant/70 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
             </div>
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2 bg-primary text-primary-foreground rounded-md font-medium hover:opacity-90 disabled:opacity-50 transition-colors"
+              className="w-full rounded-md bg-primary px-4 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-on-primary transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {loading ? "Sending..." : "Send OTP"}
+              {loading ? "Sending..." : "Sign In"}
             </button>
           </form>
         ) : (
-          <form onSubmit={handleVerifyOtp} className="space-y-3">
-            <p className="text-sm text-muted-foreground">
-              Enter the 6-digit code sent to <strong>{email}</strong>
-            </p>
+          <form onSubmit={handleVerifyOtp} className="space-y-4">
             <div>
               <label
                 htmlFor="login-otp"
-                className="block text-sm font-medium mb-1"
+                className="mb-1 block text-sm font-medium text-on-surface"
               >
                 OTP Code
               </label>
@@ -189,16 +246,18 @@ export default function LoginButton({ compact = false }: LoginButtonProps) {
                 placeholder="123456"
                 required
                 autoFocus
-                className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring text-center text-lg tracking-widest font-mono"
+                className="w-full rounded-md border border-outline-variant px-3 py-3 text-center font-mono text-xl tracking-[0.35em] text-on-surface placeholder:tracking-normal focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
             </div>
+
             <button
               type="submit"
               disabled={loading || otp.length !== 6}
-              className="w-full py-2 bg-primary text-primary-foreground rounded-md font-medium hover:opacity-90 disabled:opacity-50 transition-colors"
+              className="w-full rounded-md bg-primary px-4 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-on-primary transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {loading ? "Verifying..." : "Verify & Sign In"}
+              {loading ? "Verifying..." : "Sign In"}
             </button>
+
             <button
               type="button"
               onClick={() => {
@@ -207,13 +266,13 @@ export default function LoginButton({ compact = false }: LoginButtonProps) {
                 setError("");
                 setInfo("");
               }}
-              className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="w-full text-sm font-medium text-secondary transition hover:text-primary"
             >
-              ← Use a different email
+              Use a different email
             </button>
           </form>
         )}
       </div>
-    </div>
+    </ActionDialog>
   );
 }
