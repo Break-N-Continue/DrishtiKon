@@ -24,7 +24,7 @@ spring:
 
 app:
   jwt:
-    secret: ${JWT_SECRET:TmV2ZXJVc2VUaGlzSW5Qcm9kR2VuZXJhdGVBUmVhbDI1NkJpdEtleQ==}
+    secret: ${JWT_SECRET}
     expiration-ms: 86400000 # 24 hours
   otp:
     expiry-minutes: 5
