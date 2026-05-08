@@ -46,7 +46,7 @@ app:
     frontend-url: ${FRONTEND_URL:http://localhost:3000}
     additional-origins: ${ADDITIONAL_ORIGINS:}
   mail:
-    from-email: ${MAIL_FROM_EMAIL:noreply@aitpune.edu.in}
+    from-email: ${MAIL_FROM_EMAIL:no-reply@break-n-continue.live}
 
 logging:
   level:
