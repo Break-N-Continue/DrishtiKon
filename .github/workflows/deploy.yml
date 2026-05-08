@@ -87,8 +87,11 @@ jobs:
               -e RDS_USERNAME=${{ secrets.RDS_USERNAME }} \
               -e RDS_PASSWORD=${{ secrets.RDS_PASSWORD }} \
               -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
-              -e SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }} \
-              -e SENDGRID_FROM_EMAIL=${{ secrets.SENDGRID_FROM_EMAIL }} \
+              -e SES_SMTP_HOST=${{ secrets.SES_SMTP_HOST }} \
+              -e SES_SMTP_PORT=${{ secrets.SES_SMTP_PORT }} \
+              -e SES_SMTP_USERNAME=${{ secrets.SES_SMTP_USERNAME }} \
+              -e SES_SMTP_PASSWORD=${{ secrets.SES_SMTP_PASSWORD }} \
+              -e MAIL_FROM_EMAIL=${{ secrets.MAIL_FROM_EMAIL }} \
               -e FRONTEND_URL=${{ secrets.FRONTEND_URL }} \
               -p 8080:8080 ${{ env.API_IMAGE }}:latest
 

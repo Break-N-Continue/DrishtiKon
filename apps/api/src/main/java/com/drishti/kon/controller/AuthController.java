@@ -54,11 +54,11 @@ public class AuthController {
     public ResponseEntity<Map<String, String>> requestOtp(@Valid @RequestBody OtpRequest request) {
         String email = request.getEmail().toLowerCase().trim();
         System.out.println("Received OTP request for email: " + email);
-        // Validate domain
-        if (!email.endsWith("@" + allowedDomain)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("error", "Only @" + allowedDomain + " emails are allowed"));
-        }
+        // Validate domain (temporarily disabled)
+        // if (!email.endsWith("@" + allowedDomain)) {
+        //     return ResponseEntity.status(HttpStatus.FORBIDDEN)
+        //             .body(Map.of("error", "Only @" + allowedDomain + " emails are allowed"));
+        // }
 
         String otp = otpService.generateAndSaveOtp(email);
         emailService.sendOtpEmail(email, otp);
@@ -73,10 +73,10 @@ public class AuthController {
         String email = request.getEmail().toLowerCase().trim();
 
         // Validate domain
-        if (!email.endsWith("@" + allowedDomain)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("error", "Only @" + allowedDomain + " emails are allowed"));
-        }
+        // if (!email.endsWith("@" + allowedDomain)) {
+        //     return ResponseEntity.status(HttpStatus.FORBIDDEN)
+        //             .body(Map.of("error", "Only @" + allowedDomain + " emails are allowed"));
+        // }
 
         OtpService.OtpValidationResult result = otpService.validateOtp(email, request.getOtp());
 

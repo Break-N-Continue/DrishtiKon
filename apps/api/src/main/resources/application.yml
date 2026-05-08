@@ -22,6 +22,18 @@ spring:
     locations: classpath:db/migration
     baseline-on-migrate: true
 
+  mail:
+    host: ${SES_SMTP_HOST:email-smtp.eu-north-1.amazonaws.com}
+    port: ${SES_SMTP_PORT:465}
+    username: ${SES_SMTP_USERNAME}
+    password: ${SES_SMTP_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: true
+
 app:
   jwt:
     secret: ${JWT_SECRET}
@@ -33,10 +45,8 @@ app:
     allowed-domain: aitpune.edu.in
     frontend-url: ${FRONTEND_URL:http://localhost:3000}
     additional-origins: ${ADDITIONAL_ORIGINS:}
-  sendgrid:
-    api-key: ${SENDGRID_API_KEY}
-    from-email: ${SENDGRID_FROM_EMAIL:noreply@aitpune.edu.in}
-    from-name: DrishtiKon
+  mail:
+    from-email: ${MAIL_FROM_EMAIL:noreply@aitpune.edu.in}
 
 logging:
   level:

@@ -25,8 +25,11 @@ services:
       SPRING_DATASOURCE_USERNAME: drishti
       SPRING_DATASOURCE_PASSWORD: password
       JWT_SECRET: ${JWT_SECRET:-TmV2ZXJVc2VUaGlzSW5Qcm9kR2VuZXJhdGVBUmVhbDI1NkJpdEtleQ==}
-      SENDGRID_API_KEY: ${SENDGRID_API_KEY}
-      SENDGRID_FROM_EMAIL: ${SENDGRID_FROM_EMAIL:-noreply@aitpune.edu.in}
+      SES_SMTP_HOST: ${SES_SMTP_HOST:-email-smtp.eu-north-1.amazonaws.com}
+      SES_SMTP_PORT: ${SES_SMTP_PORT:-465}
+      SES_SMTP_USERNAME: ${SES_SMTP_USERNAME}
+      SES_SMTP_PASSWORD: ${SES_SMTP_PASSWORD}
+      MAIL_FROM_EMAIL: ${MAIL_FROM_EMAIL:-noreply@aitpune.edu.in}
       FRONTEND_URL: http://localhost:3000
     ports:
       - "8080:8080"
