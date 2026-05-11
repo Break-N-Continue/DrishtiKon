@@ -4,10 +4,10 @@
 
 @import "highlight.js/styles/github.css";
 @import "katex/dist/katex.min.css";
-@import '../styles/tokens/colors.css';
-@import '../styles/tokens/typography.css';
-@import '../styles/tokens/animations.css';
-@import '../styles/components.css';
+@import "../styles/tokens/colors.css";
+@import "../styles/tokens/typography.css";
+@import "../styles/tokens/animations.css";
+@import "../styles/components.css";
 
 @layer base {
   :root {

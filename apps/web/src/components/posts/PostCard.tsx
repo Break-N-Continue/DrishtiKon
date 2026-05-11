@@ -19,13 +19,17 @@ export default function PostCard({
   const excerpt = getExcerpt(post.description || post.content || "");
 
   // Determine border color based on tags (just for visual variety matching the design)
-  const borderColorClass = 
-    tags[0]?.toLowerCase() === 'governance' ? 'border-secondary' :
-    tags[0]?.toLowerCase() === 'academic success' ? 'border-tertiary' : 
-    'border-primary';
+  const borderColorClass =
+    tags[0]?.toLowerCase() === "governance"
+      ? "border-secondary"
+      : tags[0]?.toLowerCase() === "academic success"
+        ? "border-tertiary"
+        : "border-primary";
 
   return (
-    <article className={`bg-surface-container-lowest p-8 border-l-4 ${borderColorClass} shadow-sm hover:shadow-md transition-shadow animate-fade-in-up`}>
+    <article
+      className={`bg-surface-container-lowest p-8 border-l-4 ${borderColorClass} shadow-sm hover:shadow-md transition-shadow animate-fade-in-up`}
+    >
       <div className="flex justify-between items-start mb-4">
         {tags.length > 0 ? (
           <span className="font-label text-xs uppercase tracking-widest text-secondary font-bold">

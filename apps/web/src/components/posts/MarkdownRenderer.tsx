@@ -39,7 +39,11 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
   );
 }
 
-function LinkRenderer({ href, children, ...props }: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
+function LinkRenderer({
+  href,
+  children,
+  ...props
+}: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
   const isExternal = !!href && /^https?:\/\//i.test(href);
   return (
     <a
@@ -53,7 +57,11 @@ function LinkRenderer({ href, children, ...props }: React.AnchorHTMLAttributes<H
   );
 }
 
-function ImageRenderer({ src, alt, title }: React.ImgHTMLAttributes<HTMLImageElement>) {
+function ImageRenderer({
+  src,
+  alt,
+  title,
+}: React.ImgHTMLAttributes<HTMLImageElement>) {
   if (!src) return null;
   return (
     <figure className="my-6">
@@ -67,17 +75,17 @@ function ImageRenderer({ src, alt, title }: React.ImgHTMLAttributes<HTMLImageEle
   );
 }
 
-function CodeBlock({ inline, className, children }: React.HTMLAttributes<HTMLElement> & { inline?: boolean }) {
+function CodeBlock({
+  inline,
+  className,
+  children,
+}: React.HTMLAttributes<HTMLElement> & { inline?: boolean }) {
   const codeText = String(children).replace(/\n$/, "");
   const [copied, setCopied] = useState(false);
   const language = /language-([^\s]+)/.exec(className || "")?.[1];
 
   if (inline) {
-    return (
-      <code className={className}>
-        {children}
-      </code>
-    );
+    return <code className={className}>{children}</code>;
   }
 
   const handleCopy = async () => {
@@ -105,9 +113,7 @@ function CodeBlock({ inline, className, children }: React.HTMLAttributes<HTMLEle
         </span>
       )}
       <pre className="overflow-x-auto rounded-lg border border-outline-variant/20 bg-surface-container p-4">
-        <code className={className}>
-          {children}
-        </code>
+        <code className={className}>{children}</code>
       </pre>
     </div>
   );

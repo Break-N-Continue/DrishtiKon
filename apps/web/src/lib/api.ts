@@ -65,7 +65,10 @@ export async function logoutUser(): Promise<void> {
 
 // ---- Users ----
 
-export async function updateUserAbout(id: number, about: string): Promise<{ message: string }> {
+export async function updateUserAbout(
+  id: number,
+  about: string,
+): Promise<{ message: string }> {
   const { data } = await api.patch(`/users/${id}/about`, { about });
   return data;
 }
@@ -83,7 +86,9 @@ export async function getPost(id: number): Promise<Post> {
 }
 
 export async function getPostBySlug(slug: string): Promise<Post> {
-  const { data } = await api.get<Post>(`/posts/slug/${encodeURIComponent(slug)}`);
+  const { data } = await api.get<Post>(
+    `/posts/slug/${encodeURIComponent(slug)}`,
+  );
   return data;
 }
 
@@ -128,7 +133,9 @@ export async function requestProfileUpdate(
   userId: number,
   profile: ProfileUpdateRequest,
 ): Promise<{ message: string }> {
-  const { data } = await api.post(`/users/${userId}/profile-update-request`, profile);
+  const { data } = await api.post(
+    `/users/${userId}/profile-update-request`,
+    profile,
+  );
   return data;
 }
-

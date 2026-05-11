@@ -1,5 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
-import { getPosts, createPost, deletePost, type Post, type CreatePostData } from "@/lib/api";
+import {
+  getPosts,
+  createPost,
+  deletePost,
+  type Post,
+  type CreatePostData,
+} from "@/lib/api";
 
 interface UseHomeFeedReturn {
   posts: Post[];
@@ -24,7 +30,7 @@ export function useHomeFeed(): UseHomeFeedReturn {
     } catch (err: any) {
       setError(
         err?.response?.data?.error ||
-          "Failed to load posts. Is the backend running on port 8080?"
+          "Failed to load posts. Is the backend running on port 8080?",
       );
     } finally {
       setLoading(false);
@@ -44,7 +50,7 @@ export function useHomeFeed(): UseHomeFeedReturn {
         setError(err?.response?.data?.error || "Failed to create post");
       }
     },
-    [fetchPosts]
+    [fetchPosts],
   );
 
   const handleDeletePost = useCallback(
@@ -56,7 +62,7 @@ export function useHomeFeed(): UseHomeFeedReturn {
         setError(err?.response?.data?.error || "Failed to delete post");
       }
     },
-    [fetchPosts]
+    [fetchPosts],
   );
 
   return {

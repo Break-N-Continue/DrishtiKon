@@ -124,7 +124,9 @@ export default function CreatePostForm({ onSubmit }: CreatePostFormProps) {
               Live Preview
             </p>
             <MarkdownRenderer
-              content={content.trim() || "_Start typing to preview your post..._"}
+              content={
+                content.trim() || "_Start typing to preview your post..._"
+              }
             />
           </div>
         </div>

@@ -44,7 +44,10 @@ export default function PostDetailPage({ params }: PostDetailPageProps) {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-12">
-      <Link href="/homePage" className="font-label text-xs uppercase tracking-widest text-secondary">
+      <Link
+        href="/homePage"
+        className="font-label text-xs uppercase tracking-widest text-secondary"
+      >
         Back to feed
       </Link>
 
