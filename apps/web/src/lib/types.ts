@@ -28,17 +28,28 @@ export interface Post {
   id: number;
   title: string;
   description: string;
+  content?: string;
+  slug: string;
+  coverImageUrl?: string;
   authorName: string;
   authorId: number;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
   tags?: string[];
+  isDraft?: boolean;
+  upvoteCount?: number;
+  commentCount?: number;
+  hasUpvoted?: boolean;
 }
 
 export interface CreatePostData {
   title: string;
   description: string;
+  content?: string;
   tags?: string[];
+  coverImageUrl?: string;
+  isDraft?: boolean;
+  slug?: string;
 }
 
 export interface UpdatePostData extends CreatePostData {}

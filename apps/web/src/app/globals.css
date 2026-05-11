@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+@import "highlight.js/styles/github.css";
+@import "katex/dist/katex.min.css";
 @import '../styles/tokens/colors.css';
 @import '../styles/tokens/typography.css';
 @import '../styles/tokens/animations.css';

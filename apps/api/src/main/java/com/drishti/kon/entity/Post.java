@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 @Entity
 @Table(name = "posts")
@@ -22,6 +23,18 @@ public class Post {
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
+
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String content;
+
+    @Column(nullable = false, unique = true)
+    private String slug;
+
+    @Column(name = "cover_image_url", length = 500)
+    private String coverImageUrl;
+
+    @Column(name = "is_draft", nullable = false)
+    private boolean isDraft = false;
 
     @Column(name = "is_visible", nullable = false)
     private boolean isVisible = true;
@@ -44,6 +57,19 @@ public class Post {
     @PrePersist
     protected void onCreate() {
         createdAt = OffsetDateTime.now();
+        if (slug == null || slug.isBlank()) {
+            slug = slugify(title);
+        }
+    }
+
+    private String slugify(String value) {
+        if (value == null) {
+            return "post";
+        }
+        String slugValue = value.toLowerCase(Locale.ROOT)
+                .replaceAll("[^a-z0-9]+", "-")
+                .replaceAll("(^-|-$)", "");
+        return slugValue.isBlank() ? "post" : slugValue;
     }
 
     // Getters and Setters
@@ -58,6 +84,18 @@ public class Post {
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
+
+    public String getContent() { return content; }
+    public void setContent(String content) { this.content = content; }
+
+    public String getSlug() { return slug; }
+    public void setSlug(String slug) { this.slug = slug; }
+
+    public String getCoverImageUrl() { return coverImageUrl; }
+    public void setCoverImageUrl(String coverImageUrl) { this.coverImageUrl = coverImageUrl; }
+
+    public boolean isDraft() { return isDraft; }
+    public void setDraft(boolean draft) { isDraft = draft; }
 
     public boolean isVisible() { return isVisible; }
     public void setVisible(boolean visible) { isVisible = visible; }

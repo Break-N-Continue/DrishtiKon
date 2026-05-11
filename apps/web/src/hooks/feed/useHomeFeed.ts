@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
-import { getPosts, createPost, deletePost, type Post } from "@/lib/api";
+import { getPosts, createPost, deletePost, type Post, type CreatePostData } from "@/lib/api";
 
 interface UseHomeFeedReturn {
   posts: Post[];
   loading: boolean;
   error: string | null;
-  handleCreatePost: (title: string, description: string) => Promise<void>;
+  handleCreatePost: (post: CreatePostData) => Promise<void>;
   handleDeletePost: (id: number) => Promise<void>;
   refreshPosts: () => Promise<void>;
 }
@@ -36,9 +36,9 @@ export function useHomeFeed(): UseHomeFeedReturn {
   }, [fetchPosts]);
 
   const handleCreatePost = useCallback(
-    async (title: string, description: string) => {
+    async (post: CreatePostData) => {
       try {
-        await createPost({ title, description });
+        await createPost(post);
         await fetchPosts();
       } catch (err: any) {
         setError(err?.response?.data?.error || "Failed to create post");

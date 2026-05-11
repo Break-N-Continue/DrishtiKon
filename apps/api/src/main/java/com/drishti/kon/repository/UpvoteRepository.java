@@ -24,6 +24,7 @@ public interface UpvoteRepository extends JpaRepository<Upvote, Long> {
             JOIN u.post p
             WHERE u.user.id = :userId
               AND p.isVisible = true
+              AND p.isDraft = false
             ORDER BY u.createdAt DESC
             """)
     Page<Post> findVisibleUpvotedPostsByUserIdOrderByUpvoteCreatedAtDesc(@Param("userId") Long userId, Pageable pageable);

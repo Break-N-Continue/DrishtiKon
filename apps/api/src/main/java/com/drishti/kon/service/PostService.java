@@ -3,6 +3,7 @@ package com.drishti.kon.service;
 import com.drishti.kon.dto.CreatePostRequest;
 import com.drishti.kon.dto.PostResponse;
 import com.drishti.kon.entity.*;
+import com.drishti.kon.repository.CommentRepository;
 import com.drishti.kon.repository.PostRepository;
 import com.drishti.kon.repository.TagRepository;
 import com.drishti.kon.repository.UserRepository;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class PostService {
@@ -23,15 +25,18 @@ public class PostService {
     private final UserRepository userRepository;
     private final TagRepository tagRepository;
     private final UpvoteRepository upvoteRepository;
+    private final CommentRepository commentRepository;
 
     public PostService(PostRepository postRepository,
                        UserRepository userRepository,
                        TagRepository tagRepository,
-                       UpvoteRepository upvoteRepository) {
+                       UpvoteRepository upvoteRepository,
+                       CommentRepository commentRepository) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.tagRepository = tagRepository;
         this.upvoteRepository = upvoteRepository;
+        this.commentRepository = commentRepository;
     }
 
     @Transactional(readOnly = true)
@@ -40,27 +45,29 @@ public class PostService {
         if ("trending".equals(sort)) {
             posts = postRepository.findTop10ByUpvotes();
         } else {
-            posts = postRepository.findAllByIsVisibleTrueOrderByCreatedAtDesc();
+            posts = postRepository.findAllByIsVisibleTrueAndIsDraftFalseOrderByCreatedAtDesc();
         }
 
         User currentUser = getCurrentUser();
         return posts.stream()
-                .map(post -> {
-                    long upvoteCount = upvoteRepository.countByPostId(post.getId());
-                    boolean hasUpvoted = currentUser != null && upvoteRepository.existsByPostIdAndUserId(post.getId(), currentUser.getId());
-                    return PostResponse.fromEntity(post, upvoteCount, hasUpvoted);
-                })
+                .map(post -> buildResponse(post, currentUser))
                 .toList();
     }
 
     @Transactional(readOnly = true)
     public PostResponse getPostById(Long id) {
-        Post post = postRepository.findByIdAndIsVisibleTrue(id)
+        Post post = postRepository.findByIdAndIsVisibleTrueAndIsDraftFalse(id)
                 .orElseThrow(() -> new RuntimeException("Post not found with id: " + id));
         User currentUser = getCurrentUser();
-        long upvoteCount = upvoteRepository.countByPostId(post.getId());
-        boolean hasUpvoted = currentUser != null && upvoteRepository.existsByPostIdAndUserId(post.getId(), currentUser.getId());
-        return PostResponse.fromEntity(post, upvoteCount, hasUpvoted);
+        return buildResponse(post, currentUser);
+    }
+
+    @Transactional(readOnly = true)
+    public PostResponse getPostBySlug(String slug) {
+        Post post = postRepository.findBySlugAndIsVisibleTrueAndIsDraftFalse(slug)
+                .orElseThrow(() -> new RuntimeException("Post not found with slug: " + slug));
+        User currentUser = getCurrentUser();
+        return buildResponse(post, currentUser);
     }
 
     @Transactional
@@ -75,28 +82,32 @@ public class PostService {
         Post post = new Post();
         post.setTitle(request.getTitle());
         post.setDescription(request.getDescription());
+        post.setContent(resolveContent(request.getContent(), request.getDescription()));
         post.setAuthor(author);
         post.setExpiresAt(request.getExpiresAt());
+        post.setCoverImageUrl(request.getCoverImageUrl());
+        post.setDraft(Boolean.TRUE.equals(request.getIsDraft()));
+        post.setSlug(ensureUniqueSlug(resolveSlugSource(request.getSlug(), request.getTitle())));
 
-        // Only moderators can assign tags
-        if (request.getTagId() != null) {
+        Post saved = postRepository.save(post);
+
+        List<String> normalizedTags = normalizeTags(request.getTags());
+        if (!normalizedTags.isEmpty()) {
+            applyTags(saved, normalizedTags);
+            saved = postRepository.save(saved);
+        } else if (request.getTagId() != null) {
             if (author.getRole() != Role.MODERATOR && author.getRole() != Role.ADMIN) {
                 throw new AccessDeniedException("Only moderators can assign tags to posts");
             }
             Tag tag = tagRepository.findById(request.getTagId())
                     .orElseThrow(() -> new RuntimeException("Tag not found with id: " + request.getTagId()));
 
-            Post savedPost = postRepository.save(post);
-
-            PostTag postTag = new PostTag(savedPost, tag);
-            savedPost.getPostTags().add(postTag);
-            savedPost = postRepository.save(savedPost);
-
-            return PostResponse.fromEntity(savedPost);
+            PostTag postTag = new PostTag(saved, tag);
+            saved.getPostTags().add(postTag);
+            saved = postRepository.save(saved);
         }
 
-        Post saved = postRepository.save(post);
-        return PostResponse.fromEntity(saved, 0, false);
+        return buildResponse(saved, author);
     }
 
     @Transactional
@@ -147,7 +158,7 @@ public class PostService {
 
         post.setExpiresAt(null);
         Post saved = postRepository.save(post);
-        return PostResponse.fromEntity(saved);
+        return buildResponse(saved, requester);
     }
 
     @Transactional(readOnly = true)
@@ -155,9 +166,9 @@ public class PostService {
         if (!userRepository.existsById(userId)) {
             throw new RuntimeException("User not found with id: " + userId);
         }
-        return postRepository.findByAuthorIdAndIsVisibleTrueOrderByCreatedAtDesc(userId)
+        return postRepository.findByAuthorIdAndIsVisibleTrueAndIsDraftFalseOrderByCreatedAtDesc(userId)
                 .stream()
-                .map(PostResponse::fromEntity)
+            .map(post -> buildResponse(post, null))
                 .toList();
     }
 
@@ -187,6 +198,84 @@ public class PostService {
         PostTag postTag = new PostTag(post, tag);
         post.getPostTags().add(postTag);
         Post saved = postRepository.save(post);
-        return PostResponse.fromEntity(saved);
+        return buildResponse(saved, requester);
+    }
+
+    private PostResponse buildResponse(Post post, User currentUser) {
+        long upvoteCount = upvoteRepository.countByPostId(post.getId());
+        long commentCount = commentRepository.countByPostId(post.getId());
+        boolean hasUpvoted = currentUser != null
+                && upvoteRepository.existsByPostIdAndUserId(post.getId(), currentUser.getId());
+        return PostResponse.fromEntity(post, upvoteCount, commentCount, hasUpvoted);
+    }
+
+    private String resolveContent(String content, String description) {
+        if (content == null || content.isBlank()) {
+            return description;
+        }
+        return content;
+    }
+
+    private String resolveSlugSource(String slug, String title) {
+        if (slug != null && !slug.isBlank()) {
+            return slug;
+        }
+        return title;
+    }
+
+    private String ensureUniqueSlug(String source) {
+        String baseSlug = slugify(source);
+        if (!postRepository.existsBySlug(baseSlug)) {
+            return baseSlug;
+        }
+        int suffix = 2;
+        String candidate = baseSlug;
+        while (postRepository.existsBySlug(candidate)) {
+            candidate = baseSlug + "-" + suffix;
+            suffix++;
+        }
+        return candidate;
+    }
+
+    private String slugify(String value) {
+        if (value == null) {
+            return "post";
+        }
+        String slug = value.toLowerCase(Locale.ROOT)
+                .replaceAll("[^a-z0-9]+", "-")
+                .replaceAll("(^-|-$)", "");
+        if (slug.isBlank()) {
+            return "post";
+        }
+        return slug.length() > 240 ? slug.substring(0, 240) : slug;
+    }
+
+    private List<String> normalizeTags(List<String> tags) {
+        if (tags == null) {
+            return List.of();
+        }
+        return tags.stream()
+                .filter(tag -> tag != null && !tag.isBlank())
+                .map(tag -> tag.trim())
+                .distinct()
+                .toList();
+    }
+
+    private void applyTags(Post post, List<String> tags) {
+        for (String tagName : tags) {
+            Tag tag = tagRepository.findByNameIgnoreCase(tagName)
+                    .orElseGet(() -> tagRepository.save(createTag(tagName)));
+            boolean alreadyTagged = post.getPostTags().stream()
+                    .anyMatch(pt -> pt.getTag().getId().equals(tag.getId()));
+            if (!alreadyTagged) {
+                post.getPostTags().add(new PostTag(post, tag));
+            }
+        }
+    }
+
+    private Tag createTag(String tagName) {
+        Tag tag = new Tag();
+        tag.setName(tagName);
+        return tag;
     }
 }

@@ -16,17 +16,23 @@ import java.util.Optional;
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
 
-    List<Post> findAllByIsVisibleTrueOrderByCreatedAtDesc();
+    List<Post> findAllByIsVisibleTrueAndIsDraftFalseOrderByCreatedAtDesc();
 
-    Optional<Post> findByIdAndIsVisibleTrue(Long id);
+    Optional<Post> findByIdAndIsVisibleTrueAndIsDraftFalse(Long id);
 
-    List<Post> findByAuthorIdAndIsVisibleTrueOrderByCreatedAtDesc(Long authorId);
-    Page<Post> findByAuthorIdAndIsVisibleTrueOrderByCreatedAtDesc(Long authorId, Pageable pageable);
+    Optional<Post> findBySlugAndIsVisibleTrueAndIsDraftFalse(String slug);
+
+    Optional<Post> findBySlug(String slug);
+
+    boolean existsBySlug(String slug);
+
+    List<Post> findByAuthorIdAndIsVisibleTrueAndIsDraftFalseOrderByCreatedAtDesc(Long authorId);
+    Page<Post> findByAuthorIdAndIsVisibleTrueAndIsDraftFalseOrderByCreatedAtDesc(Long authorId, Pageable pageable);
 
     @Modifying
     @Query("UPDATE Post p SET p.isVisible = false WHERE p.expiresAt IS NOT NULL AND p.expiresAt < :now AND p.isVisible = true")
     int expirePostsBefore(@Param("now") OffsetDateTime now);
 
-    @Query(value = "SELECT p.* FROM posts p LEFT JOIN upvotes u ON p.id = u.post_id WHERE p.is_visible = true GROUP BY p.id ORDER BY COUNT(u.id) DESC LIMIT 10", nativeQuery = true)
+    @Query(value = "SELECT p.* FROM posts p LEFT JOIN upvotes u ON p.id = u.post_id WHERE p.is_visible = true AND p.is_draft = false GROUP BY p.id ORDER BY COUNT(u.id) DESC LIMIT 10", nativeQuery = true)
     List<Post> findTop10ByUpvotes();
 }

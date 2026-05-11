@@ -42,6 +42,11 @@ public class PostController {
         return ResponseEntity.ok(postService.getPostById(id));
     }
 
+    @GetMapping("/slug/{slug}")
+    public ResponseEntity<PostResponse> getPostBySlug(@PathVariable String slug) {
+        return ResponseEntity.ok(postService.getPostBySlug(slug));
+    }
+
     @PostMapping
     public ResponseEntity<PostResponse> createPost(@Valid @RequestBody CreatePostRequest request,
                                                    @CurrentUser User author) {

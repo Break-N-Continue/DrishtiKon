@@ -89,7 +89,42 @@ module.exports = {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      typography: ({ theme }) => ({
+        DEFAULT: {
+          css: {
+            "--tw-prose-body": "var(--on-surface-variant)",
+            "--tw-prose-headings": "var(--on-surface)",
+            "--tw-prose-links": "var(--primary)",
+            "--tw-prose-bold": "var(--on-surface)",
+            "--tw-prose-code": "var(--primary)",
+            "--tw-prose-pre-bg": "var(--surface-container)",
+            "--tw-prose-pre-code": "var(--on-surface)",
+            "--tw-prose-quotes": "var(--on-surface-variant)",
+            "--tw-prose-quote-borders": "var(--outline-variant)",
+            "--tw-prose-th-borders": "var(--outline-variant)",
+            "--tw-prose-td-borders": "var(--outline-variant)",
+            maxWidth: "none",
+            code: {
+              backgroundColor: "var(--surface-container)",
+              borderRadius: theme("borderRadius.md"),
+              paddingInline: theme("spacing.1"),
+              fontWeight: "400",
+            },
+            "code::before": { content: "none" },
+            "code::after": { content: "none" },
+            a: {
+              textDecoration: "underline",
+              textUnderlineOffset: "3px",
+              "&:hover": { color: "hsl(var(--primary) / 0.8)" },
+            },
+            img: {
+              borderRadius: theme("borderRadius.lg"),
+              marginInline: "auto",
+            },
+          },
+        },
+      }),
     },
   },
-  plugins: [require("@tailwindcss/forms")],
+  plugins: [require("@tailwindcss/forms"), require("@tailwindcss/typography")],
 };

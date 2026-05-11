@@ -44,7 +44,7 @@ public class UserProfileService {
     public Page<PostResponse> getVisiblePostsByUser(Long targetUserId, User requester, Pageable pageable) {
         assertAccess(targetUserId, requester);
         assertTargetUserExists(targetUserId);
-        return postRepository.findByAuthorIdAndIsVisibleTrueOrderByCreatedAtDesc(targetUserId, pageable)
+        return postRepository.findByAuthorIdAndIsVisibleTrueAndIsDraftFalseOrderByCreatedAtDesc(targetUserId, pageable)
                 .map(PostResponse::fromEntity);
     }
 

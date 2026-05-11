@@ -82,6 +82,11 @@ export async function getPost(id: number): Promise<Post> {
   return data;
 }
 
+export async function getPostBySlug(slug: string): Promise<Post> {
+  const { data } = await api.get<Post>(`/posts/slug/${encodeURIComponent(slug)}`);
+  return data;
+}
+
 export async function getUserPosts(userId: number): Promise<Post[]> {
   const { data } = await api.get<Post[]>(`/posts/user/${userId}`);
   return data;

@@ -1,6 +1,7 @@
 "use client";
 
 import type { Post } from "@/lib/api";
+import Link from "next/link";
 
 interface PostCardProps {
   post: Post;
@@ -15,6 +16,7 @@ export default function PostCard({
 }: PostCardProps) {
   const timeAgo = getTimeAgo(post.createdAt);
   const tags = post.tags ?? [];
+  const excerpt = getExcerpt(post.description || post.content || "");
 
   // Determine border color based on tags (just for visual variety matching the design)
   const borderColorClass = 
@@ -37,12 +39,28 @@ export default function PostCard({
         <span className="font-label text-xs text-secondary/60">{timeAgo}</span>
       </div>
 
-      <h2 className="font-headline text-3xl font-bold text-on-surface mb-4 leading-tight">
-        {post.title}
-      </h2>
-      <p className="font-body text-on-surface-variant leading-relaxed mb-6 whitespace-pre-wrap">
-        {post.description}
-      </p>
+      {post.coverImageUrl && (
+        <Link href={`/posts/${post.slug}`} className="block mb-5">
+          <img
+            src={post.coverImageUrl}
+            alt={post.title}
+            className="w-full max-h-56 object-cover rounded-lg border border-outline-variant/20"
+            loading="lazy"
+          />
+        </Link>
+      )}
+
+      <Link href={`/posts/${post.slug}`} className="block group">
+        <h2 className="font-headline text-3xl font-bold text-on-surface mb-4 leading-tight group-hover:text-primary transition-colors">
+          {post.title}
+        </h2>
+        <p className="font-body text-on-surface-variant leading-relaxed mb-3">
+          {excerpt}
+        </p>
+        <span className="font-label text-xs uppercase tracking-widest text-primary">
+          Read full post
+        </span>
+      </Link>
 
       <div className="flex items-center gap-4 pt-4 border-t border-outline-variant/10">
         <div className="flex items-center gap-2">
@@ -76,6 +94,12 @@ export default function PostCard({
       </div>
     </article>
   );
+}
+
+function getExcerpt(text: string, maxLength = 220): string {
+  const trimmed = text.trim().replace(/\s+/g, " ");
+  if (trimmed.length <= maxLength) return trimmed;
+  return `${trimmed.slice(0, maxLength).trim()}...`;
 }
 
 function getTimeAgo(dateStr: string): string {
