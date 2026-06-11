@@ -98,6 +98,7 @@ public class AuthController {
                 log.info("User authenticated: id={}, email={}", user.getId(), email);
                 yield ResponseEntity.ok(Map.of(
                         "message", (Object) "Login successful",
+                        "token", token,
                         "user", Map.of(
                                 "id", user.getId(),
                                 "email", user.getEmail(),
