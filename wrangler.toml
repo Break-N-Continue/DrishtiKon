@@ -1,14 +1,9 @@
-# Cloudflare Pages configuration
-# Reference: https://developers.cloudflare.com/pages/framework-guides/nextjs/
-#
-# NOTE: With Cloudflare Pages Git integration, build & deploy are managed via
-# the dashboard (Settings → Build configurations). This file is only needed
-# if deploying via `wrangler pages deploy` in CI.
-
 name = "drishtikon"
-pages_build_output_dir = "apps/web/out"
+compatibility_date = "2026-08-28"
 
-[vars]
-# NEXT_PUBLIC_API_URL is set in the Cloudflare Pages dashboard
-# Settings → Environment variables → Production
-# Value: https://zc60gyhmpk.execute-api.ap-south-1.amazonaws.com
+# Serve the Next.js static export as a static site on Cloudflare Workers.
+# `not_found_handling = "single-page-application"` replaces the _redirects SPA
+# fallback — unknown paths are served index.html so client-side routing works.
+[assets]
+directory = "apps/web/out"
+not_found_handling = "single-page-application"
