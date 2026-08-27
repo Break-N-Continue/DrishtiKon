@@ -1,0 +1,3 @@
+# SPA-style routing: all unknown paths fall back to index.html
+# This lets Next.js client-side router handle /posts/[slug], /homePage, etc.
+/*    /index.html   200

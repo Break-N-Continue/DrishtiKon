@@ -1,37 +1,14 @@
-# Cloudflare Pages build configuration
-# This file tells Cloudflare Pages how to build and deploy apps/web.
+# Cloudflare Pages configuration
 # Reference: https://developers.cloudflare.com/pages/framework-guides/nextjs/
+#
+# NOTE: With Cloudflare Pages Git integration, build & deploy are managed via
+# the dashboard (Settings → Build configurations). This file is only needed
+# if deploying via `wrangler pages deploy` in CI.
 
-name = "drishti-kon-web"
+name = "drishtikon"
 pages_build_output_dir = "apps/web/out"
 
-[build]
-  # Run from the monorepo root
-  command = "cd apps/web && npm install && DEPLOY_TARGET=cloudflare npm run build"
-  # Static export output directory (Next.js `output: "export"` writes here)
-  output_directory = "apps/web/out"
-
-[build.environment]
-  NODE_VERSION = "18"
-  # NEXT_PUBLIC_API_URL must be set in Cloudflare Pages dashboard → Settings → Environment Variables
-  # Example: https://xxxxxxxxxx.execute-api.ap-south-1.amazonaws.com/api
-
-[[redirects]]
-  # SPA-style client-side routing: all unknown paths served by index.html
-  from = "/*"
-  to = "/index.html"
-  status = 200
-
-[[headers]]
-  for = "/*"
-  [headers.values]
-    X-Frame-Options = "DENY"
-    X-Content-Type-Options = "nosniff"
-    Referrer-Policy = "strict-origin-when-cross-origin"
-    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
-
-[[headers]]
-  # Long-term cache for static Next.js assets (hashed filenames)
-  for = "/_next/static/*"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
+[vars]
+# NEXT_PUBLIC_API_URL is set in the Cloudflare Pages dashboard
+# Settings → Environment variables → Production
+# Value: https://zc60gyhmpk.execute-api.ap-south-1.amazonaws.com
