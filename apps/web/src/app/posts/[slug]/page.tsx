@@ -9,6 +9,13 @@ interface PostDetailPageProps {
   params: { slug: string };
 }
 
+// Required by Next.js `output: 'export'` for dynamic routes.
+// Posts are fetched client-side at runtime, so we return an empty array —
+// Next.js will generate the page shell and let the browser fetch the content.
+export function generateStaticParams() {
+  return [];
+}
+
 export default function PostDetailPage({ params }: PostDetailPageProps) {
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
