@@ -9,18 +9,8 @@ spring:
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:local}
 
-  jpa:
-    hibernate:
-      ddl-auto: none
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: true
-
-  flyway:
-    enabled: true
-    locations: classpath:db/migration
-    baseline-on-migrate: true
+  # JPA / DataSource / Flyway REMOVED.
+  # All data access is via software.amazon.awssdk:dynamodb-enhanced.
 
   mail:
     host: ${SES_SMTP_HOST:email-smtp.eu-north-1.amazonaws.com}
@@ -33,6 +23,13 @@ spring:
           auth: true
           ssl:
             enable: true
+
+aws:
+  region: ${AWS_REGION:ap-south-1}
+
+dynamodb:
+  endpoint: ${DYNAMODB_ENDPOINT:}
+  table-name: ${DYNAMODB_TABLE_NAME:DrishtiKon-Main}
 
 app:
   jwt:
@@ -50,4 +47,4 @@ app:
 
 logging:
   level:
-    com.drishti.kon: DEBUG
+    com.drishti.kon: INFO

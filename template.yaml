@@ -1,0 +1,182 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: DrishtiKon – Serverless API (AWS Lambda + DynamoDB) Stack
+
+# ────────────────────────────────────────────────────────────────────────────
+# Globals
+# ────────────────────────────────────────────────────────────────────────────
+Globals:
+  Function:
+    Timeout: 60
+    MemorySize: 2048
+    Runtime: java21
+    # SnapStart eliminates Java cold starts (6s → <500ms) at no extra cost.
+    SnapStart:
+      ApplyOn: PublishedVersions
+    Environment:
+      Variables:
+        SPRING_PROFILES_ACTIVE: prod
+        DYNAMODB_TABLE_NAME: !Ref DrishtiKonTable
+
+# ────────────────────────────────────────────────────────────────────────────
+# Parameters (override with `sam deploy --parameter-overrides`)
+# ────────────────────────────────────────────────────────────────────────────
+Parameters:
+  JwtSecret:
+    Type: String
+    NoEcho: true
+    Description: Base64 or random secret string for JWT token generation
+  SesSmtpHost:
+    Type: String
+    Default: email-smtp.ap-south-1.amazonaws.com
+  SesSmtpPort:
+    Type: Number
+    Default: 465
+  SesSmtpUsername:
+    Type: String
+    Description: AWS SES SMTP username
+  SesSmtpPassword:
+    Type: String
+    NoEcho: true
+    Description: AWS SES SMTP password
+  MailFromEmail:
+    Type: String
+    Default: no-reply@break-n-continue.live
+  FrontendUrl:
+    Type: String
+    Default: https://drishti-kon.pages.dev
+
+# ────────────────────────────────────────────────────────────────────────────
+# Resources
+# ────────────────────────────────────────────────────────────────────────────
+Resources:
+
+  # ── DynamoDB Single-Table (all entities in one table) ─────────────────────
+  DrishtiKonTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: DrishtiKon-Main
+      BillingMode: PAY_PER_REQUEST          # $0 when idle, auto-scales under load
+      AttributeDefinitions:
+        - AttributeName: PK
+          AttributeType: S
+        - AttributeName: SK
+          AttributeType: S
+        - AttributeName: GSI1PK
+          AttributeType: S
+        - AttributeName: GSI1SK
+          AttributeType: S
+        - AttributeName: GSI2PK
+          AttributeType: S
+        - AttributeName: GSI2SK
+          AttributeType: S
+      KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK
+          KeyType: RANGE
+      GlobalSecondaryIndexes:
+        # GSI1: list all visible posts by recency / author comment history
+        - IndexName: GSI1
+          KeySchema:
+            - AttributeName: GSI1PK
+              KeyType: HASH
+            - AttributeName: GSI1SK
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        # GSI2: list posts by a specific author
+        - IndexName: GSI2
+          KeySchema:
+            - AttributeName: GSI2PK
+              KeyType: HASH
+            - AttributeName: GSI2SK
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+      # DynamoDB TTL — auto-deletes expired OTPs and expired Posts
+      # This replaces the Spring @Scheduled PostExpiryScheduler entirely.
+      TimeToLiveSpecification:
+        AttributeName: expiresAtTtl
+        Enabled: true
+    DeletionPolicy: Retain   # Don't delete data if stack is deleted accidentally
+
+  # ── Spring Boot API Lambda Function ───────────────────────────────────────
+  DrishtiKonApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: DrishtiKon-API
+      # JAR-based deployment (simpler than container image for initial setup)
+      CodeUri: ./apps/api/target/kon-api-0.1.0.jar
+      Handler: com.drishti.kon.StreamLambdaHandler::handleRequest
+      Description: DrishtiKon Spring Boot API — served via AWS Lambda + SnapStart
+      Policies:
+        # Full CRUD on the DynamoDB table
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DrishtiKonTable
+        # Allow sending emails via SES
+        - Statement:
+            - Effect: Allow
+              Action:
+                - ses:SendEmail
+                - ses:SendRawEmail
+              Resource: "*"
+      Environment:
+        Variables:
+          JWT_SECRET: !Ref JwtSecret
+          SES_SMTP_HOST: !Ref SesSmtpHost
+          SES_SMTP_PORT: !Ref SesSmtpPort
+          SES_SMTP_USERNAME: !Ref SesSmtpUsername
+          SES_SMTP_PASSWORD: !Ref SesSmtpPassword
+          MAIL_FROM_EMAIL: !Ref MailFromEmail
+          FRONTEND_URL: !Ref FrontendUrl
+          ADDITIONAL_ORIGINS: ""
+      Events:
+        # Catch-all route — HTTP API Gateway v2 (cheaper & faster than REST API)
+        HttpApiEvent:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref DrishtiKonHttpApi
+            Path: /{proxy+}
+            Method: ANY
+            PayloadFormatVersion: "1.0"
+
+  # ── HTTP API Gateway v2 ───────────────────────────────────────────────────
+  DrishtiKonHttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      Description: DrishtiKon HTTP API Gateway
+      CorsConfiguration:
+        AllowOrigins:
+          - !Ref FrontendUrl
+        AllowMethods:
+          - GET
+          - POST
+          - PUT
+          - PATCH
+          - DELETE
+          - OPTIONS
+        AllowHeaders:
+          - "*"
+        AllowCredentials: true
+        MaxAge: 3600
+
+# ────────────────────────────────────────────────────────────────────────────
+# Outputs (shown after `sam deploy` completes)
+# ────────────────────────────────────────────────────────────────────────────
+Outputs:
+  ApiEndpoint:
+    Description: "Lambda HTTP API Gateway URL — set this as NEXT_PUBLIC_API_URL in Cloudflare Pages"
+    Value: !Sub "https://${DrishtiKonHttpApi}.execute-api.${AWS::Region}.amazonaws.com"
+    Export:
+      Name: DrishtiKon-ApiEndpoint
+
+  DynamoDbTableName:
+    Description: "DynamoDB table name"
+    Value: !Ref DrishtiKonTable
+    Export:
+      Name: DrishtiKon-TableName
+
+  LambdaFunctionArn:
+    Description: "Lambda function ARN"
+    Value: !GetAtt DrishtiKonApiFunction.Arn

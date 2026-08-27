@@ -1,14 +1,14 @@
 package com.drishti.kon.service;
 
-import com.drishti.kon.entity.OtpVerification;
+import com.drishti.kon.dynamo.OtpItem;
 import com.drishti.kon.repository.OtpRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 
@@ -30,57 +30,59 @@ public class OtpService {
         this.otpRepository = otpRepository;
     }
 
-    @Transactional
     public String generateAndSaveOtp(String email) {
-        // Delete any existing OTP for this email
+        // Delete any existing OTP for this email first
         otpRepository.deleteByEmail(email);
 
         String otp = generateOtp();
+        OffsetDateTime expiry = OffsetDateTime.now().plusMinutes(expiryMinutes);
 
-        OtpVerification verification = new OtpVerification();
-        verification.setEmail(email.toLowerCase().trim());
-        verification.setOtp(otp);
-        verification.setExpiryTime(OffsetDateTime.now().plusMinutes(expiryMinutes));
-        verification.setAttemptCount(0);
+        OtpItem item = new OtpItem();
+        item.setEmail(email.toLowerCase().trim());
+        item.setOtp(otp);
+        item.setAttemptCount(0);
+        item.setExpiryTime(expiry.toString());
+        item.setExpiresAtTtl(expiry.toEpochSecond()); // DynamoDB TTL
+        item.setCreatedAt(OffsetDateTime.now().toString());
+        item.setPk(OtpItem.buildPk(email));
+        item.setSk(OtpItem.SK_METADATA);
 
-        otpRepository.save(verification);
+        otpRepository.save(item);
         log.debug("OTP generated for email={}", email);
-
         return otp;
     }
 
-    @Transactional
     public OtpValidationResult validateOtp(String email, String otp) {
         String normalizedEmail = email.toLowerCase().trim();
 
-        Optional<OtpVerification> optVerification =
-                otpRepository.findTopByEmailOrderByCreatedAtDesc(normalizedEmail);
+        Optional<OtpItem> optItem = otpRepository.findTopByEmailOrderByCreatedAtDesc(normalizedEmail);
 
-        if (optVerification.isEmpty()) {
+        if (optItem.isEmpty()) {
             return OtpValidationResult.NOT_FOUND;
         }
 
-        OtpVerification verification = optVerification.get();
+        OtpItem item = optItem.get();
 
         // Check expiry
-        if (verification.getExpiryTime().isBefore(OffsetDateTime.now())) {
+        OffsetDateTime expiryTime = OffsetDateTime.parse(item.getExpiryTime());
+        if (expiryTime.isBefore(OffsetDateTime.now())) {
             otpRepository.deleteByEmail(normalizedEmail);
             return OtpValidationResult.EXPIRED;
         }
 
         // Check max attempts
-        if (verification.getAttemptCount() >= maxAttempts) {
+        if (item.getAttemptCount() >= maxAttempts) {
             otpRepository.deleteByEmail(normalizedEmail);
             return OtpValidationResult.MAX_ATTEMPTS_EXCEEDED;
         }
 
         // Increment attempt count
-        verification.setAttemptCount(verification.getAttemptCount() + 1);
-        otpRepository.save(verification);
+        item.setAttemptCount(item.getAttemptCount() + 1);
+        otpRepository.save(item);
 
         // Validate OTP
-        if (!verification.getOtp().equals(otp.trim())) {
-            int remaining = maxAttempts - verification.getAttemptCount();
+        if (!item.getOtp().equals(otp.trim())) {
+            int remaining = maxAttempts - item.getAttemptCount();
             log.debug("Invalid OTP for email={}, {} attempts remaining", email, remaining);
             return OtpValidationResult.INVALID;
         }
@@ -91,21 +93,17 @@ public class OtpService {
         return OtpValidationResult.VALID;
     }
 
-    @Transactional
+    /** No-op — DynamoDB TTL handles cleanup automatically. */
     public void cleanupExpired() {
-        otpRepository.deleteExpired(OffsetDateTime.now());
+        otpRepository.deleteExpired();
     }
 
     private String generateOtp() {
-        int num = RANDOM.nextInt(900_000) + 100_000; // 100000-999999
+        int num = RANDOM.nextInt(900_000) + 100_000;
         return String.valueOf(num);
     }
 
     public enum OtpValidationResult {
-        VALID,
-        INVALID,
-        EXPIRED,
-        NOT_FOUND,
-        MAX_ATTEMPTS_EXCEEDED
+        VALID, INVALID, EXPIRED, NOT_FOUND, MAX_ATTEMPTS_EXCEEDED
     }
 }

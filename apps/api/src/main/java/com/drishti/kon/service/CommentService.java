@@ -2,8 +2,8 @@ package com.drishti.kon.service;
 
 import com.drishti.kon.dto.CommentResponse;
 import com.drishti.kon.dto.CreateCommentRequest;
-import com.drishti.kon.entity.Comment;
-import com.drishti.kon.entity.Post;
+import com.drishti.kon.dynamo.CommentItem;
+import com.drishti.kon.dynamo.PostItem;
 import com.drishti.kon.entity.Role;
 import com.drishti.kon.entity.User;
 import com.drishti.kon.repository.CommentRepository;
@@ -11,9 +11,10 @@ import com.drishti.kon.repository.PostRepository;
 import com.drishti.kon.repository.UserRepository;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
+import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class CommentService {
@@ -30,58 +31,74 @@ public class CommentService {
         this.userRepository = userRepository;
     }
 
-    @Transactional
     public CommentResponse createComment(Long postId, CreateCommentRequest request, Long authorId) {
-        Post post = getVisiblePostOrThrow(postId);
+        PostItem post = getVisiblePostOrThrow(postId);
 
         User author = userRepository.findById(authorId)
+                .map(User::fromItem)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         if (author.isBanned()) {
             throw new AccessDeniedException("Banned users cannot post comments");
         }
 
-        Comment parent = null;
+        String parentCommentId = null;
         if (request.getParentId() != null) {
-            parent = commentRepository.findByIdAndPostId(request.getParentId(), postId)
-                    .orElseThrow(() -> new RuntimeException("Parent comment not found with id: " + request.getParentId()));
+            // parentId in DynamoDB is now a String (UUID-based commentId)
+            String parentIdStr = String.valueOf(request.getParentId());
+            commentRepository.findByCommentIdAndPostId(parentIdStr, postId)
+                    .orElseThrow(() -> new RuntimeException("Parent comment not found: " + parentIdStr));
+            parentCommentId = parentIdStr;
         }
 
-        Comment comment = new Comment();
-        comment.setPost(post);
-        comment.setAuthor(author);
-        comment.setParent(parent);
-        comment.setText(request.getText());
+        String now = OffsetDateTime.now().toString();
+        String commentId = UUID.randomUUID().toString();
 
-        Comment savedComment = commentRepository.save(comment);
-        return CommentResponse.fromEntity(savedComment);
+        CommentItem comment = new CommentItem();
+        comment.setCommentId(commentId);
+        comment.setPostId(postId);
+        comment.setAuthorId(String.valueOf(authorId));
+        comment.setAuthorDisplayName(author.getDisplayName());
+        comment.setParentCommentId(parentCommentId);
+        comment.setText(request.getText());
+        comment.setCreatedAt(now);
+        comment.setPk("POST#" + postId);
+        comment.setSk(CommentItem.buildSk(now, commentId));
+        comment.setGsi1Pk(CommentItem.buildGsi1Pk(authorId));
+        comment.setGsi1Sk("COMMENT#" + now);
+
+        CommentItem saved = commentRepository.save(comment);
+
+        // Increment denormalized commentCount on the post
+        postRepository.updateCommentCount(postId, +1L);
+
+        return CommentResponse.fromItem(saved);
     }
 
-    @Transactional(readOnly = true)
     public List<CommentResponse> getCommentsByPostId(Long postId) {
         getVisiblePostOrThrow(postId);
-        return commentRepository.findByPostIdWithAuthorAndParent(postId)
+        return commentRepository.findByPostIdOrderByCreatedAtAsc(postId)
                 .stream()
-                .map(CommentResponse::fromEntity)
+                .map(CommentResponse::fromItem)
                 .toList();
     }
 
-    @Transactional
-    public void deleteComment(Long commentId, User requester) {
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new RuntimeException("Comment not found with id: " + commentId));
+    public void deleteComment(String commentId, User requester) {
+        CommentItem comment = commentRepository.findByCommentId(commentId)
+                .orElseThrow(() -> new RuntimeException("Comment not found: " + commentId));
 
-        boolean isAuthor = comment.getAuthor().getId().equals(requester.getId());
-        boolean isModerator = requester.getRole() == Role.MODERATOR;
+        boolean isAuthor = String.valueOf(requester.getId()).equals(comment.getAuthorId());
+        boolean isModerator = requester.getRole() == Role.MODERATOR || requester.getRole() == Role.ADMIN;
         if (!isAuthor && !isModerator) {
             throw new AccessDeniedException("You are not allowed to delete this comment");
         }
 
         commentRepository.delete(comment);
+        postRepository.updateCommentCount(comment.getPostId(), -1L);
     }
 
-    private Post getVisiblePostOrThrow(Long postId) {
-        Post post = postRepository.findById(postId)
+    private PostItem getVisiblePostOrThrow(Long postId) {
+        PostItem post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found with id: " + postId));
         if (!post.isVisible()) {
             throw new RuntimeException("Post not found with id: " + postId);

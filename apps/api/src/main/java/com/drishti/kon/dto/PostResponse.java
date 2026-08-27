@@ -1,6 +1,6 @@
 package com.drishti.kon.dto;
 
-import com.drishti.kon.entity.Post;
+import com.drishti.kon.dynamo.PostItem;
 import java.time.OffsetDateTime;
 import java.util.List;
 
@@ -25,37 +25,34 @@ public class PostResponse {
 
     public PostResponse() {}
 
-    public static PostResponse fromEntity(Post post, long upvoteCount, long commentCount, boolean hasUpvoted) {
-        PostResponse response = fromEntity(post);
-        response.setUpvoteCount(upvoteCount);
-        response.setCommentCount(commentCount);
-        response.setHasUpvoted(hasUpvoted);
-        return response;
+    public static PostResponse fromItem(PostItem item, boolean hasUpvoted) {
+        PostResponse r = new PostResponse();
+        r.setId(item.getPostId());
+        r.setTitle(item.getTitle());
+        r.setDescription(item.getDescription());
+        r.setContent(item.getContent());
+        r.setSlug(item.getSlug());
+        r.setCoverImageUrl(item.getCoverImageUrl());
+        r.setAuthorId(item.getAuthorId() != null ? Long.parseLong(item.getAuthorId()) : null);
+        r.setAuthorName(item.getAuthorDisplayName());
+        r.setVisible(item.isVisible());
+        r.setDraft(item.isDraft());
+        r.setExpiresAt(item.getExpiresAt() != null ? OffsetDateTime.parse(item.getExpiresAt()) : null);
+        r.setCreatedAt(item.getCreatedAt() != null ? OffsetDateTime.parse(item.getCreatedAt()) : null);
+        r.setTags(item.getTags() != null ? item.getTags() : List.of());
+        r.setUpvoteCount(item.getUpvoteCount() != null ? item.getUpvoteCount() : 0L);
+        r.setCommentCount(item.getCommentCount() != null ? item.getCommentCount() : 0L);
+        r.setHasUpvoted(hasUpvoted);
+        return r;
     }
 
-    public static PostResponse fromEntity(Post post) {
-        PostResponse response = new PostResponse();
-        response.setId(post.getId());
-        response.setTitle(post.getTitle());
-        response.setDescription(post.getDescription());
-        response.setContent(post.getContent());
-        response.setSlug(post.getSlug());
-        response.setCoverImageUrl(post.getCoverImageUrl());
-        response.setAuthorId(post.getAuthor().getId());
-        response.setAuthorName(post.getAuthor().getDisplayName());
-        response.setVisible(post.isVisible());
-        response.setDraft(post.isDraft());
-        response.setExpiresAt(post.getExpiresAt());
-        response.setCreatedAt(post.getCreatedAt());
-        response.setTags(
-                post.getPostTags().stream()
-                        .map(pt -> pt.getTag().getName())
-                        .toList()
-        );
-        return response;
+    /** Convenience overload — hasUpvoted defaults to false (used when no auth context). */
+    public static PostResponse fromItem(PostItem item) {
+        return fromItem(item, false);
     }
 
-    // Getters and Setters
+    // ── Getters & Setters ─────────────────────────────────────────────────────
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

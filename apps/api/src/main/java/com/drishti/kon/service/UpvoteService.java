@@ -1,14 +1,16 @@
 package com.drishti.kon.service;
 
 import com.drishti.kon.dto.ToggleUpvoteResponse;
-import com.drishti.kon.entity.Post;
-import com.drishti.kon.entity.Upvote;
+import com.drishti.kon.dynamo.PostItem;
+import com.drishti.kon.dynamo.UpvoteItem;
 import com.drishti.kon.entity.User;
 import com.drishti.kon.repository.PostRepository;
 import com.drishti.kon.repository.UpvoteRepository;
 import com.drishti.kon.repository.UserRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+
+import java.time.OffsetDateTime;
+import java.util.Optional;
 
 @Service
 public class UpvoteService {
@@ -25,33 +27,42 @@ public class UpvoteService {
         this.userRepository = userRepository;
     }
 
-    @Transactional
     public ToggleUpvoteResponse togglePostUpvote(Long postId, Long userId) {
-        Post post = postRepository.findById(postId)
+        PostItem post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found with id: " + postId));
 
         if (!post.isVisible()) {
             throw new RuntimeException("Post not found with id: " + postId);
         }
 
-        User user = userRepository.findById(userId)
+        // Verify user exists
+        userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
 
         boolean upvoted;
-        Upvote existingUpvote = upvoteRepository.findByPostIdAndUserId(postId, userId).orElse(null);
+        Optional<UpvoteItem> existingUpvote = upvoteRepository.findByPostIdAndUserId(postId, userId);
 
-        if (existingUpvote != null) {
-            upvoteRepository.delete(existingUpvote);
+        if (existingUpvote.isPresent()) {
+            upvoteRepository.delete(existingUpvote.get());
+            postRepository.updateUpvoteCount(postId, -1L);
             upvoted = false;
         } else {
-            Upvote upvote = new Upvote();
-            upvote.setPost(post);
-            upvote.setUser(user);
+            UpvoteItem upvote = new UpvoteItem();
+            upvote.setPostId(postId);
+            upvote.setUserId(userId);
+            upvote.setCreatedAt(OffsetDateTime.now().toString());
+            upvote.setPk(UpvoteItem.buildPk(postId));
+            upvote.setSk(UpvoteItem.buildSk(userId));
+            upvote.setGsi1Pk(UpvoteItem.buildGsi1Pk(userId));
+            upvote.setGsi1Sk(UpvoteItem.buildGsi1Sk(upvote.getCreatedAt()));
             upvoteRepository.save(upvote);
+            postRepository.updateUpvoteCount(postId, +1L);
             upvoted = true;
         }
 
-        long upvoteCount = upvoteRepository.countByPostId(postId);
+        // Return the current upvote count from the de-normalized field
+        PostItem refreshed = postRepository.findById(postId).orElse(post);
+        long upvoteCount = refreshed.getUpvoteCount() == null ? 0L : refreshed.getUpvoteCount();
         return new ToggleUpvoteResponse(upvoted, upvoteCount);
     }
 }

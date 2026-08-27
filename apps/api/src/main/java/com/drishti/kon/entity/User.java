@@ -1,47 +1,74 @@
 package com.drishti.kon.entity;
 
-import jakarta.persistence.*;
+import com.drishti.kon.dynamo.UserItem;
+
 import java.time.OffsetDateTime;
 
-@Entity
-@Table(name = "users")
+/**
+ * Application-level User model (plain Java class — no JPA annotations).
+ *
+ * This is the object placed in the Spring Security context and passed to
+ * controllers via {@code @CurrentUser}. It is populated from {@link UserItem}
+ * retrieved from DynamoDB.
+ */
 public class User {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(nullable = false, unique = true)
     private String email;
-
-    @Column(name = "display_name")
     private String displayName;
-
-    @Column(name = "reg_no")
     private String regNo;
-
-    @Column(name = "year_of_study")
     private Integer yearOfStudy;
-
-    @Column(columnDefinition = "TEXT")
     private String about;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
     private Role role = Role.STUDENT;
-
-    @Column(name = "is_banned", nullable = false)
     private boolean isBanned = false;
-
-    @Column(name = "created_at", updatable = false)
     private OffsetDateTime createdAt;
 
-    @PrePersist
-    protected void onCreate() {
-        createdAt = OffsetDateTime.now();
+    public User() {}
+
+    /**
+     * Converts a DynamoDB {@link UserItem} into the application User model.
+     */
+    public static User fromItem(UserItem item) {
+        User user = new User();
+        user.setId(item.getUserId());
+        user.setEmail(item.getEmail());
+        user.setDisplayName(item.getDisplayName());
+        user.setRegNo(item.getRegNo());
+        user.setYearOfStudy(item.getYearOfStudy());
+        user.setAbout(item.getAbout());
+        user.setRole(item.getRole() != null ? Role.valueOf(item.getRole()) : Role.STUDENT);
+        user.setBanned(item.isBanned());
+        if (item.getCreatedAt() != null) {
+            user.setCreatedAt(OffsetDateTime.parse(item.getCreatedAt()));
+        }
+        return user;
     }
 
-    // Getters and Setters
+    /**
+     * Converts this User into a {@link UserItem} for DynamoDB persistence.
+     */
+    public UserItem toItem() {
+        UserItem item = new UserItem();
+        item.setUserId(this.id);
+        item.setEmail(this.email != null ? this.email.toLowerCase() : null);
+        item.setDisplayName(this.displayName);
+        item.setRegNo(this.regNo);
+        item.setYearOfStudy(this.yearOfStudy);
+        item.setAbout(this.about);
+        item.setRole(this.role != null ? this.role.name() : Role.STUDENT.name());
+        item.setBanned(this.isBanned);
+        item.setPk(UserItem.buildPk(this.email));
+        item.setSk("METADATA");
+        item.setGsi1Pk(UserItem.buildGsi1Pk(this.id));
+        item.setGsi1Sk("METADATA");
+        if (this.createdAt != null) {
+            item.setCreatedAt(this.createdAt.toString());
+        }
+        return item;
+    }
+
+    // ── Getters / Setters ─────────────────────────────────────────────────────
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -67,4 +94,5 @@ public class User {
     public void setBanned(boolean banned) { isBanned = banned; }
 
     public OffsetDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(OffsetDateTime createdAt) { this.createdAt = createdAt; }
 }

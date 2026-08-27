@@ -50,10 +50,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (token != null && jwtUtil.isTokenValid(token)) {
             try {
                 String userId = jwtUtil.extractUserId(token);
-                User user = userRepository.findById(Long.parseLong(userId)).orElse(null);
+                // Look up user from DynamoDB by numeric userId (GSI1 query)
+                User user = userRepository.findById(Long.parseLong(userId))
+                        .map(User::fromItem)
+                        .orElse(null);
 
                 if (user != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                    // Reject banned users before setting authentication
                     if (user.isBanned()) {
                         response.setContentType("application/json");
                         response.setStatus(HttpServletResponse.SC_FORBIDDEN);

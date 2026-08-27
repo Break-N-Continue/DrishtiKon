@@ -2,124 +2,106 @@ package com.drishti.kon.service;
 
 import com.drishti.kon.dto.CreatePostRequest;
 import com.drishti.kon.dto.PostResponse;
-import com.drishti.kon.entity.*;
-import com.drishti.kon.repository.CommentRepository;
+import com.drishti.kon.dynamo.PostItem;
+import com.drishti.kon.dynamo.UserItem;
+import com.drishti.kon.entity.Role;
+import com.drishti.kon.entity.User;
 import com.drishti.kon.repository.PostRepository;
-import com.drishti.kon.repository.TagRepository;
-import com.drishti.kon.repository.UserRepository;
 import com.drishti.kon.repository.UpvoteRepository;
+import com.drishti.kon.repository.UserRepository;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 @Service
 public class PostService {
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
-    private final TagRepository tagRepository;
     private final UpvoteRepository upvoteRepository;
-    private final CommentRepository commentRepository;
 
     public PostService(PostRepository postRepository,
                        UserRepository userRepository,
-                       TagRepository tagRepository,
-                       UpvoteRepository upvoteRepository,
-                       CommentRepository commentRepository) {
+                       UpvoteRepository upvoteRepository) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
-        this.tagRepository = tagRepository;
         this.upvoteRepository = upvoteRepository;
-        this.commentRepository = commentRepository;
     }
 
-    @Transactional(readOnly = true)
     public List<PostResponse> getAllPosts(String sort) {
-        List<Post> posts;
+        List<PostItem> posts;
         if ("trending".equals(sort)) {
             posts = postRepository.findTop10ByUpvotes();
         } else {
-            posts = postRepository.findAllByIsVisibleTrueAndIsDraftFalseOrderByCreatedAtDesc();
+            posts = postRepository.findAllVisiblePublishedOrderByCreatedAtDesc();
         }
-
         User currentUser = getCurrentUser();
-        return posts.stream()
-                .map(post -> buildResponse(post, currentUser))
-                .toList();
+        return posts.stream().map(p -> buildResponse(p, currentUser)).toList();
     }
 
-    @Transactional(readOnly = true)
     public PostResponse getPostById(Long id) {
-        Post post = postRepository.findByIdAndIsVisibleTrueAndIsDraftFalse(id)
+        PostItem post = postRepository.findByIdVisibleAndPublished(id)
                 .orElseThrow(() -> new RuntimeException("Post not found with id: " + id));
-        User currentUser = getCurrentUser();
-        return buildResponse(post, currentUser);
+        return buildResponse(post, getCurrentUser());
     }
 
-    @Transactional(readOnly = true)
     public PostResponse getPostBySlug(String slug) {
-        Post post = postRepository.findBySlugAndIsVisibleTrueAndIsDraftFalse(slug)
+        PostItem post = postRepository.findBySlugVisibleAndPublished(slug)
                 .orElseThrow(() -> new RuntimeException("Post not found with slug: " + slug));
-        User currentUser = getCurrentUser();
-        return buildResponse(post, currentUser);
+        return buildResponse(post, getCurrentUser());
     }
 
-    @Transactional
     public PostResponse createPost(CreatePostRequest request, Long authorId) {
-        User author = userRepository.findById(authorId)
+        UserItem authorItem = userRepository.findById(authorId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+        User author = User.fromItem(authorItem);
 
         if (author.isBanned()) {
             throw new AccessDeniedException("Banned users cannot create posts");
         }
 
-        Post post = new Post();
+        String now = OffsetDateTime.now().toString();
+        PostItem post = new PostItem();
         post.setTitle(request.getTitle());
         post.setDescription(request.getDescription());
         post.setContent(resolveContent(request.getContent(), request.getDescription()));
-        post.setAuthor(author);
-        post.setExpiresAt(request.getExpiresAt());
-        post.setCoverImageUrl(request.getCoverImageUrl());
+        post.setAuthorId(String.valueOf(authorId));
+        post.setAuthorEmail(author.getEmail());
+        post.setAuthorDisplayName(author.getDisplayName());
         post.setDraft(Boolean.TRUE.equals(request.getIsDraft()));
-        post.setSlug(ensureUniqueSlug(resolveSlugSource(request.getSlug(), request.getTitle())));
+        post.setVisible(true);
+        post.setUpvoteCount(0L);
+        post.setCommentCount(0L);
+        post.setCreatedAt(now);
+        post.setCoverImageUrl(request.getCoverImageUrl());
+        post.setTags(normalizeTags(request.getTags()));
 
-        Post saved = postRepository.save(post);
-
-        List<String> normalizedTags = normalizeTags(request.getTags());
-        if (!normalizedTags.isEmpty()) {
-            applyTags(saved, normalizedTags);
-            saved = postRepository.save(saved);
-        } else if (request.getTagId() != null) {
-            if (author.getRole() != Role.MODERATOR && author.getRole() != Role.ADMIN) {
-                throw new AccessDeniedException("Only moderators can assign tags to posts");
-            }
-            Tag tag = tagRepository.findById(request.getTagId())
-                    .orElseThrow(() -> new RuntimeException("Tag not found with id: " + request.getTagId()));
-
-            PostTag postTag = new PostTag(saved, tag);
-            saved.getPostTags().add(postTag);
-            saved = postRepository.save(saved);
+        if (request.getExpiresAt() != null) {
+            post.setExpiresAt(request.getExpiresAt().toString());
+            post.setExpiresAtTtl(request.getExpiresAt().toEpochSecond()); // DynamoDB TTL
         }
 
+        String slug = ensureUniqueSlug(resolveSlugSource(request.getSlug(), request.getTitle()));
+        post.setSlug(slug);
+
+        PostItem saved = postRepository.save(post);
         return buildResponse(saved, author);
     }
 
-    @Transactional
     public void deletePost(Long id, User requester) {
-        Post post = postRepository.findById(id)
+        PostItem post = postRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Post not found with id: " + id));
-
         if (!post.isVisible()) {
             throw new RuntimeException("Post not found with id: " + id);
         }
 
-        boolean isAuthor = post.getAuthor().getId().equals(requester.getId());
+        boolean isAuthor = String.valueOf(requester.getId()).equals(post.getAuthorId());
         boolean isModerator = requester.getRole() == Role.MODERATOR || requester.getRole() == Role.ADMIN;
 
         if (!isAuthor && !isModerator) {
@@ -130,152 +112,102 @@ public class PostService {
         postRepository.save(post);
     }
 
-    private User getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
-            return null;
-        }
-        return (User) authentication.getPrincipal();
-    }
-
-    @Transactional
     public PostResponse makePermanent(Long id, User requester) {
-        Post post = postRepository.findById(id)
+        PostItem post = postRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Post not found with id: " + id));
-
         if (!post.isVisible()) {
             throw new RuntimeException("Post not found with id: " + id);
         }
 
-        boolean isAuthor = post.getAuthor().getId().equals(requester.getId());
+        boolean isAuthor = String.valueOf(requester.getId()).equals(post.getAuthorId());
         if (!isAuthor) {
             throw new AccessDeniedException("Only the post author can make a post permanent");
         }
 
-        if (post.getExpiresAt() != null && post.getExpiresAt().isBefore(OffsetDateTime.now())) {
-            throw new RuntimeException("Cannot make an expired post permanent");
+        if (post.getExpiresAt() != null) {
+            OffsetDateTime expiresAt = OffsetDateTime.parse(post.getExpiresAt());
+            if (expiresAt.isBefore(OffsetDateTime.now())) {
+                throw new RuntimeException("Cannot make an expired post permanent");
+            }
         }
 
         post.setExpiresAt(null);
-        Post saved = postRepository.save(post);
+        post.setExpiresAtTtl(null); // Remove TTL so DynamoDB won't delete it
+        PostItem saved = postRepository.save(post);
         return buildResponse(saved, requester);
     }
 
-    @Transactional(readOnly = true)
     public List<PostResponse> getPostsByUserId(Long userId) {
         if (!userRepository.existsById(userId)) {
             throw new RuntimeException("User not found with id: " + userId);
         }
-        return postRepository.findByAuthorIdAndIsVisibleTrueAndIsDraftFalseOrderByCreatedAtDesc(userId)
+        return postRepository.findByAuthorIdVisiblePublishedOrderByCreatedAtDesc(userId)
                 .stream()
-            .map(post -> buildResponse(post, null))
+                .map(p -> buildResponse(p, null))
                 .toList();
     }
 
-    @Transactional
     public PostResponse addTagToPost(Long postId, Long tagId, User requester) {
         boolean isModerator = requester.getRole() == Role.MODERATOR || requester.getRole() == Role.ADMIN;
         if (!isModerator) {
             throw new AccessDeniedException("Only moderators can assign tags to posts");
         }
-
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("Post not found with id: " + postId));
-
-        if (!post.isVisible()) {
-            throw new RuntimeException("Post not found with id: " + postId);
-        }
-
-        Tag tag = tagRepository.findById(tagId)
-                .orElseThrow(() -> new RuntimeException("Tag not found with id: " + tagId));
-
-        boolean alreadyTagged = post.getPostTags().stream()
-                .anyMatch(pt -> pt.getTag().getId().equals(tagId));
-        if (alreadyTagged) {
-            throw new RuntimeException("Post already has this tag");
-        }
-
-        PostTag postTag = new PostTag(post, tag);
-        post.getPostTags().add(postTag);
-        Post saved = postRepository.save(post);
-        return buildResponse(saved, requester);
+        // In DynamoDB, tags are just strings in a list on the post — no separate Tag entity
+        throw new UnsupportedOperationException(
+                "Use the 'tags' field in the post creation request instead. " +
+                "Tag IDs are not used in the DynamoDB model; pass tag names as strings.");
     }
 
-    private PostResponse buildResponse(Post post, User currentUser) {
-        long upvoteCount = upvoteRepository.countByPostId(post.getId());
-        long commentCount = commentRepository.countByPostId(post.getId());
-        boolean hasUpvoted = currentUser != null
-                && upvoteRepository.existsByPostIdAndUserId(post.getId(), currentUser.getId());
-        return PostResponse.fromEntity(post, upvoteCount, commentCount, hasUpvoted);
+    // ── Private helpers ───────────────────────────────────────────────────────
+
+    private User getCurrentUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal())) {
+            return null;
+        }
+        return (User) auth.getPrincipal();
+    }
+
+    private PostResponse buildResponse(PostItem post, User currentUser) {
+        boolean hasUpvoted = currentUser != null &&
+                upvoteRepository.existsByPostIdAndUserId(post.getPostId(), currentUser.getId());
+        return PostResponse.fromItem(post, hasUpvoted);
     }
 
     private String resolveContent(String content, String description) {
-        if (content == null || content.isBlank()) {
-            return description;
-        }
-        return content;
+        return (content == null || content.isBlank()) ? description : content;
     }
 
     private String resolveSlugSource(String slug, String title) {
-        if (slug != null && !slug.isBlank()) {
-            return slug;
-        }
-        return title;
+        return (slug != null && !slug.isBlank()) ? slug : title;
     }
 
     private String ensureUniqueSlug(String source) {
-        String baseSlug = slugify(source);
-        if (!postRepository.existsBySlug(baseSlug)) {
-            return baseSlug;
-        }
+        String base = slugify(source);
+        if (!postRepository.existsBySlug(base)) return base;
         int suffix = 2;
-        String candidate = baseSlug;
+        String candidate = base;
         while (postRepository.existsBySlug(candidate)) {
-            candidate = baseSlug + "-" + suffix;
-            suffix++;
+            candidate = base + "-" + suffix++;
         }
         return candidate;
     }
 
     private String slugify(String value) {
-        if (value == null) {
-            return "post";
-        }
+        if (value == null) return "post";
         String slug = value.toLowerCase(Locale.ROOT)
                 .replaceAll("[^a-z0-9]+", "-")
                 .replaceAll("(^-|-$)", "");
-        if (slug.isBlank()) {
-            return "post";
-        }
+        if (slug.isBlank()) return "post";
         return slug.length() > 240 ? slug.substring(0, 240) : slug;
     }
 
     private List<String> normalizeTags(List<String> tags) {
-        if (tags == null) {
-            return List.of();
-        }
+        if (tags == null) return List.of();
         return tags.stream()
-                .filter(tag -> tag != null && !tag.isBlank())
-                .map(tag -> tag.trim())
+                .filter(t -> t != null && !t.isBlank())
+                .map(String::trim)
                 .distinct()
                 .toList();
-    }
-
-    private void applyTags(Post post, List<String> tags) {
-        for (String tagName : tags) {
-            Tag tag = tagRepository.findByNameIgnoreCase(tagName)
-                    .orElseGet(() -> tagRepository.save(createTag(tagName)));
-            boolean alreadyTagged = post.getPostTags().stream()
-                    .anyMatch(pt -> pt.getTag().getId().equals(tag.getId()));
-            if (!alreadyTagged) {
-                post.getPostTags().add(new PostTag(post, tag));
-            }
-        }
-    }
-
-    private Tag createTag(String tagName) {
-        Tag tag = new Tag();
-        tag.setName(tagName);
-        return tag;
     }
 }

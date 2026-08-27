@@ -1,10 +1,13 @@
 package com.drishti.kon.dto;
 
-import com.drishti.kon.entity.Tag;
-
+/**
+ * Tag response DTO.
+ * In DynamoDB, tags are plain strings — there is no numeric ID.
+ * The id field is kept for API compatibility but will be null.
+ */
 public class TagResponse {
 
-    private Long id;
+    private Long id;    // null in DynamoDB model (no separate Tag entity)
     private String name;
 
     public TagResponse() {}
@@ -12,10 +15,6 @@ public class TagResponse {
     public TagResponse(Long id, String name) {
         this.id = id;
         this.name = name;
-    }
-
-    public static TagResponse fromEntity(Tag tag) {
-        return new TagResponse(tag.getId(), tag.getName());
     }
 
     public Long getId() { return id; }

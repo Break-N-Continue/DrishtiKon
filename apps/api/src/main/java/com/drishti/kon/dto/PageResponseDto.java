@@ -1,49 +1,31 @@
 package com.drishti.kon.dto;
 
-import org.springframework.data.domain.Page;
-
 import java.util.List;
 
+/**
+ * Simple list wrapper for paginated responses.
+ *
+ * Spring Data Page<T> has been removed (no JPA). Pagination is returned as a
+ * plain list. DynamoDB-style cursor-based pagination can be added when needed
+ * using LastEvaluatedKey tokens.
+ */
 public class PageResponseDto<T> {
 
     private List<T> items;
-    private int page;
-    private int size;
-    private long totalElements;
-    private int totalPages;
-    private boolean hasNext;
-    private boolean hasPrevious;
+    private int totalElements;
 
-    public static <T> PageResponseDto<T> fromPage(Page<T> pageData) {
+    public PageResponseDto() {}
+
+    public static <T> PageResponseDto<T> fromList(List<T> items) {
         PageResponseDto<T> dto = new PageResponseDto<>();
-        dto.setItems(pageData.getContent());
-        dto.setPage(pageData.getNumber());
-        dto.setSize(pageData.getSize());
-        dto.setTotalElements(pageData.getTotalElements());
-        dto.setTotalPages(pageData.getTotalPages());
-        dto.setHasNext(pageData.hasNext());
-        dto.setHasPrevious(pageData.hasPrevious());
+        dto.setItems(items);
+        dto.setTotalElements(items.size());
         return dto;
     }
 
     public List<T> getItems() { return items; }
     public void setItems(List<T> items) { this.items = items; }
 
-    public int getPage() { return page; }
-    public void setPage(int page) { this.page = page; }
-
-    public int getSize() { return size; }
-    public void setSize(int size) { this.size = size; }
-
-    public long getTotalElements() { return totalElements; }
-    public void setTotalElements(long totalElements) { this.totalElements = totalElements; }
-
-    public int getTotalPages() { return totalPages; }
-    public void setTotalPages(int totalPages) { this.totalPages = totalPages; }
-
-    public boolean isHasNext() { return hasNext; }
-    public void setHasNext(boolean hasNext) { this.hasNext = hasNext; }
-
-    public boolean isHasPrevious() { return hasPrevious; }
-    public void setHasPrevious(boolean hasPrevious) { this.hasPrevious = hasPrevious; }
+    public int getTotalElements() { return totalElements; }
+    public void setTotalElements(int totalElements) { this.totalElements = totalElements; }
 }

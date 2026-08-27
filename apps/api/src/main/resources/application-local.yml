@@ -1,12 +1,14 @@
-# Local development profile
+# Local development profile — uses DynamoDB Local running in Docker
 spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/drishti_kon
-    username: drishti
-    password: password
-
   jpa:
-    show-sql: true
+    auto-configure: false  # No JPA at all
+
+dynamodb:
+  endpoint: ${DYNAMODB_ENDPOINT:http://localhost:8000}
+  table-name: DrishtiKon-Main
+
+aws:
+  region: ap-south-1
 
 logging:
   level:

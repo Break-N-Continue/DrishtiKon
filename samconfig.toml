@@ -1,0 +1,15 @@
+version = 0.1
+
+[default.deploy.parameters]
+stack_name = "drishti-kon"
+resolve_s3 = true
+s3_prefix = "drishti-kon"
+region = "ap-south-1"
+confirm_changeset = false
+capabilities = "CAPABILITY_IAM"
+disable_rollback = false
+parameter_overrides = "JwtSecret=\"aHRlckV4YW1wbGVKd3RTZWNyZXRLZXlGb3JEcmlzaHRpS29uCg==\" SesSmtpHost=\"email-smtp.eu-north-1.amazonaws.com\" SesSmtpPort=\"465\" SesSmtpUsername=\"AKIAQBA26YLYPK4THE6L\" SesSmtpPassword=\"L8E/Eysnmg++yHQJ2N3U+3ipi2QtYP2TUNq61PmVoBv\" MailFromEmail=\"no-reply@break-n-continue.live\" FrontendUrl=\"https://break-n-continue.live\""
+image_repositories = []
+
+[default.global.parameters]
+region = "ap-south-1"
