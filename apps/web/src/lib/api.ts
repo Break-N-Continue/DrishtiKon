@@ -30,7 +30,10 @@ export type {
 export type { UserProfile, ProfileUpdateRequest } from "@/hooks/profile/types";
 
 const api = axios.create({
-  baseURL: "/api",
+  // In production (Cloudflare Pages), NEXT_PUBLIC_API_URL points to the AWS
+  // Lambda HTTP API Gateway. Locally, falls back to /api which Next.js proxies
+  // to localhost:8080 via the rewrite in next.config.js.
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "/api",
   headers: { "Content-Type": "application/json" },
   withCredentials: true,
 });
