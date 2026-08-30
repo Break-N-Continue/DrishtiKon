@@ -1,0 +1,6 @@
+# Cloudflare Pages rewrites for Next.js static export dynamic routes.
+# Status 200 = rewrite (serve the shell without changing the browser URL).
+# Next.js only generates /posts/_/ at build time, so we rewrite all /posts/*
+# requests to that shell. The client-side router then reads the real slug from
+# the URL and fetches the correct post.
+/posts/*  /posts/_/  200
