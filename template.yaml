@@ -129,7 +129,12 @@ Resources:
           - DELETE
           - OPTIONS
         AllowHeaders:
-          - "*"
+          - "Content-Type"
+          - "Authorization"
+          - "Accept"
+          - "Origin"
+          - "X-Requested-With"
+          - "Cookie"
         AllowCredentials: true
         MaxAge: 3600
 
