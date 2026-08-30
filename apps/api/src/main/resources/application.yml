@@ -12,17 +12,7 @@ spring:
   # JPA / DataSource / Flyway REMOVED.
   # All data access is via software.amazon.awssdk:dynamodb-enhanced.
 
-  mail:
-    host: ${SES_SMTP_HOST:email-smtp.eu-north-1.amazonaws.com}
-    port: ${SES_SMTP_PORT:465}
-    username: ${SES_SMTP_USERNAME}
-    password: ${SES_SMTP_PASSWORD}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          ssl:
-            enable: true
+  # Email sending disabled — OTP stored in DynamoDB only
 
 aws:
   region: ${AWS_REGION:ap-south-1}
@@ -42,8 +32,6 @@ app:
     allowed-domain: aitpune.edu.in
     frontend-url: ${FRONTEND_URL:http://localhost:3000}
     additional-origins: ${ADDITIONAL_ORIGINS:}
-  mail:
-    from-email: ${MAIL_FROM_EMAIL:no-reply@break-n-continue.live}
 
 logging:
   level:

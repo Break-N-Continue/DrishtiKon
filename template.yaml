@@ -26,25 +26,9 @@ Parameters:
     Type: String
     NoEcho: true
     Description: Base64 or random secret string for JWT token generation
-  SesSmtpHost:
-    Type: String
-    Default: email-smtp.ap-south-1.amazonaws.com
-  SesSmtpPort:
-    Type: Number
-    Default: 465
-  SesSmtpUsername:
-    Type: String
-    Description: AWS SES SMTP username
-  SesSmtpPassword:
-    Type: String
-    NoEcho: true
-    Description: AWS SES SMTP password
-  MailFromEmail:
-    Type: String
-    Default: no-reply@break-n-continue.live
   FrontendUrl:
     Type: String
-    Default: https://drishti-kon.pages.dev
+    Default: https://break-n-continue.live
 
 # ────────────────────────────────────────────────────────────────────────────
 # Resources
@@ -114,21 +98,9 @@ Resources:
         # Full CRUD on the DynamoDB table
         - DynamoDBCrudPolicy:
             TableName: !Ref DrishtiKonTable
-        # Allow sending emails via SES
-        - Statement:
-            - Effect: Allow
-              Action:
-                - ses:SendEmail
-                - ses:SendRawEmail
-              Resource: "*"
       Environment:
         Variables:
           JWT_SECRET: !Ref JwtSecret
-          SES_SMTP_HOST: !Ref SesSmtpHost
-          SES_SMTP_PORT: !Ref SesSmtpPort
-          SES_SMTP_USERNAME: !Ref SesSmtpUsername
-          SES_SMTP_PASSWORD: !Ref SesSmtpPassword
-          MAIL_FROM_EMAIL: !Ref MailFromEmail
           FRONTEND_URL: !Ref FrontendUrl
           ADDITIONAL_ORIGINS: ""
       Events:

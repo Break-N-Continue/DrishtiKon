@@ -51,11 +51,7 @@
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
-        <!-- Email via AWS SES SMTP -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-mail</artifactId>
-        </dependency>
+        <!-- Email sending disabled — OTP saved to DynamoDB instead -->
 
         <!-- JWT (jjwt) -->
         <dependency>
