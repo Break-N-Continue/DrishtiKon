@@ -86,12 +86,14 @@ public class AuthController {
                 String token = jwtUtil.generateToken(user);
 
                 boolean isSecure = frontendUrl.startsWith("https");
+                // SameSite=None required for cross-origin cookie (frontend ≠ API domain).
+                // SameSite=None mandates Secure=true — already ensured by isSecure.
                 ResponseCookie cookie = ResponseCookie.from("drishti_token", token)
                         .httpOnly(true)
                         .secure(isSecure)
                         .path("/")
                         .maxAge(Duration.ofMillis(jwtExpirationMs))
-                        .sameSite("Lax")
+                        .sameSite("None")
                         .build();
                 httpResponse.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
@@ -151,7 +153,7 @@ public class AuthController {
                 .secure(isSecure)
                 .path("/")
                 .maxAge(0)
-                .sameSite("Lax")
+                .sameSite("None")
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
         return ResponseEntity.ok(Map.of("message", "Logged out successfully"));
