@@ -30,12 +30,7 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('apps/api/pom.xml') }}
           restore-keys: ${{ runner.os }}-maven-
 
-      # ── 4. Build the fat JAR (skip tests for speed; tests run on PR) ───────
-      - name: Build Spring Boot JAR
-        working-directory: apps/api
-        run: ./mvnw clean package -DskipTests --no-transfer-progress
-
-      # ── 5. Configure AWS credentials ───────────────────────────────────────
+      # ── 4. Configure AWS credentials ───────────────────────────────────────
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:

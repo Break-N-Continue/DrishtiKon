@@ -90,8 +90,8 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: DrishtiKon-API
-      # JAR-based deployment (simpler than container image for initial setup)
-      CodeUri: ./apps/api/target/kon-api-0.1.0.jar
+      # Source directory — SAM locates pom.xml here and runs `mvn package` during `sam build`
+      CodeUri: ./apps/api
       Handler: com.drishti.kon.StreamLambdaHandler::handleRequest
       Description: DrishtiKon Spring Boot API — served via AWS Lambda + SnapStart
       Policies:
