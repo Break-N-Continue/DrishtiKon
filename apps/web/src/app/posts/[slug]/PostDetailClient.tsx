@@ -1,26 +1,26 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import MarkdownRenderer from "@/components/posts/MarkdownRenderer";
 import { getPostBySlug, type Post } from "@/lib/api";
 
 interface PostDetailClientProps {
-  slug?: string; // kept for API compat but ignored — useParams() is source of truth
+  slug?: string; // ignored — usePathname() is the source of truth
 }
 
 export default function PostDetailClient(_props: PostDetailClientProps) {
-  const params = useParams();
-  // useParams() reads from the real browser URL, not the static build's "_" placeholder
-  const slug = (params?.slug as string) ?? "";
+  const pathname = usePathname(); // always reflects the real browser URL
+  // Extract slug: "/posts/my-post-slug" → "my-post-slug"
+  const slug = pathname.split("/").filter(Boolean).pop() ?? "";
 
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!slug || slug === "_") return; // skip placeholder slug from static build
+    if (!slug) return;
     let isActive = true;
     const loadPost = async () => {
       try {
